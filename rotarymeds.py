@@ -10,7 +10,7 @@ import socket #used for hostname
 import traceback
 import subprocess
 
-version = "1.0.6"
+version = "1.0.7"
 
 googleHostForInternetCheck = "8.8.8.8"
 
