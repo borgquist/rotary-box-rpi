@@ -12,8 +12,8 @@ sudo chmod 755 rotarystart.sh
 echo "file permissions set"
 
 echo "starting restbutton.py"
-nohup /usr/bin/python3 resetbutton.py &
+/usr/bin/python3 resetbutton.py &
 
 echo "starting rotarymeds.py"
-nohup /usr/bin/python3 rotarymeds.py &
+/usr/bin/python3 rotarymeds.py &
 echo "rotarystart.sh complete"
