@@ -4,4 +4,4 @@ git reset --hard HEAD
 git clean -xffd
 git pull
 sudo chmod 644 *.service
-sudo 755 gitpull.sh
+sudo chmod 755 gitpull.sh
