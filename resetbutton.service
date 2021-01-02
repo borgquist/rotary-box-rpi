@@ -1,6 +1,5 @@
 [Unit]
 Description=ResetButtonService
-After=gitpull.service
 
 [Service]
 Type=simple
