@@ -1,0 +1,11 @@
+[Unit]
+Description=ResetButtonService
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/bin/python3 /home/pi/shared/rotary-box-rpi/resetbutton.py
+
+
+[Install]
+WantedBy=multi-user.target
