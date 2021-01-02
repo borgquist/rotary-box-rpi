@@ -1,0 +1,10 @@
+[Unit]
+Description=RotaryMedsService
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/bin/python3 /home/pi/shared/rotarymeds.py >>/home/pi/shared/log_rotarymeds_service.log 2>&1
+
+[Install]
+WantedBy=multi-user.target
