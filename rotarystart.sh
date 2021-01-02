@@ -8,7 +8,7 @@ git clean -xffd
 git pull
 echo "git pull complete"
 sudo chmod 644 *.service
-sudo chmod 755 gitpull.sh
+sudo chmod 755 rotarystart.sh
 echo "file permissions set"
 
 echo "starting restbutton.py"
