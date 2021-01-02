@@ -1,11 +1,11 @@
 [Unit]
 Description=RotaryMedsService
+After=gitpull.service
 
 [Service]
 Type=simple
 User=pi
 ExecStart=/usr/bin/python3 /home/pi/shared/rotary-box-rpi/rotarymeds.py
-After=gitpull.service
 
 [Install]
 WantedBy=multi-user.target
