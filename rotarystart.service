@@ -1,12 +1,12 @@
 [Unit]
-Description=GitPullService
+Description=RotaryStartService
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
 User=pi
-ExecStart=/home/pi/shared/rotary-box-rpi/gitpull.sh
+ExecStart=/home/pi/shared/rotary-box-rpi/rotarystart.sh
 
 [Install]
 WantedBy=multi-user.target

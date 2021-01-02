@@ -10,10 +10,8 @@ echo "git pull complete"
 sudo chmod 644 *.service
 sudo chmod 755 rotarystart.sh
 echo "file permissions set"
-
 echo "starting restbutton.py"
 /usr/bin/python3 resetbutton.py &
-
 echo "starting rotarymeds.py"
 /usr/bin/python3 rotarymeds.py &
 echo "rotarystart.sh complete"
