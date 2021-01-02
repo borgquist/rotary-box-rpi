@@ -1,6 +1,6 @@
 [Unit]
 Description=RotaryMedsService
-Requires=gitpull.service
+Wants=network-online.target
 
 [Service]
 Type=simple

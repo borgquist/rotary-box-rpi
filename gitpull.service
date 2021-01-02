@@ -1,6 +1,5 @@
 [Unit]
 Description=GitPullService
-After=network-online.target
 Wants=network-online.target
 
 [Service]
