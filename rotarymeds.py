@@ -10,6 +10,8 @@ import socket #used for hostname
 import traceback
 import subprocess
 
+version = "1.0.1"
+
 googleHostForInternetCheck = "8.8.8.8"
 
 def getserial():
@@ -39,7 +41,7 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
         logging.StreamHandler()
     ])
 
-version = "1.0.0"
+
 logging.info("Version is " + version)
 
 
