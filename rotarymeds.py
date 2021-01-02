@@ -64,8 +64,8 @@ def haveInternet():
 
 
 while(not haveInternet()):
-    logging.info("internet is not available, sleeping five seconds")
-    time.sleep(5)
+    logging.info("internet is not available, sleeping 1 second")
+    time.sleep(1)
     
 logging.info("have internet connectivity")
 
