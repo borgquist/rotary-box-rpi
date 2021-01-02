@@ -1,6 +1,5 @@
 [Unit]
 Description=RotaryMedsService
-Wants=network-online.target
 
 [Service]
 Type=simple
