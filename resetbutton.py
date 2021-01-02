@@ -77,7 +77,7 @@ def thread_internet_connectivity(name):
                     logging.warning("internet is not available, outage count: " + str(internetOutCount))
                     
                 timestampLastInternetNotOk = time.time()
-                flashButtonLed(0.3,10,True)
+                flashButtonLed(0.3,10,False)
             else:
                 if(timestampInternetOK < timestampLastInternetNotOk):
                     logging.info("there is internet again, outage count: " + str(internetOutCount))
