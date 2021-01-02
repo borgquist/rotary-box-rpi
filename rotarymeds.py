@@ -10,7 +10,7 @@ import socket #used for hostname
 import traceback
 import subprocess
 
-version = "1.0.7"
+version = "1.0.8"
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -552,9 +552,8 @@ if __name__=='__main__':
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         
-        testIP = "8.8.8.8"
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect((testIP, 0))
+        s.connect((googleHostForInternetCheck, 0))
         ipaddr = s.getsockname()[0]
         host = socket.gethostname()
         setFirebaseValue("ip-address", ipaddr, True)
