@@ -1,0 +1,10 @@
+[Unit]
+Description=GitPullService
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/home/pi/shared/rotary-box-rpi/gitpull.sh
+
+[Install]
+WantedBy=multi-user.target
