@@ -1,6 +1,6 @@
 [Unit]
 Description=RotaryMedsService
-After=gitpull.service
+Requires=gitpull.service
 
 [Service]
 Type=simple
