@@ -407,18 +407,22 @@ def getNextMoveOuter():
         
 def stream_handler(message):
     try:
-        if message["path"] == "/scheduleInner":
-            newVal = database.child("box").child("boxes").child(cpuserial).child("scheduleInner").get().val()
+        if message["path"] == "/schedule":
+            newVal = database.child("box").child("boxes").child(cpuserial).child("schedule").get().val()
             logging.info("firebase: scheduleInner has new value: " + str(newVal))
-        if message["path"] == "/scheduleOuter":
-            newVal = database.child("box").child("boxes").child(cpuserial).child("scheduleOuter").get().val()
-            logging.info("firebase: scheduleOuter has new value: " + str(newVal))
         if message["path"] == "/buttonLedOn":
             newVal = database.child("box").child("boxes").child(cpuserial).child("buttonLedOn").get().val()
             logging.info("firebase: buttonLedOn has new value: " + str(newVal))
-        if message["path"] == "/latest_version":
-            newVal = database.child("box").child("boxes").child(cpuserial).child("buttonLedOn").get().val()
-            logging.info("firebase: latest_version has new value: " + str(newVal))
+        if message["path"] == "/moveNowInner":
+            newVal = database.child("box").child("boxes").child(cpuserial).child("moveNowInner").get().val()
+            logging.info("firebase: moveNowInner has new value: " + str(newVal))
+        if message["path"] == "/moveNowOuter":
+            newVal = database.child("box").child("boxes").child(cpuserial).child("moveNowOuter").get().val()
+            logging.info("firebase: moveNowOuter has new value: " + str(newVal))
+            if(bool(newVal)):
+                logging.info("we should move outer now")
+                setFirebaseValue("moveNowOuter", False, True)
+                move_stepper_outer()
     except Exception:
         logging.error("exception in stream_handler " +  traceback.format_exc())
      
@@ -610,7 +614,7 @@ if __name__=='__main__':
         logging.info("Main    : time thread stared")
         
         my_stream = database.child("box").child("boxes").child(cpuserial).stream(stream_handler)
-
+        
         moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
         moveThreadInner.start()
         logging.info("Main    : thread_move_inner stared")
