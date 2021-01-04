@@ -414,9 +414,6 @@ def stream_handler(message):
         if message["path"] == "/buttonLedOn":
             newVal = database.child("box").child("boxes").child(cpuserial).child("buttonLedOn").get().val()
             logging.info("firebase: buttonLedOn has new value: " + str(newVal))
-        if message["path"] == "/moveNowInner":
-            newVal = database.child("box").child("boxes").child(cpuserial).child("moveNowInner").get().val()
-            logging.info("firebase: moveNowInner has new value: " + str(newVal))
         if message["path"] == "/moveNowOuter":
             newVal = database.child("box").child("boxes").child(cpuserial).child("moveNowOuter").get().val()
             logging.info("firebase: moveNowOuter has new value: " + str(newVal))
