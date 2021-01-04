@@ -125,7 +125,7 @@ moveAfterTriggerInner = stepSettings["inner"]["afterTrigger"]
 moveAfterTriggerOuter = stepSettings["outer"]["afterTrigger"]
 
 defaultSchedule = {"inner":[{"day": ["everyday"],"hour":17,"minute":0}],"outer":[{"day": ["everyday"],"hour":18,"minute":0}]}
-schedule = loadFirebaseValue('schedule', defaultSchedules)
+schedule = loadFirebaseValue('schedule', defaultSchedule)
 
 scheduleOuter = schedule["outer"]
 scheduleInner = schedule["inner"]
