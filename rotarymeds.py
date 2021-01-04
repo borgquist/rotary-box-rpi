@@ -105,6 +105,20 @@ def loadFirebaseValue(settingname, defaultValue):
     logging.info(settingname + " value is " + str(returnVal))
     return returnVal
 
+def getLatestBoxVersionAvailable():
+    latestVersion = database.child("rotary").child("box_current_version").get()
+    if latestVersion.val() is None:
+        logging.warning("couldn't get box_current_version")
+        return "unknown"
+    
+    logging.info("box_current_version is: " + str(latestVersion.val()))
+    return str(latestVersion.val())
+
+latestVersionAvailable = getLatestBoxVersionAvailable()
+if(version is not latestVersionAvailable):
+    logging.warning("we're not on the latest version currently on [", version, "] server has [", latestVersionAvailable,"]")
+else:
+    logging.info("we on the latest version ours is [", version, "] and server has [", latestVersionAvailable,"]")
 
 defaultMoveSetting = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {"minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
 moveSettings = loadFirebaseValue('moveSettings', defaultMoveSetting)
@@ -391,6 +405,9 @@ def stream_handler(message):
             newVal = database.child("rotary").child(cpuserial).child("scheduleOuter").get().val()
             logging.info("firebase: scheduleOuter has new value: " + str(newVal))
         if message["path"] == "/buttonLedOn":
+            newVal = database.child("rotary").child(cpuserial).child("buttonLedOn").get().val()
+            logging.info("firebase: buttonLedOn has new value: " + str(newVal))
+        if message["path"] == "/box_current_version":
             newVal = database.child("rotary").child(cpuserial).child("buttonLedOn").get().val()
             logging.info("firebase: buttonLedOn has new value: " + str(newVal))
     except Exception:
