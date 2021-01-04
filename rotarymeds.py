@@ -412,9 +412,9 @@ def getNextMoveOuter():
         
 def stream_handler(message):
     try:
-        if message["path"] == "/schedule":
+        if message["path"].startswith("/schedule"):
             newVal = database.child("box").child("boxes").child(cpuserial).child("schedule").get().val()
-            logging.info("firebase: scheduleInner has new value: " + str(newVal))
+            logging.info("firebase: schedule has new value: " + str(newVal))
         if message["path"] == "/setButtonLed":
             newVal = database.child("box").child("boxes").child(cpuserial).child("setButtonLed").get().val()
             logging.info("firebase: setButtonLed has new value: " + str(newVal))
