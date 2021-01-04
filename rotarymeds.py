@@ -115,18 +115,20 @@ def getLatestBoxVersionAvailable():
     return str(latestVersion.val())
 
 
-defaultMoveSetting = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {"minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
-moveSettings = loadFirebaseValue('moveSettings', defaultMoveSetting)
-maxMoveInner = moveSettings["inner"]["maxMove"]
-maxMoveOuter = moveSettings["outer"]["maxMove"]
-minMoveInner = moveSettings["inner"]["minMove"]
-minMoveOuter = moveSettings["outer"]["minMove"]
-moveAfterTriggerInner = moveSettings["inner"]["afterTrigger"]
-moveAfterTriggerOuter = moveSettings["outer"]["afterTrigger"]
+defaultStepSettings = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {"minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
+stepSettings = loadFirebaseValue('stepSettings', defaultStepSettings)
+maxMoveInner = stepSettings["inner"]["maxMove"]
+maxMoveOuter = stepSettings["outer"]["maxMove"]
+minMoveInner = stepSettings["inner"]["minMove"]
+minMoveOuter = stepSettings["outer"]["minMove"]
+moveAfterTriggerInner = stepSettings["inner"]["afterTrigger"]
+moveAfterTriggerOuter = stepSettings["outer"]["afterTrigger"]
 
-defaultSchedule = [{"day": ["everyday"],"hour":7,"minute":0}]
-scheduleOuter = loadFirebaseValue('scheduleOuter', defaultSchedule)
-scheduleInner = loadFirebaseValue('scheduleInner', defaultSchedule)
+defaultSchedule = {"inner":[{"day": ["everyday"],"hour":17,"minute":0}],"outer":[{"day": ["everyday"],"hour":18,"minute":0}]}
+schedule = loadFirebaseValue('schedule', defaultSchedules)
+
+scheduleOuter = schedule["outer"]
+scheduleInner = schedule["inner"]
 
 isInnerDayForEveryOther = loadFirebaseValue("isInnerDayForEveryOther", False)
 
