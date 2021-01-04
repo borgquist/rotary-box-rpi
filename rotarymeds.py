@@ -10,7 +10,7 @@ import socket #used for hostname
 import traceback
 import subprocess
 
-version = "1.0.11"
+version = "1.0.12"
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -114,11 +114,6 @@ def getLatestBoxVersionAvailable():
     logging.info("box_latest_version is: " + str(latestVersion.val()))
     return str(latestVersion.val())
 
-latestVersionAvailable = getLatestBoxVersionAvailable()
-if(version is not latestVersionAvailable):
-    logging.warning("we're not on the latest version currently on [" + version + "] box_latest_version is [" + latestVersionAvailable + "]")
-else:
-    logging.info("we on the latest version ours is [" + version + "] box_latest_version is [" + latestVersionAvailable + "]")
 
 defaultMoveSetting = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {"minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
 moveSettings = loadFirebaseValue('moveSettings', defaultMoveSetting)
@@ -407,9 +402,9 @@ def stream_handler(message):
         if message["path"] == "/buttonLedOn":
             newVal = database.child("rotary").child(cpuserial).child("buttonLedOn").get().val()
             logging.info("firebase: buttonLedOn has new value: " + str(newVal))
-        if message["path"] == "/box_current_version":
+        if message["path"] == "/box_latest_version":
             newVal = database.child("rotary").child(cpuserial).child("buttonLedOn").get().val()
-            logging.info("firebase: buttonLedOn has new value: " + str(newVal))
+            logging.info("firebase: box_latest_version has new value: " + str(newVal))
     except Exception:
         logging.error("exception in stream_handler " +  traceback.format_exc())
      
@@ -575,6 +570,16 @@ if __name__=='__main__':
         setFirebaseValue("hostname", host, True)
         setFirebaseValue("version", version, True)
 
+        latestVersionAvailable = getLatestBoxVersionAvailable()
+        if(version is not latestVersionAvailable):
+            if(latestVersionAvailable == "unknown"):
+                logging.error("unable to get box_latest_version from firebase")
+            else:
+                logging.warning("we're not on the latest version currently on [" + version + "] box_latest_version is [" + latestVersionAvailable + "]")
+        else:
+            logging.info("we on the latest version ours is [" + version + "] box_latest_version is [" + latestVersionAvailable + "]")
+
+        
         logging.info("next move today of inner is " + str(getNextMoveInner()))
         logging.info("next move today of outer is " + str(getNextMoveOuter()))
         
