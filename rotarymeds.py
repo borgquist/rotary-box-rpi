@@ -420,9 +420,16 @@ def stream_handler(message):
             newVal = database.child("box").child("boxes").child(cpuserial).child("moveNowOuter").get().val()
             logging.info("firebase: moveNowOuter has new value: " + str(newVal))
             if(bool(newVal)):
-                logging.info("we should move outer now")
+                logging.info("we should move outer now, setting moveNowOuter to false before moving to avoid multiple triggers")
                 setFirebaseValue("moveNowOuter", False, True)
                 move_stepper_outer()
+        if message["path"] == "/moveNowInner":
+            newVal = database.child("box").child("boxes").child(cpuserial).child("moveNowInner").get().val()
+            logging.info("firebase: moveNowInner has new value: " + str(newVal))
+            if(bool(newVal)):
+                logging.info("we should move outer now, setting moveNowInner to false before moving to avoid multiple triggers")
+                setFirebaseValue("moveNowInner", False, True)
+                move_stepper_inner()
     except Exception:
         logging.error("exception in stream_handler " +  traceback.format_exc())
      
