@@ -571,7 +571,7 @@ if __name__=='__main__':
         setFirebaseValue("version", version, True)
 
         latestVersionAvailable = getLatestBoxVersionAvailable()
-        if(version is not latestVersionAvailable):
+        if(version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
                 logging.error("unable to get box_latest_version from firebase")
             else:
