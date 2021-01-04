@@ -276,7 +276,7 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
     
     GPIO.output(chan_list, arrOff)
     
-    setButtonLedOn(False)
+    setButtonLedOn(True)
     GPIO.output(whiteLedPin,GPIO.HIGH)
                 
     releaseBothMotors()
@@ -413,8 +413,6 @@ def thread_time(name):
             if(now.hour == 23 and now.minute == 59):
                 logging.info("thread_time    : Nightly job before midnight")
                 
-                setButtonLedOn(False)
-                
                 rotateStateInnerDayForEveryOther()
                 logging.info("thread_time    :have rotateStateInnerDayForEveryOther")
                 time.sleep(70)
@@ -504,7 +502,7 @@ def thread_button(name):
                     timeButtonPressSecondMostRecent = timeButtonPressMostRecent
                     timeButtonPressMostRecent = timestampNow
                     
-                    if  timeButtonPressMostRecent - timeButtonPressSecondMostRecent < 1: # within one second
+                    if  timeButtonPressMostRecent - timeButtonPressSecondMostRecent < 2: # double click
                         logging.info("thread_button    : button pressed two times, move!")
                         move_stepper_inner()
                         move_stepper_outer()
