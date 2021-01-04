@@ -295,7 +295,7 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
     }
     
     #TODO move to setting method at start
-    database.child("box").child("boxes").child(cpuserial).child("latestMove").child(rotaryName).set(latestMove)
+    database.child("box").child("boxes").child(cpuserial).child("latestMove").set(latestMove)
     
     GPIO.output(chan_list, arrOff)
     
