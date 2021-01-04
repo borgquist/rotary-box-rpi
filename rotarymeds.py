@@ -575,9 +575,9 @@ if __name__=='__main__':
             if(latestVersionAvailable == "unknown"):
                 logging.error("unable to get box_latest_version from firebase")
             else:
-                logging.warning("we're not on the latest version currently on [" + version + "] box_latest_version is [" + latestVersionAvailable + "]")
+                logging.warning("our version [" + version + "] box_latest_version [" + latestVersionAvailable + "]")
         else:
-            logging.info("we on the latest version ours is [" + version + "] box_latest_version is [" + latestVersionAvailable + "]")
+            logging.info("OK our version [" + version + "] box_latest_version [" + latestVersionAvailable + "]")
 
         
         logging.info("next move today of inner is " + str(getNextMoveInner()))
