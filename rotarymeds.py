@@ -281,6 +281,7 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
     
     logMessage = rotaryName + " totalStepsDone [" + str(stepsDone) + "] stopMoving [" + str(stopMoving) + "] stepsDoneWhenIRtrigger [" + str(stepsDoneWhenIRtrigger) + "] stepsDoneAfterIRtrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "] minimumMove [" + str(minimumMove) + "] maximumMove [" + str(maximumMove) + "]"
     logging.info("move    : " + logMessage)
+    now = datetime.datetime.now()
     
     
     latestMove = {
@@ -290,6 +291,7 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
         "stepsDoneAfterIRtrigger": stepsDone - stepsDoneWhenIRtrigger,
         "minimumMove": minimumMove,
         "maximumMove": maximumMove,
+        "timestamp": now,
     }
     
     #TODO move to setting method at start
