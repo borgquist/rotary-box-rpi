@@ -10,7 +10,7 @@ import socket #used for hostname
 import traceback
 import subprocess
 
-version = "1.0.10"
+version = "1.0.11"
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -106,19 +106,19 @@ def loadFirebaseValue(settingname, defaultValue):
     return returnVal
 
 def getLatestBoxVersionAvailable():
-    latestVersion = database.child("rotary").child("box_current_version").get()
+    latestVersion = database.child("rotary").child("box_latest_version").get()
     if latestVersion.val() is None:
-        logging.warning("couldn't get box_current_version")
+        logging.warning("couldn't get box_latest_version")
         return "unknown"
     
-    logging.info("box_current_version is: " + str(latestVersion.val()))
+    logging.info("box_latest_version is: " + str(latestVersion.val()))
     return str(latestVersion.val())
 
 latestVersionAvailable = getLatestBoxVersionAvailable()
 if(version is not latestVersionAvailable):
-    logging.warning("we're not on the latest version currently on [", version, "] server has [", latestVersionAvailable,"]")
+    logging.warning("we're not on the latest version currently on [" + version + "] box_latest_version is [" + latestVersionAvailable + "]")
 else:
-    logging.info("we on the latest version ours is [", version, "] and server has [", latestVersionAvailable,"]")
+    logging.info("we on the latest version ours is [" + version + "] box_latest_version is [" + latestVersionAvailable + "]")
 
 defaultMoveSetting = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {"minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
 moveSettings = loadFirebaseValue('moveSettings', defaultMoveSetting)
