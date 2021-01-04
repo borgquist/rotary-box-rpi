@@ -133,6 +133,8 @@ scheduleInner = schedule["inner"]
 isInnerDayForEveryOther = loadFirebaseValue("isInnerDayForEveryOther", False)
 setFirebaseValue("moveNowInner", False, True)
 setFirebaseValue("moveNowOuter", False, True)
+setFirebaseValue("setButtonLed", False, True)
+
 GPIO.setmode(GPIO.BCM)
 
 exitapp = False
