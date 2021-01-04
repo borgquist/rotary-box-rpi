@@ -10,7 +10,7 @@ import socket #used for hostname
 import traceback
 import subprocess
 
-version = "1.0.15"
+version = "1.0.16"
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -97,7 +97,7 @@ def setFirebaseValue(settingname, newValue, doLogging):
         if(doLogging):
             logging.info("updated [" + settingname + "] from [" +str(currentValue.val()) +"] to[" + str(newValue) + "]")
 
-def loadFirebaseValue(settingname, defaultValue):
+def getFirebaseValue(settingname, defaultValue):
     settingValue = database.child("box").child("boxes").child(cpuserial).child(settingname).get()
     if settingValue.val() is None:
         setFirebaseValue(settingname, defaultValue, True)
@@ -115,8 +115,10 @@ def getLatestBoxVersionAvailable():
     return str(latestVersion.val())
 
 
+    
+    
 defaultStepSettings = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {"minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
-stepSettings = loadFirebaseValue('stepSettings', defaultStepSettings)
+stepSettings = getFirebaseValue('stepSettings', defaultStepSettings)
 maxMoveInner = stepSettings["inner"]["maxMove"]
 maxMoveOuter = stepSettings["outer"]["maxMove"]
 minMoveInner = stepSettings["inner"]["minMove"]
@@ -125,12 +127,19 @@ moveAfterTriggerInner = stepSettings["inner"]["afterTrigger"]
 moveAfterTriggerOuter = stepSettings["outer"]["afterTrigger"]
 
 defaultSchedule = {"inner":[{"day": ["everyday"],"hour":17,"minute":0}],"outer":[{"day": ["everyday"],"hour":18,"minute":0}]}
-schedule = loadFirebaseValue('schedule', defaultSchedule)
+schedule = getFirebaseValue('schedule', defaultSchedule)
 
 scheduleOuter = schedule["outer"]
 scheduleInner = schedule["inner"]
 
-isInnerDayForEveryOther = loadFirebaseValue("isInnerDayForEveryOther", False)
+def getLatestScheduleFromFirebase():
+    global scheduleInner
+    global scheduleOuter
+    schedule = getFirebaseValue('schedule', defaultSchedule)
+    scheduleOuter = schedule["outer"]
+    scheduleInner = schedule["inner"]
+
+isInnerDayForEveryOther = getFirebaseValue("isInnerDayForEveryOther", False)
 setFirebaseValue("moveNowInner", False, True)
 setFirebaseValue("moveNowOuter", False, True)
 setFirebaseValue("setButtonLed", False, True)
@@ -415,6 +424,7 @@ def stream_handler(message):
         if message["path"].startswith("/schedule"):
             newVal = database.child("box").child("boxes").child(cpuserial).child("schedule").get().val()
             logging.info("firebase: schedule has new value: " + str(newVal))
+            getLatestScheduleFromFirebase()
         if message["path"] == "/setButtonLed":
             newVal = database.child("box").child("boxes").child(cpuserial).child("setButtonLed").get().val()
             logging.info("firebase: setButtonLed has new value: " + str(newVal))
