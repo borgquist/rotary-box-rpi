@@ -284,18 +284,16 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
     
     
     latestMove = {
-        rotaryName: {
-            "totalStepsDone": stepsDone, 
-            "stopMoving": stopMoving, 
-            "stepsDoneWhenIRtrigger": stepsDoneWhenIRtrigger,
-            "stepsDoneAfterIRtrigger": stepsDone - stepsDoneWhenIRtrigger,
-            "minimumMove": minimumMove,
-            "maximumMove": maximumMove,
-        }
+        "totalStepsDone": stepsDone, 
+        "stopMoving": stopMoving, 
+        "stepsDoneWhenIRtrigger": stepsDoneWhenIRtrigger,
+        "stepsDoneAfterIRtrigger": stepsDone - stepsDoneWhenIRtrigger,
+        "minimumMove": minimumMove,
+        "maximumMove": maximumMove,
     }
     
     #TODO move to setting method at start
-    database.child("box").child("boxes").child(cpuserial).child("latestMove").set(latestMove)
+    database.child("box").child("boxes").child(cpuserial).child("latestMove").child(rotaryName).set(latestMove)
     
     GPIO.output(chan_list, arrOff)
     
