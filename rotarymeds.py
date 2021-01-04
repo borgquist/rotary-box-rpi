@@ -10,7 +10,7 @@ import socket #used for hostname
 import traceback
 import subprocess
 
-version = "1.0.14"
+version = "1.0.15"
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -91,27 +91,27 @@ firebase = pyrebase.initialize_app(config)
 database = firebase.database()
 
 def setFirebaseValue(settingname, newValue, doLogging):
-    currentValue = database.child("rotary").child(cpuserial).child(settingname).get()
+    currentValue = database.child("box").child("boxes").child(cpuserial).child(settingname).get()
     if(currentValue.val() != newValue):
-        database.child("rotary").child(cpuserial).child(settingname).set(newValue)
+        database.child("box").child("boxes").child(cpuserial).child(settingname).set(newValue)
         if(doLogging):
             logging.info("updated [" + settingname + "] from [" +str(currentValue.val()) +"] to[" + str(newValue) + "]")
 
 def loadFirebaseValue(settingname, defaultValue):
-    settingValue = database.child("rotary").child(cpuserial).child(settingname).get()
+    settingValue = database.child("box").child("boxes").child(cpuserial).child(settingname).get()
     if settingValue.val() is None:
         setFirebaseValue(settingname, defaultValue, True)
-    returnVal = database.child("rotary").child(cpuserial).child(settingname).get().val()
+    returnVal = database.child("box").child("boxes").child(cpuserial).child(settingname).get().val()
     logging.info(settingname + " value is " + str(returnVal))
     return returnVal
 
 def getLatestBoxVersionAvailable():
-    latestVersion = database.child("rotary").child("box_latest_version").get()
+    latestVersion = database.child("box").child("latest_version").get()
     if latestVersion.val() is None:
-        logging.warning("couldn't get box_latest_version")
+        logging.warning("couldn't get latest_version")
         return "unknown"
     
-    logging.info("box_latest_version is: " + str(latestVersion.val()))
+    logging.info("latest_version is: " + str(latestVersion.val()))
     return str(latestVersion.val())
 
 
@@ -279,8 +279,9 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
     
     logMessage = rotaryName + " totalStepsDone [" + str(stepsDone) + "] stopMoving [" + str(stopMoving) + "] stepsDoneWhenIRtrigger [" + str(stepsDoneWhenIRtrigger) + "] stepsDoneAfterIRtrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "] minimumMove [" + str(minimumMove) + "] maximumMove [" + str(maximumMove) + "]"
     logging.info("move    : " + logMessage)
-        
-    database.child("rotary").child(cpuserial).child(rotaryName).set(logMessage)
+    
+    #TODO move to setting method at start
+    database.child("box").child("boxes").child(cpuserial).child(rotaryName).set(logMessage)
         
     
     GPIO.output(chan_list, arrOff)
@@ -394,17 +395,17 @@ def getNextMoveOuter():
 def stream_handler(message):
     try:
         if message["path"] == "/scheduleInner":
-            newVal = database.child("rotary").child(cpuserial).child("scheduleInner").get().val()
+            newVal = database.child("box").child("boxes").child(cpuserial).child("scheduleInner").get().val()
             logging.info("firebase: scheduleInner has new value: " + str(newVal))
         if message["path"] == "/scheduleOuter":
-            newVal = database.child("rotary").child(cpuserial).child("scheduleOuter").get().val()
+            newVal = database.child("box").child("boxes").child(cpuserial).child("scheduleOuter").get().val()
             logging.info("firebase: scheduleOuter has new value: " + str(newVal))
         if message["path"] == "/buttonLedOn":
-            newVal = database.child("rotary").child(cpuserial).child("buttonLedOn").get().val()
+            newVal = database.child("box").child("boxes").child(cpuserial).child("buttonLedOn").get().val()
             logging.info("firebase: buttonLedOn has new value: " + str(newVal))
-        if message["path"] == "/box_latest_version":
-            newVal = database.child("rotary").child(cpuserial).child("buttonLedOn").get().val()
-            logging.info("firebase: box_latest_version has new value: " + str(newVal))
+        if message["path"] == "/latest_version":
+            newVal = database.child("box").child("boxes").child(cpuserial).child("buttonLedOn").get().val()
+            logging.info("firebase: latest_version has new value: " + str(newVal))
     except Exception:
         logging.error("exception in stream_handler " +  traceback.format_exc())
      
@@ -573,11 +574,11 @@ if __name__=='__main__':
         latestVersionAvailable = getLatestBoxVersionAvailable()
         if(version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
-                logging.error("unable to get box_latest_version from firebase")
+                logging.error("unable to get latest_version from firebase")
             else:
-                logging.warning("our version [" + version + "] box_latest_version [" + latestVersionAvailable + "]")
+                logging.warning("our version [" + version + "] latest_version [" + latestVersionAvailable + "]")
         else:
-            logging.info("OK our version [" + version + "] box_latest_version [" + latestVersionAvailable + "]")
+            logging.info("OK our version [" + version + "] latest_version [" + latestVersionAvailable + "]")
 
         
         logging.info("next move today of inner is " + str(getNextMoveInner()))
@@ -595,7 +596,7 @@ if __name__=='__main__':
         timeThread.start()
         logging.info("Main    : time thread stared")
         
-        my_stream = database.child("rotary").child(cpuserial).stream(stream_handler)
+        my_stream = database.child("box").child("boxes").child(cpuserial).stream(stream_handler)
 
         moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
         moveThreadInner.start()
