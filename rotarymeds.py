@@ -411,9 +411,14 @@ def stream_handler(message):
         if message["path"] == "/schedule":
             newVal = database.child("box").child("boxes").child(cpuserial).child("schedule").get().val()
             logging.info("firebase: scheduleInner has new value: " + str(newVal))
-        if message["path"] == "/buttonLedOn":
-            newVal = database.child("box").child("boxes").child(cpuserial).child("buttonLedOn").get().val()
-            logging.info("firebase: buttonLedOn has new value: " + str(newVal))
+        if message["path"] == "/setButtonLed":
+            newVal = database.child("box").child("boxes").child(cpuserial).child("setButtonLed").get().val()
+            logging.info("firebase: setButtonLed has new value: " + str(newVal))
+            if(newVal == "on"):
+                setButtonLedOn(True)
+            if(newVal == "off"):
+                setButtonLedOn(False)
+            setFirebaseValue("setButtonLed", False, True)
         if message["path"] == "/moveNowOuter":
             newVal = database.child("box").child("boxes").child(cpuserial).child("moveNowOuter").get().val()
             logging.info("firebase: moveNowOuter has new value: " + str(newVal))
