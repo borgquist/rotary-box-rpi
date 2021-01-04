@@ -303,8 +303,7 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
     GPIO.output(chan_list, arrOff)
     
     setButtonLedOn(True)
-    GPIO.output(whiteLedPin,GPIO.HIGH)
-                
+               
     releaseBothMotors()
     logging.info(" ")
 
@@ -315,13 +314,16 @@ def setButtonLedOn(setToOn):
         logging.info("setButtonLedOn    : turning ON the buttonLed")
         buttonLedIsOn = True
         GPIO.output(buttonLedPin,GPIO.HIGH)
+        GPIO.output(whiteLedPin,GPIO.HIGH)
         setFirebaseValue("buttonLedOn", True, True)
         
     else:
         logging.info("setButtonLedOn    : turning OFF the buttonLed")
         buttonLedIsOn = False
         GPIO.output(buttonLedPin,GPIO.LOW)
+        GPIO.output(whiteLedPin,GPIO.LOW)
         setFirebaseValue("buttonLedOn", False, True)
+        
         
     
 def getWeekday(datetime):
@@ -533,7 +535,6 @@ def thread_button(name):
                 
                 if(timeButtonNotPressed > timeButtonPressMostRecent):
                     logging.info("thread_button    : buttonPin button was pushed!")
-                    GPIO.output(whiteLedPin,GPIO.LOW)
                     
                     if(buttonLedIsOn):
                         setButtonLedOn(False)
