@@ -291,7 +291,7 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
         "stepsDoneAfterIRtrigger": stepsDone - stepsDoneWhenIRtrigger,
         "minimumMove": minimumMove,
         "maximumMove": maximumMove,
-        "timestamp": now,
+        "timestamp": now.strftime('%Y-%m-%d %H:%M:%S'),
     }
     
     #TODO move to setting method at start
