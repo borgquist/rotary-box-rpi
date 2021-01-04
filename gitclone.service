@@ -1,12 +1,12 @@
 [Unit]
-Description=GitPullService
+Description=GitCloneService
 Wants=network-online.target
 After=network-online.target
 
 [Service]
 Type=simple
 User=pi
-ExecStart=/home/pi/shared/rotary-box-rpi/gitpull.sh
+ExecStart=/home/pi/shared/gitclone.sh
 
 [Install]
 WantedBy=multi-user.target
