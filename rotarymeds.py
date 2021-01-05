@@ -139,7 +139,6 @@ def getLatestScheduleFromFirebase():
     scheduleOuter = schedule["outer"]
     scheduleInner = schedule["inner"]
 
-isInnerDayForEveryOther = getFirebaseValue("isInnerDayForEveryOther", False)
 setFirebaseValue("moveNowInner", False, True)
 setFirebaseValue("moveNowOuter", False, True)
 setFirebaseValue("setButtonLed", False, True)
@@ -175,16 +174,6 @@ for pin in chan_list_stepper_outer:
     GPIO.setup(pin,GPIO.OUT)
     
 
-def rotateStateInnerDayForEveryOther():
-    global isInnerDayForEveryOther
-
-    newValue = not isInnerDayForEveryOther
-    isInnerDayForEveryOther = newValue
-    setFirebaseValue("isInnerDayForEveryOther", newValue, True)
-    
-    logging.info("rotateState : isInnerDayForEveryOther is set to " + str(isInnerDayForEveryOther))
-    
-    
 moveIsBeingDone = False   
 def move_stepper_inner():
     global moveIsBeingDone
@@ -363,9 +352,8 @@ def getNextMoveInner():
         for dayInRecord in scheduledMove['day']:
             
             isTodayMoveDay = False
-            if(dayInRecord == "everyOtherDay" and isInnerDayForEveryOther):
-                isTodayMoveDay = True
-            elif(dayInRecord == todayWeekday):
+
+            if(dayInRecord == todayWeekday):
                 isTodayMoveDay = True
             elif(dayInRecord == "everyday"):
                 isTodayMoveDay = True
@@ -396,9 +384,8 @@ def getNextMoveOuter():
         for dayInRecord in scheduledMove['day']:
             
             isTodayMoveDay = False
-            if(dayInRecord == "everyOtherDay" and isInnerDayForEveryOther == False):
-                isTodayMoveDay = True
-            elif(dayInRecord == todayWeekday):
+
+            if(dayInRecord == todayWeekday):
                 isTodayMoveDay = True
             elif(dayInRecord == "everyday"):
                 isTodayMoveDay = True
@@ -457,26 +444,29 @@ def thread_time(name):
 
     while not exitapp:
         try:
-            time.sleep(1)
+            time.sleep(5)
             now = datetime.datetime.now()
             timestampNow = time.time()
+            
+            internetWasLost = False
+            while(not haveInternet():
+                internetWasLost = True
+                logging.info("internet is not available, sleeping 1 second")
+                time.sleep(1)
+            
+            if(internetWasLost):
+                logging.info("internet is back, resetting the stream to firebase")
+                setupStreamToFirebase()
+            
             if(timestampNow - lastTimeStampUpdate > 60):
                 setFirebaseValue("timestamp", now.strftime('%Y-%m-%d %H:%M:%S'), True)
                 lastTimeStampUpdate = timestampNow
             
-            if(now.hour == 23 and now.minute == 59):
-                logging.info("thread_time    : Nightly job before midnight")
-                
-                rotateStateInnerDayForEveryOther()
-                logging.info("thread_time    :have rotateStateInnerDayForEveryOther")
-                time.sleep(70)
-                logging.info("thread_time    : done sleeping")
+
         except Exception as err:
             logging.error("exception " +  traceback.format_exc())
         
     logging.info("thread_time    : exiting")    
-
-
 
 def thread_move_inner(name):
     lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
@@ -594,7 +584,11 @@ def thread_ir_sensor(name):
         
     logging.info("thread_ir_sensor    : exiting")    
     
-     
+def setupStreamToFirebase():
+    logging.info("setting up the stream to firebase")
+    my_stream = database.child("box").child("boxes").child(cpuserial).stream(stream_handler)
+    logging.info("done setting up the stream to firebase")
+        
 if __name__=='__main__':
    
     try:
@@ -636,7 +630,7 @@ if __name__=='__main__':
         timeThread.start()
         logging.info("Main    : time thread stared")
         
-        my_stream = database.child("box").child("boxes").child(cpuserial).stream(stream_handler)
+        setupStreamToFirebase()
         
         moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
         moveThreadInner.start()
