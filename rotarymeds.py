@@ -580,8 +580,10 @@ def thread_ir_sensor(name):
             logging.error("exception " +  traceback.format_exc())
         
     logging.info("thread_ir_sensor    : exiting")    
-    
+
+my_stream = ""
 def setupStreamToFirebase():
+    global my_stream
     logging.info("setting up the stream to firebase")
     my_stream = database.child("box").child("boxes").child(cpuserial).stream(stream_handler)
     logging.info("done setting up the stream to firebase")
@@ -657,6 +659,7 @@ if __name__=='__main__':
         setButtonLedOn(False)
         exitapp = True
         GPIO.cleanup()
+        logging
         my_stream.close()
         time.sleep(1) # give the threads time to shut down before removing GPIO
         logging.info("Main    : Shutdown complete")
