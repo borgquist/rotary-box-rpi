@@ -1,4 +1,3 @@
-
 import RPi.GPIO as GPIO
 import datetime 
 import time
@@ -10,7 +9,7 @@ import socket #used for hostname
 import traceback
 import subprocess
 
-version = "1.0.16"
+version = "1.0.17"
 
 googleHostForInternetCheck = "8.8.8.8"
 
