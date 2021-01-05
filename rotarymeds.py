@@ -321,8 +321,6 @@ def setButtonLedOn(setToOn):
         GPIO.output(buttonLedPin,GPIO.LOW)
         GPIO.output(whiteLedPin,GPIO.LOW)
         setFirebaseValue("buttonLedOn", False, True)
-        
-        
     
 def getWeekday(datetime):
     if datetime.weekday() == 0:
@@ -406,6 +404,7 @@ def getNextMoveOuter():
     return nextMove
         
         
+#TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
 def stream_handler(message):
     try:
         if message["path"].startswith("/schedule"):
@@ -437,7 +436,6 @@ def stream_handler(message):
     except Exception:
         logging.error("exception in stream_handler " +  traceback.format_exc())
      
-
 # turn off led at midnight
 def thread_time(name):
     lastTimeStampUpdate = 0    
@@ -457,6 +455,7 @@ def thread_time(name):
             if(internetWasLost):
                 logging.info("internet is back, resetting the stream to firebase")
                 setupStreamToFirebase()
+
             
             if(timestampNow - lastTimeStampUpdate > 60):
                 setFirebaseValue("timestamp", now.strftime('%Y-%m-%d %H:%M:%S'), True)
@@ -492,7 +491,6 @@ def thread_move_inner(name):
         time.sleep(3)
         
     logging.info("thread_move_inner    :   exiting")   
-
 
 def thread_move_outer(name):
     lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
