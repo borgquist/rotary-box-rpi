@@ -449,7 +449,7 @@ def thread_time(name):
             timestampNow = time.time()
             
             internetWasLost = False
-            while(not haveInternet():
+            while(not haveInternet()):
                 internetWasLost = True
                 logging.info("internet is not available, sleeping 1 second")
                 time.sleep(1)
