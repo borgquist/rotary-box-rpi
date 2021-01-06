@@ -1,4 +1,16 @@
+import logging
+folderPath = '/home/pi/shared/'
+os.makedirs(folderPath + "logs/", exist_ok=True)
+logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+                    datefmt='%Y-%m-%d:%H:%M:%S',
+                    level=logging.INFO,
+                    handlers=[
+                        logging.FileHandler(
+                            folderPath + "logs/rotarymeds.log"),
+                        logging.StreamHandler()
+                    ])
 logging.info("starting rotarymeds.py")
+
 from typing import List
 import RPi.GPIO as GPIO
 import datetime
@@ -6,7 +18,7 @@ import time
 import threading
 import json
 import os
-import logging
+
 import socket  # used for hostname
 import traceback
 import subprocess
@@ -43,16 +55,7 @@ def getserial():
 
 cpuserial = getserial()
 
-folderPath = '/home/pi/shared/'
-os.makedirs(folderPath + "logs/", exist_ok=True)
-logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-                    datefmt='%Y-%m-%d:%H:%M:%S',
-                    level=logging.INFO,
-                    handlers=[
-                        logging.FileHandler(
-                            folderPath + "logs/rotarymeds.log"),
-                        logging.StreamHandler()
-                    ])
+
 
 
 logging.info("Loading pyrebase")
