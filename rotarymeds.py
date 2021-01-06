@@ -1,4 +1,14 @@
+import os
 import logging
+from typing import List
+import RPi.GPIO as GPIO
+import datetime
+import time
+import threading
+import json
+import socket  # used for hostname
+import traceback
+import subprocess
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
 logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
@@ -11,17 +21,6 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                     ])
 logging.info("starting rotarymeds.py")
 
-from typing import List
-import RPi.GPIO as GPIO
-import datetime
-import time
-import threading
-import json
-import os
-
-import socket  # used for hostname
-import traceback
-import subprocess
 
 logging.info("importing other files")
 from boxsettings import FirebaseBoxSettings
