@@ -1,3 +1,4 @@
+logging.info("starting rotarymeds.py")
 from typing import List
 import RPi.GPIO as GPIO
 import datetime
@@ -10,6 +11,7 @@ import socket  # used for hostname
 import traceback
 import subprocess
 
+logging.info("importing other files")
 from boxsettings import FirebaseBoxSettings
 from boxstate import FirebaseBoxState
 
@@ -17,6 +19,7 @@ from boxstate import FirebaseBoxState
 boxSettings = FirebaseBoxSettings()
 boxState = FirebaseBoxState()
 boxState.version = "1.0.17"
+logging.info("version is " + boxState.version)
 
 #logging.info("Version is " + boxState.version)
 
