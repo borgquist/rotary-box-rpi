@@ -56,7 +56,7 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
 
 
 
-logging.info("CPU serial is [" + boxState.cpuId + "]")
+logging.info("CPU serial is [" + str(boxState.cpuId) + "]")
 configFileName = 'config.json'
 configFilePath = folderPath + configFileName
 
