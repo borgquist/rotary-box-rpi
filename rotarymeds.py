@@ -400,6 +400,7 @@ def getNextMoveInner():
 
 def getNextMoveOuter():
     global scheduleOuter
+    global nextMoveOuter
 
     todayWeekday = getWeekday(datetime.datetime.today())
 
@@ -428,9 +429,14 @@ def getNextMoveOuter():
                     nextMove = possibleNextMove
                     logging.info(
                         "getNextMoveOuter    :  setting nextMove to " + str(nextMove))
+    if(str(nextMove) != str(nextMoveOuter)):
+        logging.info("nextMoveOuter has changed, old [" + str(
+            nextMoveOuter) + "] new [" + str(nextMove) + "] updating Firebase")
+        setFirebaseValue("nextMoveOuter", str(nextMove).strip())
+        nextMoveOuter = nextMove
 
-    setFirebaseValue("nextMoveOuter", str(nextMove).strip())
     return nextMove
+
 
 
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
