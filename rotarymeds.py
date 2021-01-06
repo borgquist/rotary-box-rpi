@@ -332,8 +332,8 @@ def getNextMoveInner():
                 elif(possibleNextMove < nextMove):
                     nextMove = possibleNextMove
                     logging.info("getNextMoveInner    :  setting nextMove to " + str(nextMove))
-    if(nextMove != nextMoveInner):
-        logging.info("nextMoveInner has changed, old [" + nextMoveInner + "] new [" + nextMove + "] updating Firebase" )
+    if(str(nextMove) != str(nextMoveInner)):
+        logging.info("nextMoveInner has changed, old [" + str(nextMoveInner) + "] new [" + str(nextMove) + "] updating Firebase" )
         setFirebaseValue("nextMoveInner", str(nextMove).strip())
         nextInnerMove = nextMove
     
