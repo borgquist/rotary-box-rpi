@@ -163,12 +163,27 @@ schedule = getFirebaseValue('schedule', defaultSchedule)
 scheduleOuter = schedule["outer"]
 scheduleInner = schedule["inner"]
 
+boxSettings = FirebaseBoxSettings()
+boxState = FirebaseBoxState()
+
 def getLatestScheduleFromFirebase():
     global scheduleInner
     global scheduleOuter
     schedule = getFirebaseValue('schedule', defaultSchedule)
     scheduleOuter = schedule["outer"]
     scheduleInner = schedule["inner"]
+
+    boxSettings.innerStepper.afterTrigger = stepSettings["inner"]["afterTrigger"]
+    boxSettings.innerStepper.maxMove = stepSettings["inner"]["maxMove"]
+    boxSettings.innerStepper.minMove = stepSettings["inner"]["minMove"]
+
+    boxSettings.outerStepper.afterTrigger = stepSettings["outer"]["afterTrigger"]
+    boxSettings.outerStepper.maxMove = stepSettings["outer"]["maxMove"]
+    boxSettings.outerStepper.minMove = stepSettings["outer"]["minMove"]
+
+    boxSettings.innerSchedule = scheduleInner
+    print(boxSettings)
+getLatestScheduleFromFirebase()
 
 setFirebaseValue("moveNowInner", False)
 setFirebaseValue("moveNowOuter", False)
