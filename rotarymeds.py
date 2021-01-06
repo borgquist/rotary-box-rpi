@@ -203,43 +203,6 @@ def releaseBothMotors():
     GPIO.output(chan_list_stepper_outer, arrOff)
     GPIO.output(chan_list_stepper_inner, arrOff)
     
-# this is a todo part 
-def initiateRotariesToStartingPosition():
-    global arr1 # enables the edit of arr1 var inside a function
-    global arr2 # enables the edit of arr2 var inside a function
-    
-    def oneStep(chan_list):
-        global arr1 
-        global arr2
-        arrOUT = arr1[3:]+arr1[:3] # rotates array values of 1 digi
-        arr1 = arr2
-        arr2 = arrOUT
-        GPIO.output(chan_list, arrOUT)
-        time.sleep(delay)
-        
-
-    while GPIO.input(irSensorPin) == GPIO.LOW:
-        logging.info("initiateRotaries: it's white")
-    
-        for x in range(100):
-            if GPIO.input(irSensorPin) == GPIO.LOW:
-                oneStep(chan_list_stepper_inner)
-            else:
-                for y in range(moveAfterTriggerInner):
-                    oneStep(chan_list_stepper_inner)
-                break
-                    
-            
-        for x in range(100):
-            if GPIO.input(irSensorPin) == GPIO.LOW:
-                oneStep(chan_list_stepper_outer)
-            else:
-                for y in range(moveAfterTriggerOuter):
-                    oneStep(chan_list_stepper_outer)
-                break
-                    
-    logging.info("initiateRotaries: it's no longer white")
-
 stopMoving = False
 def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
     global stopMoving
@@ -601,7 +564,7 @@ if __name__=='__main__':
         s.connect((googleHostForInternetCheck, 0))
         ipaddr = s.getsockname()[0]
         host = socket.gethostname()
-        setFirebaseValue("ip-address", ipaddr, True)
+        setFirebaseValue("ipAddress", ipaddr, True)
         setFirebaseValue("hostname", host, True)
         setFirebaseValue("version", version, True)
 
