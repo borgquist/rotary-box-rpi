@@ -182,7 +182,10 @@ def getLatestScheduleFromFirebase():
     boxSettings.outerStepper.minMove = stepSettings["outer"]["minMove"]
 
     boxSettings.innerSchedule = scheduleInner
-    print(boxSettings)
+    logging.info("boxSettings:" + str(boxSettings))
+    logging.info("boxSettings.outerStepper:" + str(boxSettings.outerStepper))
+    logging.info("boxSettings.outerStepper.afterTrigger:" + str(boxSettings.outerStepper.afterTrigger))
+    logging.info("boxSettings.innerSchedule:" + str(boxSettings.innerSchedule))
 getLatestScheduleFromFirebase()
 
 setFirebaseValue("moveNowInner", False)
