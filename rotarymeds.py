@@ -13,6 +13,7 @@ import subprocess
 from boxsettings import FirebaseBoxSettings
 from boxstate import FirebaseBoxState
 
+print("starting")
 
 boxSettings = FirebaseBoxSettings()
 boxState = FirebaseBoxState()
@@ -39,7 +40,7 @@ def getserial():
 
 
 boxState.cpuId = getserial()
-
+print(str(boxState.cpuId))
 
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
