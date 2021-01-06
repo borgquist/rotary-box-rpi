@@ -19,7 +19,7 @@ boxSettings = FirebaseBoxSettings()
 boxState = FirebaseBoxState()
 boxState.version = "1.0.17"
 
-logging.info("Version is " + boxState.version)
+#logging.info("Version is " + boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
 
