@@ -1,4 +1,4 @@
-import pyrebase
+
 from typing import List
 import RPi.GPIO as GPIO
 import datetime
@@ -12,8 +12,9 @@ import traceback
 import subprocess
 from boxsettings import FirebaseBoxSettings
 from boxstate import FirebaseBoxState
-
-print("starting")
+logging.info("Loading pyrebase")
+import pyrebase
+logging.info("pyrebase loaded")
 
 boxSettings = FirebaseBoxSettings()
 boxState = FirebaseBoxState()
@@ -40,7 +41,6 @@ def getserial():
 
 
 cpuserial = getserial()
-print(str(cpuserial))
 
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
@@ -95,8 +95,7 @@ config = {
     "storageBucket": storageBucket
 }
 
-logging.info("Loading pyrebase")
-logging.info("pyrebase loaded")
+
 firebase = pyrebase.initialize_app(config)
 database = firebase.database()
 
