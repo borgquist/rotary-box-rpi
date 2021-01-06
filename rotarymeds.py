@@ -225,8 +225,7 @@ def getLatestScheduleFromFirebase():
 
 
 getLatestScheduleFromFirebase()
-logging.info("boxState " + boxState)
-logging.info("boxState " + boxSettings)
+
 
 setFirebaseValue("moveNowInner", False)
 setFirebaseValue("moveNowOuter", False)
