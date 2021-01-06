@@ -9,6 +9,9 @@ import json
 import socket  # used for hostname
 import traceback
 import subprocess
+from boxsettings import FirebaseBoxSettings
+from boxstate import FirebaseBoxState
+
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
 logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
@@ -19,20 +22,16 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                             folderPath + "logs/rotarymeds.log"),
                         logging.StreamHandler()
                     ])
-logging.info("starting rotarymeds.py")
+logging.info("Starting rotarymeds.py")
 
-
-logging.info("importing other files")
-from boxsettings import FirebaseBoxSettings
-from boxstate import FirebaseBoxState
-
+logging.info("Loading pyrebase")
+import pyrebase
+logging.info("pyrebase loaded")
 
 boxSettings = FirebaseBoxSettings()
 boxState = FirebaseBoxState()
 boxState.version = "1.0.17"
 logging.info("version is " + boxState.version)
-
-#logging.info("Version is " + boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -53,15 +52,6 @@ def getserial():
 
 
 cpuserial = getserial()
-
-
-
-
-logging.info("Loading pyrebase")
-import pyrebase
-logging.info("pyrebase loaded")
-
-
 
 logging.info("CPU serial is [" + str(cpuserial) + "]")
 configFileName = 'config.json'
