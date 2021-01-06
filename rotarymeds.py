@@ -98,7 +98,7 @@ database = firebase.database()
 
 
 def setFirebaseValue(settingname, newValue):
-    logging.info("getting from firebase as part of setFirebaseValue")
+    logging.info("getting [" + str(settingname) + "]from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
     currentValue = database.child("box").child(
         "boxes").child(boxState.cpuId).child(settingname).get()
     if(currentValue.val() != newValue):
