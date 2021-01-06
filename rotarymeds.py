@@ -455,7 +455,7 @@ def thread_move_inner(name):
         except Exception as err:
             logging.error("exception " +  traceback.format_exc())
         
-        time.sleep(30)
+        time.sleep(5)
         
     logging.info("thread_move_inner    :   exiting")   
 
@@ -480,7 +480,7 @@ def thread_move_outer(name):
         except Exception as err:
             logging.error("exception " +  traceback.format_exc())
         
-        time.sleep(30)
+        time.sleep(5)
         
     logging.info("thread_move_outer    :   exiting")   
         
