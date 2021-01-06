@@ -89,17 +89,17 @@ logging.info("pyrebase loaded")
 firebase = pyrebase.initialize_app(config)
 database = firebase.database()
 
-def setFirebaseValue(settingname, newValue, doLogging):
+def setFirebaseValue(settingname, newValue):
     currentValue = database.child("box").child("boxes").child(cpuserial).child(settingname).get()
     if(currentValue.val() != newValue):
         database.child("box").child("boxes").child(cpuserial).child(settingname).set(newValue)
-        if(doLogging):
-            logging.info("updated [" + settingname + "] from [" +str(currentValue.val()) +"] to[" + str(newValue) + "]")
+        logging.info("updated [" + settingname + "] from [" +str(currentValue.val()) +"] to[" + str(newValue) + "]")    
+        
 
 def getFirebaseValue(settingname, defaultValue):
     settingValue = database.child("box").child("boxes").child(cpuserial).child(settingname).get()
     if settingValue.val() is None:
-        setFirebaseValue(settingname, defaultValue, True)
+        setFirebaseValue(settingname, defaultValue)
     returnVal = database.child("box").child("boxes").child(cpuserial).child(settingname).get().val()
     logging.info(settingname + " value is " + str(returnVal))
     return returnVal
@@ -138,9 +138,9 @@ def getLatestScheduleFromFirebase():
     scheduleOuter = schedule["outer"]
     scheduleInner = schedule["inner"]
 
-setFirebaseValue("moveNowInner", False, True)
-setFirebaseValue("moveNowOuter", False, True)
-setFirebaseValue("setButtonLed", False, True)
+setFirebaseValue("moveNowInner", False)
+setFirebaseValue("moveNowOuter", False)
+setFirebaseValue("setButtonLed", False)
 
 GPIO.setmode(GPIO.BCM)
 
@@ -275,14 +275,14 @@ def setButtonLedOn(setToOn):
         buttonLedIsOn = True
         GPIO.output(buttonLedPin,GPIO.HIGH)
         GPIO.output(whiteLedPin,GPIO.HIGH)
-        setFirebaseValue("buttonLedOn", True, True)
+        setFirebaseValue("buttonLedOn", True)
         
     else:
         logging.info("setButtonLedOn    : turning OFF the buttonLed")
         buttonLedIsOn = False
         GPIO.output(buttonLedPin,GPIO.LOW)
         GPIO.output(whiteLedPin,GPIO.LOW)
-        setFirebaseValue("buttonLedOn", False, True)
+        setFirebaseValue("buttonLedOn", False)
     
 def getWeekday(datetime):
     if datetime.weekday() == 0:
@@ -302,9 +302,11 @@ def getWeekday(datetime):
     
     return "unknownDay"
 
-#TODO these two methods call firebase too often, no need to keep checking if we know the value hasn't changed        
+#TODO these two methods call firebase too often, no need to keep checking if we know the value hasn't changed  
+nextMoveInner = 0      
 def getNextMoveInner():
     global scheduleInner
+    global nextInnerMove
 
     todayWeekday = getWeekday(datetime.datetime.today())
     
@@ -330,9 +332,11 @@ def getNextMoveInner():
                 elif(possibleNextMove < nextMove):
                     nextMove = possibleNextMove
                     logging.info("getNextMoveInner    :  setting nextMove to " + str(nextMove))
-                
+    if(nextMove != nextMoveInner):
+        logging.info("nextMoveInner has changed, old [" + nextMoveInner + "] new [" + nextMove + "] updating Firebase" )
+        setFirebaseValue("nextMoveInner", str(nextMove).strip())
+        nextInnerMove = nextMove
     
-    setFirebaseValue("nextMoveInner", str(nextMove).strip(), True)
     return nextMove
         
 def getNextMoveOuter():
@@ -363,7 +367,7 @@ def getNextMoveOuter():
                     nextMove = possibleNextMove
                     logging.info("getNextMoveOuter    :  setting nextMove to " + str(nextMove))
                     
-    setFirebaseValue("nextMoveOuter", str(nextMove).strip(), True)
+    setFirebaseValue("nextMoveOuter", str(nextMove).strip())
     return nextMove
         
         
@@ -381,20 +385,20 @@ def stream_handler(message):
                 setButtonLedOn(True)
             if(newVal == "off"):
                 setButtonLedOn(False)
-            setFirebaseValue("setButtonLed", False, True)
+            setFirebaseValue("setButtonLed", False)
         if message["path"] == "/moveNowOuter":
             newVal = database.child("box").child("boxes").child(cpuserial).child("moveNowOuter").get().val()
             logging.info("firebase: moveNowOuter has new value: " + str(newVal))
             if(bool(newVal)):
                 logging.info("we should move outer now, setting moveNowOuter to false before moving to avoid multiple triggers")
-                setFirebaseValue("moveNowOuter", False, True)
+                setFirebaseValue("moveNowOuter", False)
                 move_stepper_outer()
         if message["path"] == "/moveNowInner":
             newVal = database.child("box").child("boxes").child(cpuserial).child("moveNowInner").get().val()
             logging.info("firebase: moveNowInner has new value: " + str(newVal))
             if(bool(newVal)):
                 logging.info("we should move outer now, setting moveNowInner to false before moving to avoid multiple triggers")
-                setFirebaseValue("moveNowInner", False, True)
+                setFirebaseValue("moveNowInner", False)
                 move_stepper_inner()
     except Exception:
         logging.error("exception in stream_handler " +  traceback.format_exc())
@@ -421,7 +425,7 @@ def thread_time(name):
 
             
             if(timestampNow - lastTimeStampUpdate > 60):
-                setFirebaseValue("timestamp", now.strftime('%Y-%m-%d %H:%M:%S'), True)
+                setFirebaseValue("timestamp", now.strftime('%Y-%m-%d %H:%M:%S'))
                 lastTimeStampUpdate = timestampNow
             
 
@@ -564,9 +568,9 @@ if __name__=='__main__':
         s.connect((googleHostForInternetCheck, 0))
         ipaddr = s.getsockname()[0]
         host = socket.gethostname()
-        setFirebaseValue("ipAddress", ipaddr, True)
-        setFirebaseValue("hostname", host, True)
-        setFirebaseValue("version", version, True)
+        setFirebaseValue("ipAddress", ipaddr)
+        setFirebaseValue("hostname", host)
+        setFirebaseValue("version", version)
 
         latestVersionAvailable = getLatestBoxVersionAvailable()
         if(version != latestVersionAvailable):
