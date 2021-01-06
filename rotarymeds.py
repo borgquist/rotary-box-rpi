@@ -13,7 +13,12 @@ import subprocess
 from boxsettings import FirebaseBoxSettings
 from boxstate import FirebaseBoxState
 
-version = "1.0.17"
+
+boxSettings = FirebaseBoxSettings()
+boxState = FirebaseBoxState()
+boxState.version = "1.0.17"
+
+logging.info("Version is " + boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -33,7 +38,7 @@ def getserial():
     return cpuserial
 
 
-cpuserial = getserial()
+boxState.cpuId = getserial()
 
 
 folderPath = '/home/pi/shared/'
@@ -48,13 +53,11 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                     ])
 
 
-logging.info("Version is " + version)
 
 
-logging.info("CPU serial is [" + cpuserial + "]")
+logging.info("CPU serial is [" + boxState.cpuId + "]")
 configFileName = 'config.json'
 configFilePath = folderPath + configFileName
-
 
 logging.info("checking internet connectivity")
 
@@ -149,8 +152,7 @@ schedule = getFirebaseValue('schedule', defaultSchedule)
 scheduleOuter = schedule["outer"]
 scheduleInner = schedule["inner"]
 
-boxSettings = FirebaseBoxSettings()
-boxState = FirebaseBoxState()
+
 
 
 def getLatestScheduleFromFirebase():
@@ -661,18 +663,18 @@ if __name__ == '__main__':
         host = socket.gethostname()
         setFirebaseValue("ipAddress", ipaddr)
         setFirebaseValue("hostname", host)
-        setFirebaseValue("version", version)
+        setFirebaseValue("version", boxState.version)
 
         latestVersionAvailable = getLatestBoxVersionAvailable()
-        if(version != latestVersionAvailable):
+        if(boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
                 logging.error("unable to get latest_version from firebase")
             else:
                 logging.warning(
-                    "our version [" + version + "] latest_version [" + latestVersionAvailable + "]")
+                    "our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
         else:
             logging.info(
-                "OK our version [" + version + "] latest_version [" + latestVersionAvailable + "]")
+                "OK our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
 
         logging.info("next move today of inner is " + str(getNextMoveInner()))
         logging.info("next move today of outer is " + str(getNextMoveOuter()))
