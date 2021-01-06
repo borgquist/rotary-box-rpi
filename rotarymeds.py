@@ -1,3 +1,4 @@
+from typing import List
 import RPi.GPIO as GPIO
 import datetime 
 import time
@@ -93,7 +94,8 @@ def setFirebaseValue(settingname, newValue):
     currentValue = database.child("box").child("boxes").child(cpuserial).child(settingname).get()
     if(currentValue.val() != newValue):
         database.child("box").child("boxes").child(cpuserial).child(settingname).set(newValue)
-        logging.info("updated [" + settingname + "] from [" +str(currentValue.val()) +"] to[" + str(newValue) + "]")    
+        if(settingname != "timestamp"):
+            logging.info("updated [" + settingname + "] from [" +str(currentValue.val()) +"] to[" + str(newValue) + "]")    
         
 
 def getFirebaseValue(settingname, defaultValue):
@@ -114,8 +116,38 @@ def getLatestBoxVersionAvailable():
     return str(latestVersion.val())
 
 
+class FirebaseBoxSettings:
+    class Stepper:
+        maxMove = 3000
+        minMove = 2000
+        afterTrigger = 1000
+    innerStepper = Stepper()
+    outerStepper = Stepper()
+
+    class Schedule:
+        day = "everyday"
+        hour = 7
+        minute = 0
+    innerSchedule = []
+    outerSchedule = []
+
+    hostname = "hostname"
+    ipAddress = "1.1.1.1"
     
-    
+class FirebaseBoxState:
+    buttonLedOn = False
+    version = "0.0.0"
+    timestamp = "1900-01-01 00:00:00"
+    nextMoveInner = "0"
+    nextMoveOuter = "0"
+    class LatestMove:
+        stepsDone = 0
+        stepsDoneAfterIr = 0
+        irTriggered = False
+        timestamp = "1900-01-01 00:00:00"
+    latestMoveOuter = LatestMove()
+    latestMoveInner = LatestMove()
+
 defaultStepSettings = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {"minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
 stepSettings = getFirebaseValue('stepSettings', defaultStepSettings)
 maxMoveInner = stepSettings["inner"]["maxMove"]
@@ -552,6 +584,12 @@ def thread_ir_sensor(name):
 my_stream = ""
 def setupStreamToFirebase():
     global my_stream
+    try:
+        if(my_stream != ""):
+            my_stream.close()
+    except Exception as err:
+        logging.info("tried to close the stream but failed")
+
     logging.info("setting up the stream to firebase")
     my_stream = database.child("box").child("boxes").child(cpuserial).stream(stream_handler)
     logging.info("done setting up the stream to firebase")
