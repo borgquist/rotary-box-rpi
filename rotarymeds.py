@@ -306,7 +306,7 @@ def getWeekday(datetime):
 nextMoveInner = 0      
 def getNextMoveInner():
     global scheduleInner
-    global nextInnerMove
+    global nextMoveInner
 
     todayWeekday = getWeekday(datetime.datetime.today())
     
@@ -335,7 +335,7 @@ def getNextMoveInner():
     if(str(nextMove) != str(nextMoveInner)):
         logging.info("nextMoveInner has changed, old [" + str(nextMoveInner) + "] new [" + str(nextMove) + "] updating Firebase" )
         setFirebaseValue("nextMoveInner", str(nextMove).strip())
-        nextInnerMove = nextMove
+        nextMoveInner = nextMove
     
     return nextMove
         
