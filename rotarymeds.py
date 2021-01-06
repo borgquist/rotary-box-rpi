@@ -51,9 +51,9 @@ def getserial():
     return cpuserial
 
 
-cpuserial = getserial()
+boxState.cpuId = getserial()
 
-logging.info("CPU serial is [" + str(cpuserial) + "]")
+logging.info("CPU serial is [" + str(boxState.cpuId) + "]")
 configFileName = 'config.json'
 configFilePath = folderPath + configFileName
 
@@ -99,10 +99,10 @@ database = firebase.database()
 
 def setFirebaseValue(settingname, newValue):
     currentValue = database.child("box").child(
-        "boxes").child(cpuserial).child(settingname).get()
+        "boxes").child(boxState.cpuId).child(settingname).get()
     if(currentValue.val() != newValue):
         database.child("box").child("boxes").child(
-            cpuserial).child(settingname).set(newValue)
+            boxState.cpuId).child(settingname).set(newValue)
         if(settingname != "timestamp"):
             logging.info("updated [" + settingname + "] from [" +
                          str(currentValue.val()) + "] to[" + str(newValue) + "]")
@@ -110,11 +110,11 @@ def setFirebaseValue(settingname, newValue):
 
 def getFirebaseValue(settingname, defaultValue):
     settingValue = database.child("box").child(
-        "boxes").child(cpuserial).child(settingname).get()
+        "boxes").child(boxState.cpuId).child(settingname).get()
     if settingValue.val() is None:
         setFirebaseValue(settingname, defaultValue)
     returnVal = database.child("box").child("boxes").child(
-        cpuserial).child(settingname).get().val()
+        boxState.cpuId).child(settingname).get().val()
     logging.info(settingname + " value is " + str(returnVal))
     return returnVal
 
@@ -303,7 +303,7 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
     }
 
     # TODO move to setting method at start
-    database.child("box").child("boxes").child(cpuserial).child(
+    database.child("box").child("boxes").child(boxState.cpuId).child(
         "latestMove").child(rotaryName).set(latestMove)
 
     GPIO.output(chan_list, arrOff)
@@ -437,12 +437,12 @@ def stream_handler(message):
     try:
         if message["path"].startswith("/schedule"):
             newVal = database.child("box").child("boxes").child(
-                cpuserial).child("schedule").get().val()
+                boxState.cpuId).child("schedule").get().val()
             logging.info("firebase: schedule has new value: " + str(newVal))
             getLatestScheduleFromFirebase()
         if message["path"] == "/setButtonLed":
             newVal = database.child("box").child("boxes").child(
-                cpuserial).child("setButtonLed").get().val()
+                boxState.cpuId).child("setButtonLed").get().val()
             logging.info(
                 "firebase: setButtonLed has new value: " + str(newVal))
             if(newVal == "on"):
@@ -452,7 +452,7 @@ def stream_handler(message):
             setFirebaseValue("setButtonLed", False)
         if message["path"] == "/moveNowOuter":
             newVal = database.child("box").child("boxes").child(
-                cpuserial).child("moveNowOuter").get().val()
+                boxState.cpuId).child("moveNowOuter").get().val()
             logging.info(
                 "firebase: moveNowOuter has new value: " + str(newVal))
             if(bool(newVal)):
@@ -462,7 +462,7 @@ def stream_handler(message):
                 move_stepper_outer()
         if message["path"] == "/moveNowInner":
             newVal = database.child("box").child("boxes").child(
-                cpuserial).child("moveNowInner").get().val()
+                boxState.cpuId).child("moveNowInner").get().val()
             logging.info(
                 "firebase: moveNowInner has new value: " + str(newVal))
             if(bool(newVal)):
@@ -642,7 +642,7 @@ def setupStreamToFirebase():
 
     logging.info("setting up the stream to firebase")
     my_stream = database.child("box").child(
-        "boxes").child(cpuserial).stream(stream_handler)
+        "boxes").child(boxState.cpuId).stream(stream_handler)
     logging.info("done setting up the stream to firebase")
 
 
