@@ -338,7 +338,8 @@ def getWeekday(datetime):
         return  "Sunday"  
     
     return "unknownDay"
-        
+
+#TODO these two methods call firebase too often, no need to keep checking if we know the value hasn't changed        
 def getNextMoveInner():
     global scheduleInner
 
@@ -487,7 +488,7 @@ def thread_move_inner(name):
         except Exception as err:
             logging.error("exception " +  traceback.format_exc())
         
-        time.sleep(3)
+        time.sleep(30)
         
     logging.info("thread_move_inner    :   exiting")   
 
@@ -512,7 +513,7 @@ def thread_move_outer(name):
         except Exception as err:
             logging.error("exception " +  traceback.format_exc())
         
-        time.sleep(3)
+        time.sleep(30)
         
     logging.info("thread_move_outer    :   exiting")   
         
