@@ -354,10 +354,7 @@ def getWeekday(datetime):
     return "unknownDay"
 
 
-# TODO these two methods call firebase too often, no need to keep checking if we know the value hasn't changed
 nextMoveInner = 0
-
-
 def getNextMoveInner():
     global scheduleInner
     global nextMoveInner
@@ -397,7 +394,7 @@ def getNextMoveInner():
 
     return nextMove
 
-
+nextMoveOuter = 0
 def getNextMoveOuter():
     global scheduleOuter
     global nextMoveOuter
