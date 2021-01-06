@@ -1,4 +1,3 @@
-
 from typing import List
 import RPi.GPIO as GPIO
 import datetime
@@ -10,11 +9,10 @@ import logging
 import socket  # used for hostname
 import traceback
 import subprocess
+
 from boxsettings import FirebaseBoxSettings
 from boxstate import FirebaseBoxState
-logging.info("Loading pyrebase")
-import pyrebase
-logging.info("pyrebase loaded")
+
 
 boxSettings = FirebaseBoxSettings()
 boxState = FirebaseBoxState()
@@ -53,6 +51,10 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                         logging.StreamHandler()
                     ])
 
+
+logging.info("Loading pyrebase")
+import pyrebase
+logging.info("pyrebase loaded")
 
 
 
