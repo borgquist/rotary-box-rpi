@@ -59,8 +59,9 @@ class FirebaseConnection:
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
 
 
-    def getFirebaseValue(self, settingname, defaultValue, parent = None, grandparent = None):
-        
+    def getFirebaseValue(self, settingname, defaultValue):
+        parent = None
+        grandparent = None
         if(parent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
         elif(grandparent is None):
