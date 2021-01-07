@@ -71,7 +71,7 @@ class FirebaseConnection:
             if defaultValue is None:
                 logging.warning("getFirebaseValue for [" + settingname + "] has no default value and no current value")
                 return None
-            setFirebaseValue(self, settingname, defaultValue, parent, grandparent)
+            self.setFirebaseValue(settingname, defaultValue, parent, grandparent)
         
         if(grandparent is not None):
             returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get().val()
