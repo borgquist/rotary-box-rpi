@@ -151,9 +151,6 @@ scheduleOuter = schedule["outer"]
 scheduleInner = schedule["inner"]
 
 
-logging.info("next move today of inner is " + str(getNextMove(scheduleInner)))
-logging.info("next move today of outer is " + str(getNextMove(scheduleOuter)))
-
 
 def getLatestScheduleFromFirebase():
     global scheduleInner
@@ -671,6 +668,9 @@ if __name__ == '__main__':
         setFirebaseValue("ipAddress", ipaddr)
         setFirebaseValue("hostname", host)
         setFirebaseValue("version", boxState.version)
+        logging.info("next move today of inner is " + str(getNextMove(scheduleInner)))
+        logging.info("next move today of outer is " + str(getNextMove(scheduleOuter)))
+
 
         latestVersionAvailable = getLatestBoxVersionAvailable()
         if(boxState.version != latestVersionAvailable):
