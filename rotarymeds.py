@@ -11,6 +11,7 @@ import traceback
 import subprocess
 from boxsettings import FirebaseBoxSettings
 from boxstate import FirebaseBoxState
+from stepper import Stepper
 
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
@@ -202,6 +203,11 @@ arr1 = [1, 1, 0, 0]
 arr2 = [0, 1, 0, 0]
 arrOff = [0, 0, 0, 0]
 
+boxSettings.innerStepper.chanList = chan_list_stepper_inner
+boxSettings.outerStepper.chanList = chan_list_stepper_outer
+boxSettings.innerStepper.name = "inner"
+boxSettings.outerStepper.name = "outer"
+
 for pin in chan_list_stepper_inner:
     GPIO.setup(pin, GPIO.OUT)
 for pin in chan_list_stepper_outer:
@@ -217,8 +223,7 @@ def move_stepper_inner():
         logging.info("inner: waiting for other move to be done")
         time.sleep(1)
     moveIsBeingDone = True
-    move("move_stepper_inner", chan_list_stepper_inner,
-         moveAfterTriggerInner, minMoveInner, maxMoveInner)
+    move("move_stepper_inner", boxSettings.outerStepper)
     moveIsBeingDone = False
 
 
@@ -229,8 +234,7 @@ def move_stepper_outer():
                      moveIsBeingDone)
         time.sleep(1)
     moveIsBeingDone = True
-    move("move_stepper_outer", chan_list_stepper_outer,
-         moveAfterTriggerOuter, minMoveOuter, maxMoveOuter)
+    move("move_stepper_outer", boxSettings.outerStepper)
     moveIsBeingDone = False
 
 
@@ -250,7 +254,7 @@ def releaseBothMotors():
 stopMoving = False
 
 
-def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
+def move(rotaryName, stepper):
     global stopMoving
     global arr1  # enables the edit of arr1 var inside a function
     global arr2  # enables the edit of arr2 var inside a function
@@ -272,23 +276,23 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
         # arrOUT = arr1[1:]+arr1[:1] # rotates array values of 1 digit counterclockwise
         arr1 = arr2
         arr2 = arrOUT
-        GPIO.output(chan_list, arrOUT)
+        GPIO.output(stepper.chanList, arrOUT)
         time.sleep(delay)
         if stopMoving and stepsDoneWhenIRtrigger == 0:
             stepsDoneWhenIRtrigger = stepsDone
         return stepsDone + 1
 
-    while stepsDone < minimumMove:
+    while stepsDone < stepper.minMove:
         stepsDone = oneStep(stepsDone)
 
-    while stepsDone < stepsDoneWhenIRtrigger + moveAfterTrigger and stepsDone < maximumMove:
+    while stepsDone < stepsDoneWhenIRtrigger + stepper.afterTrigger and stepsDone < stepper.maxMove:
         stepsDone = oneStep(stepsDone)
 
-    while stopMoving == False and stepsDone < maximumMove:
+    while stopMoving == False and stepsDone < stepper.maxMove:
         stepsDone = oneStep(stepsDone)
 
     logMessage = rotaryName + " totalStepsDone [" + str(stepsDone) + "] stopMoving [" + str(stopMoving) + "] stepsDoneWhenIRtrigger [" + str(
-        stepsDoneWhenIRtrigger) + "] stepsDoneAfterIRtrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "] minimumMove [" + str(minimumMove) + "] maximumMove [" + str(maximumMove) + "]"
+        stepsDoneWhenIRtrigger) + "] stepsDoneAfterIRtrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "] minimumMove [" + str(stepper.minMove) + "] maximumMove [" + str(stepper.maxMove) + "]"
     logging.info("move    : " + logMessage)
     now = datetime.datetime.now()
 
@@ -297,8 +301,8 @@ def move(rotaryName, chan_list, moveAfterTrigger, minimumMove, maximumMove):
         "stopMoving": stopMoving,
         "stepsDoneWhenIRtrigger": stepsDoneWhenIRtrigger,
         "stepsDoneAfterIRtrigger": stepsDone - stepsDoneWhenIRtrigger,
-        "minimumMove": minimumMove,
-        "maximumMove": maximumMove,
+        "minimumMove": stepper.minMove,
+        "maximumMove": stepper.maxMove,
         "timestamp": now.strftime('%Y-%m-%d %H:%M:%S'),
     }
 
