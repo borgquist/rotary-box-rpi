@@ -327,7 +327,7 @@ def getNextMove(innerOrOuter):
                     nextMove = possibleNextMove
 
     if(str(nextMove) != str(currentCachedValue)):
-        setFirebaseValue(
+        firebaseConnection.setFirebaseValue(
             str("nextMove" + str(innerOrOuter.capitalize())), str(nextMove).strip())
         if(innerOrOuter == "inner"):
             nextMoveInner = nextMove
