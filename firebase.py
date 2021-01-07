@@ -6,7 +6,7 @@ class FirebaseConnection:
     
     def __init__(self, cpuid):
         self.cpuid = cpuid
-        print("cpuid constructor: [" + cpuid "]")
+        print("cpuid constructor: [" + cpuid +"]")
         
 
     configFilePath = '/home/pi/shared/config.json'
