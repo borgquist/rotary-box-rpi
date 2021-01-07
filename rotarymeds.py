@@ -116,7 +116,7 @@ def getFirebaseValue(settingname, defaultValue):
         setFirebaseValue(settingname, defaultValue)
     returnVal = database.child("box").child("boxes").child(
         boxState.cpuId).child(settingname).get().val()
-    logging.info("getting firebase value [" + settingname + "])
+    logging.info("getting firebase value [" + settingname + "]")
     return returnVal
 
 
