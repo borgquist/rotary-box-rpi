@@ -1,4 +1,5 @@
 import pyrebase
+import json
 
 class FirebaseConnection:
     configFilePath = '/home/pi/shared/config.json'
