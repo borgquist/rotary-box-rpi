@@ -22,7 +22,7 @@ class FirebaseConnection:
     database = firebase.database()
 
 
-    def setFirebaseValue(settingname, newValue):
+    def setFirebaseValue(self, settingname, newValue):
         logging.info("getting [" + str(settingname) +
                     "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
         currentValue = database.child("box").child(
@@ -35,7 +35,7 @@ class FirebaseConnection:
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
 
 
-    def getFirebaseValue(settingname, defaultValue):
+    def getFirebaseValue(self, settingname, defaultValue):
         settingValue = database.child("box").child(
             "boxes").child(boxState.cpuId).child(settingname).get()
         if settingValue.val() is None:
@@ -46,7 +46,7 @@ class FirebaseConnection:
         return returnVal
 
 
-    def getLatestBoxVersionAvailable():
+    def getLatestBoxVersionAvailable(self):
         latestVersion = database.child("box").child("latest_version").get()
         if latestVersion.val() is None:
             logging.warning("couldn't get latest_version")
