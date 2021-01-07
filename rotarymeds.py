@@ -52,8 +52,7 @@ def getserial():
 boxState.cpuId = getserial()
 
 logging.info("CPU serial is [" + str(boxState.cpuId) + "]")
-configFileName = 'config.json'
-configFilePath = folderPath + configFileName
+
 
 logging.info("checking internet connectivity")
 
