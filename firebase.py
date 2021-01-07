@@ -69,6 +69,7 @@ class FirebaseConnection:
         
         if settingValue.val() is None:
             if defaultValue is None:
+                logging.warning("getFirebaseValue for [" + settingname + "] has no default value and no current value")
                 return None
             setFirebaseValue(settingname, defaultValue, parent, grandparent)
         
