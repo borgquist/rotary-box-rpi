@@ -208,9 +208,9 @@ boxSettings.outerStepper.chanList = chan_list_stepper_outer
 boxSettings.innerStepper.name = "inner"
 boxSettings.outerStepper.name = "outer"
 
-for pin in boxSettings.innerStepper.chanList:
+for pin in chan_list_stepper_inner:
     GPIO.setup(pin, GPIO.OUT)
-for pin in boxSettings.outerStepper.chanList:
+for pin in chan_list_stepper_outer:
     GPIO.setup(pin, GPIO.OUT)
 
 
@@ -241,14 +241,14 @@ def move_stepper_outer():
 def holdBothMotors():
     global arr1  # enables the edit of arr1 var inside a function
     arrOUT = arr1[1:]+arr1[:1]  # rotates array values of 1 digi
-    GPIO.output(boxSettings.innerStepper.chanList, arrOUT)
-    GPIO.output(boxSettings.outerStepper.chanList, arrOUT)
+    GPIO.output(chan_list_stepper_inner, arrOUT)
+    GPIO.output(chan_list_stepper_outer, arrOUT)
 
 
 def releaseBothMotors():
     global arrOff
-    GPIO.output(boxSettings.innerStepper.chanList, arrOff)
-    GPIO.output(boxSettings.outerStepper.chanList, arrOff)
+    GPIO.output(chan_list_stepper_outer, arrOff)
+    GPIO.output(chan_list_stepper_inner, arrOff)
 
 
 stopMoving = False
@@ -310,7 +310,7 @@ def move(rotaryName, stepper):
     database.child("box").child("boxes").child(boxState.cpuId).child(
         "latestMove").child(rotaryName).set(latestMove)
 
-    GPIO.output(stepper.chanList, arrOff)
+    GPIO.output(chan_list, arrOff)
 
     setButtonLedOn(True)
 
