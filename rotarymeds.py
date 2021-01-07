@@ -354,45 +354,6 @@ def getWeekday(datetime):
 
 
 nextMoveInner = 0
-def getNextMoveInner():
-    global scheduleInner
-    global nextMoveInner
-
-    todayWeekday = getWeekday(datetime.datetime.today())
-
-    nextMove = 0
-    for scheduledMove in scheduleInner:
-        for dayInRecord in scheduledMove['day']:
-
-            isTodayMoveDay = False
-
-            if(dayInRecord == todayWeekday):
-                isTodayMoveDay = True
-            elif(dayInRecord == "everyday"):
-                isTodayMoveDay = True
-
-            if(isTodayMoveDay):
-                moveDate = datetime.datetime.today()
-                moveTime = datetime.time(
-                    scheduledMove['hour'], scheduledMove['minute'], 0)
-                possibleNextMove = datetime.datetime.combine(
-                    moveDate, moveTime)
-                if(possibleNextMove < datetime.datetime.now()):
-                    break
-                elif(nextMove == 0):
-                    nextMove = possibleNextMove
-                elif(possibleNextMove < nextMove):
-                    nextMove = possibleNextMove
-                    logging.info(
-                        "getNextMoveInner    :  setting nextMove to " + str(nextMove))
-    if(str(nextMove) != str(nextMoveInner)):
-        logging.info("nextMoveInner has changed, old [" + str(
-            nextMoveInner) + "] new [" + str(nextMove) + "] updating Firebase")
-        setFirebaseValue("nextMoveInner", str(nextMove).strip())
-        nextMoveInner = nextMove
-
-    return nextMove
-
 nextMoveOuter = 0
 def getNextMove(innerOrOuter):
     global nextMoveInner
@@ -431,7 +392,7 @@ def getNextMove(innerOrOuter):
                     nextMove = possibleNextMove
 
     if(str(nextMove) != str(currentCachedValue)):
-        setFirebaseValue("nextMove" + innerOrOuter, str(nextMove).strip())
+        setFirebaseValue(str("nextMove" + str(innerOrOuter)), str(nextMove).strip())
         if(innerOrOuter == "inner"):
             nextMoveInner = nextMove
         else:
@@ -519,7 +480,7 @@ def thread_move_inner(name):
 
     while not exitapp:
         try:
-            nextMove = getNextMoveInner()
+            nextMove = getNextMove("inner")
             if(nextMove != 0):
                 now = datetime.datetime.now()
 
@@ -547,7 +508,7 @@ def thread_move_outer(name):
 
     while not exitapp:
         try:
-            nextMove = getNextMove(scheduleOuter)
+            nextMove = getNextMove("outer")
             if(nextMove != 0):
                 now = datetime.datetime.now()
 
