@@ -238,9 +238,6 @@ def move(stepper):
         "timestamp": now.strftime('%Y-%m-%d %H:%M:%S'),
     }
 
-    # TODO move to setting method at start
-    #firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).child(
-    #    "latestMove").child(stepper.name).set(latestMove)
     firebaseConnection.setFirebaseValue(stepper.name, latestMove, "latestMove")
     GPIO.output(stepper.chanList, arrOff)
 
@@ -571,7 +568,7 @@ if __name__ == '__main__':
         logging.info("next move today of outer is " +
                      str(getNextMove("outer")))
 
-        latestVersionAvailable = firebaseConnection.getLatestBoxVersionAvailable()
+        latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         if(boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
                 logging.error("unable to get latest_version from firebase")

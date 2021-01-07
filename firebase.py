@@ -59,19 +59,30 @@ class FirebaseConnection:
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
 
 
-    def getFirebaseValue(self, settingname, defaultValue):
-        print("cpuid" + self.cpuid)
-        settingValue = self.database.child("box").child(
-            "boxes").child(self.cpuid).child(settingname).get()
+    def getFirebaseValue(self, settingname, defaultValue, parent = None, grandparent = None):
+        
+        if(parent is None):
+            settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
+        elif(grandparent is None):
+            settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
+        else:
+            settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
+        
         if settingValue.val() is None:
-            setFirebaseValue(settingname, defaultValue)
-        returnVal = self.database.child("box").child("boxes").child(
-            self.cpuid).child(settingname).get().val()
-        logging.info("getting firebase value [" + settingname + "]")
+            setFirebaseValue(settingname, defaultValue, parent, grandparent)
+        
+        if(parent is None):
+            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
+        elif(grandparent is None):
+            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
+        else:
+            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
+        
+        logging.info("getting firebase value [" + settingname + "], value is [" + returnVal +"]")
         return returnVal
 
 
-    def getLatestBoxVersionAvailable(self):
+    def getBoxLatestVersion(self):
         latestVersion = self.database.child("box").child("latest_version").get()
         if latestVersion.val() is None:
             logging.warning("couldn't get latest_version")
