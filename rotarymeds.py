@@ -1,4 +1,3 @@
-
 import os
 import logging
 from typing import List
@@ -13,6 +12,7 @@ import subprocess
 from boxsettings import FirebaseBoxSettings
 from boxstate import FirebaseBoxState
 from stepper import Stepper
+from firebase import FirebaseConnection
 
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
@@ -25,10 +25,6 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                         logging.StreamHandler()
                     ])
 logging.info("Starting rotarymeds.py")
-
-logging.info("Loading pyrebase")
-import pyrebase
-logging.info("pyrebase loaded")
 
 boxSettings = FirebaseBoxSettings()
 boxState = FirebaseBoxState()
@@ -79,59 +75,9 @@ while(not haveInternet()):
 
 logging.info("have internet connectivity")
 
-
-with open(configFilePath, 'r') as f:
-    configToBeLoaded = json.load(f)
-apiKey = configToBeLoaded['apiKey']
-authDomain = configToBeLoaded['authDomain']
-databaseURL = configToBeLoaded['databaseURL']
-storageBucket = configToBeLoaded['storageBucket']
-
-config = {
-    "apiKey": apiKey,
-    "authDomain": authDomain,
-    "databaseURL": databaseURL,
-    "storageBucket": storageBucket
-}
-
-
-firebase = pyrebase.initialize_app(config)
-database = firebase.database()
-
-
-def setFirebaseValue(settingname, newValue):
-    logging.info("getting [" + str(settingname) +
-                 "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
-    currentValue = database.child("box").child(
-        "boxes").child(boxState.cpuId).child(settingname).get()
-    if(currentValue.val() != newValue):
-        database.child("box").child("boxes").child(
-            boxState.cpuId).child(settingname).set(newValue)
-        if(settingname != "timestamp"):
-            logging.info("updated [" + settingname + "] from [" +
-                         str(currentValue.val()) + "] to[" + str(newValue) + "]")
-
-
-def getFirebaseValue(settingname, defaultValue):
-    settingValue = database.child("box").child(
-        "boxes").child(boxState.cpuId).child(settingname).get()
-    if settingValue.val() is None:
-        setFirebaseValue(settingname, defaultValue)
-    returnVal = database.child("box").child("boxes").child(
-        boxState.cpuId).child(settingname).get().val()
-    logging.info("getting firebase value [" + settingname + "]")
-    return returnVal
-
-
-def getLatestBoxVersionAvailable():
-    latestVersion = database.child("box").child("latest_version").get()
-    if latestVersion.val() is None:
-        logging.warning("couldn't get latest_version")
-        return "unknown"
-
-    logging.info("latest_version is: " + str(latestVersion.val()))
-    return str(latestVersion.val())
-
+logging.info("Creating FirebaseConnection")
+firebaseConnection = FirebaseConnection()
+logging.info("Done creating FirebaseConnection")
 
 def getLatestScheduleFromFirebase():
     global scheduleInner
@@ -141,13 +87,13 @@ def getLatestScheduleFromFirebase():
     defaultSchedule = {"inner": [{"day": ["everyday"], "hour":17, "minute":0}], "outer": [
         {"day": ["everyday"], "hour":18, "minute":0}]}
 
-    schedule = getFirebaseValue('schedule', defaultSchedule)
+    schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule)
     scheduleOuter = schedule["outer"]
     scheduleInner = schedule["inner"]
 
     defaultStepSettings = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {
         "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
-    stepSettings = getFirebaseValue('stepSettings', defaultStepSettings)
+    stepSettings = firebaseConnection.getFirebaseValue('stepSettings', defaultStepSettings)
 
     boxSettings.innerStepper.afterTrigger = stepSettings["inner"]["afterTrigger"]
     boxSettings.innerStepper.maxMove = stepSettings["inner"]["maxMove"]
@@ -163,9 +109,9 @@ def getLatestScheduleFromFirebase():
 getLatestScheduleFromFirebase()
 
 
-setFirebaseValue("moveNowInner", False)
-setFirebaseValue("moveNowOuter", False)
-setFirebaseValue("setButtonLed", False)
+firebaseConnection.setFirebaseValue("moveNowInner", False)
+firebaseConnection.setFirebaseValue("moveNowOuter", False)
+firebaseConnection.setFirebaseValue("setButtonLed", False)
 
 GPIO.setmode(GPIO.BCM)
 
@@ -294,7 +240,7 @@ def move(stepper):
     }
 
     # TODO move to setting method at start
-    database.child("box").child("boxes").child(boxState.cpuId).child(
+    firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).child(
         "latestMove").child(stepper.name).set(latestMove)
 
     GPIO.output(stepper.chanList, arrOff)
@@ -315,14 +261,14 @@ def setButtonLedOn(setToOn):
         buttonLedIsOn = True
         GPIO.output(buttonLedPin, GPIO.HIGH)
         GPIO.output(whiteLedPin, GPIO.HIGH)
-        setFirebaseValue("buttonLedOn", True)
+        firebaseConnection.setFirebaseValue("buttonLedOn", True)
 
     else:
         logging.info("setButtonLedOn    : turning OFF the buttonLed")
         buttonLedIsOn = False
         GPIO.output(buttonLedPin, GPIO.LOW)
         GPIO.output(whiteLedPin, GPIO.LOW)
-        setFirebaseValue("buttonLedOn", False)
+        firebaseConnection.setFirebaseValue("buttonLedOn", False)
 
 
 def getWeekday(datetime):
@@ -398,12 +344,12 @@ def getNextMove(innerOrOuter):
 def stream_handler(message):
     try:
         if message["path"].startswith("/schedule"):
-            newVal = database.child("box").child("boxes").child(
+            newVal = firebaseConnection.database.child("box").child("boxes").child(
                 boxState.cpuId).child("schedule").get().val()
             logging.info("firebase: schedule has new value: " + str(newVal))
-            getLatestScheduleFromFirebase()
+            firebaseConnection.getLatestScheduleFromFirebase()
         if message["path"] == "/setButtonLed":
-            newVal = database.child("box").child("boxes").child(
+            newVal = firebaseConnection.database.child("box").child("boxes").child(
                 boxState.cpuId).child("setButtonLed").get().val()
             logging.info(
                 "firebase: setButtonLed has new value: " + str(newVal))
@@ -411,26 +357,26 @@ def stream_handler(message):
                 setButtonLedOn(True)
             if(newVal == "off"):
                 setButtonLedOn(False)
-            setFirebaseValue("setButtonLed", False)
+            firebaseConnection.setFirebaseValue("setButtonLed", False)
         if message["path"] == "/moveNowOuter":
-            newVal = database.child("box").child("boxes").child(
+            newVal = firebaseConnection.database.child("box").child("boxes").child(
                 boxState.cpuId).child("moveNowOuter").get().val()
             logging.info(
                 "firebase: moveNowOuter has new value: " + str(newVal))
             if(bool(newVal)):
                 logging.info(
                     "we should move outer now, setting moveNowOuter to false before moving to avoid multiple triggers")
-                setFirebaseValue("moveNowOuter", False)
+                firebaseConnection.setFirebaseValue("moveNowOuter", False)
                 move_stepper_outer()
         if message["path"] == "/moveNowInner":
-            newVal = database.child("box").child("boxes").child(
+            newVal = firebaseConnection.database.child("box").child("boxes").child(
                 boxState.cpuId).child("moveNowInner").get().val()
             logging.info(
                 "firebase: moveNowInner has new value: " + str(newVal))
             if(bool(newVal)):
                 logging.info(
                     "we should move outer now, setting moveNowInner to false before moving to avoid multiple triggers")
-                setFirebaseValue("moveNowInner", False)
+                firebaseConnection.setFirebaseValue("moveNowInner", False)
                 move_stepper_inner()
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
@@ -601,7 +547,7 @@ def setupStreamToFirebase():
         logging.info("tried to close the stream but failed")
 
     logging.info("setting up the stream to firebase")
-    my_stream = database.child("box").child(
+    my_stream = firebaseConnection.database.child("box").child(
         "boxes").child(boxState.cpuId).stream(stream_handler)
     logging.info("done setting up the stream to firebase")
 
@@ -618,15 +564,15 @@ if __name__ == '__main__':
         s.connect((googleHostForInternetCheck, 0))
         boxSettings.ipAddress = s.getsockname()[0]
         boxSettings.hostname = socket.gethostname()
-        setFirebaseValue("ipAddress", boxSettings.ipAddress)
-        setFirebaseValue("hostname", boxSettings.hostname)
-        setFirebaseValue("version", boxState.version)
+        firebaseConnection.setFirebaseValue("ipAddress", boxSettings.ipAddress)
+        firebaseConnection.setFirebaseValue("hostname", boxSettings.hostname)
+        firebaseConnection.setFirebaseValue("version", boxState.version)
         logging.info("next move today of inner is " +
                      str(getNextMove("inner")))
         logging.info("next move today of outer is " +
                      str(getNextMove("outer")))
 
-        latestVersionAvailable = getLatestBoxVersionAvailable()
+        latestVersionAvailable = firebaseConnection.getLatestBoxVersionAvailable()
         if(boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
                 logging.error("unable to get latest_version from firebase")
