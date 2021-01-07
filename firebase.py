@@ -1,5 +1,6 @@
 import pyrebase
 import json
+import logging
 
 class FirebaseConnection:
     cpuid = 0
