@@ -1,8 +1,7 @@
 import pyrebase
 
 class FirebaseConnection:
-    configFileName = 'config.json'
-    configFilePath = folderPath + configFileName
+    configFilePath = '/home/pi/shared/config.json'
     with open(configFilePath, 'r') as f:
         configToBeLoaded = json.load(f)
     apiKey = configToBeLoaded['apiKey']
