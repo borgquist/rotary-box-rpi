@@ -98,7 +98,7 @@ database = firebase.database()
 
 
 def setFirebaseValue(settingname, newValue):
-    logging.info("getting [" + str(settingname) + "]from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
+    logging.info("getting [" + str(settingname) + "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
     currentValue = database.child("box").child(
         "boxes").child(boxState.cpuId).child(settingname).get()
     if(currentValue.val() != newValue):
@@ -116,7 +116,7 @@ def getFirebaseValue(settingname, defaultValue):
         setFirebaseValue(settingname, defaultValue)
     returnVal = database.child("box").child("boxes").child(
         boxState.cpuId).child(settingname).get().val()
-    logging.info(settingname + " value is " + str(returnVal))
+    logging.info("getting firebase value [" + settingname + "])
     return returnVal
 
 
@@ -621,10 +621,10 @@ if __name__ == '__main__':
 
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect((googleHostForInternetCheck, 0))
-        ipaddr = s.getsockname()[0]
-        host = socket.gethostname()
-        setFirebaseValue("ipAddress", ipaddr)
-        setFirebaseValue("hostname", host)
+        boxSettings.ipAddress = s.getsockname()[0]
+        boxSettings.hostname = socket.gethostname()
+        setFirebaseValue("ipAddress", boxSettings.ipAddress)
+        setFirebaseValue("hostname", boxSettings.hostname)
         setFirebaseValue("version", boxState.version)
         logging.info("next move today of inner is " + str(getNextMove("inner")))
         logging.info("next move today of outer is " + str(getNextMove("outer")))
