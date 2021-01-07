@@ -25,10 +25,10 @@ class FirebaseConnection:
     def setFirebaseValue(self, settingname, newValue):
         logging.info("getting [" + str(settingname) +
                     "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
-        currentValue = database.child("box").child(
+        currentValue = self.database.child("box").child(
             "boxes").child(boxState.cpuId).child(settingname).get()
         if(currentValue.val() != newValue):
-            database.child("box").child("boxes").child(
+            self.database.child("box").child("boxes").child(
                 boxState.cpuId).child(settingname).set(newValue)
             if(settingname != "timestamp"):
                 logging.info("updated [" + settingname + "] from [" +
@@ -36,18 +36,18 @@ class FirebaseConnection:
 
 
     def getFirebaseValue(self, settingname, defaultValue):
-        settingValue = database.child("box").child(
+        settingValue = self.database.child("box").child(
             "boxes").child(boxState.cpuId).child(settingname).get()
         if settingValue.val() is None:
             setFirebaseValue(settingname, defaultValue)
-        returnVal = database.child("box").child("boxes").child(
+        returnVal = self.database.child("box").child("boxes").child(
             boxState.cpuId).child(settingname).get().val()
         logging.info("getting firebase value [" + settingname + "]")
         return returnVal
 
 
     def getLatestBoxVersionAvailable(self):
-        latestVersion = database.child("box").child("latest_version").get()
+        latestVersion = self.database.child("box").child("latest_version").get()
         if latestVersion.val() is None:
             logging.warning("couldn't get latest_version")
             return "unknown"
