@@ -136,7 +136,7 @@ arr2 = [0, 1, 0, 0]
 arrOff = [0, 0, 0, 0]
 
 boxSettings.innerStepper.chanList = [17, 27, 22, 23]  # GPIO ports to use
-boxSettings.outerStepper.chanList = chan_list_stepper_ou[24, 13, 26, 12]  # GPIO ports to useter
+boxSettings.outerStepper.chanList = [24, 13, 26, 12]  # GPIO ports to useter
 boxSettings.innerStepper.name = "inner"
 boxSettings.outerStepper.name = "outer"
 
