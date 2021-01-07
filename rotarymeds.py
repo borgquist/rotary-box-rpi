@@ -1,3 +1,4 @@
+
 import os
 import logging
 from typing import List
@@ -99,7 +100,8 @@ database = firebase.database()
 
 
 def setFirebaseValue(settingname, newValue):
-    logging.info("getting [" + str(settingname) + "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
+    logging.info("getting [" + str(settingname) +
+                 "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
     currentValue = database.child("box").child(
         "boxes").child(boxState.cpuId).child(settingname).get()
     if(currentValue.val() != newValue):
@@ -131,34 +133,21 @@ def getLatestBoxVersionAvailable():
     return str(latestVersion.val())
 
 
-
-
-
-defaultStepSettings = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {
-    "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
-stepSettings = getFirebaseValue('stepSettings', defaultStepSettings)
-maxMoveInner = stepSettings["inner"]["maxMove"]
-maxMoveOuter = stepSettings["outer"]["maxMove"]
-minMoveInner = stepSettings["inner"]["minMove"]
-minMoveOuter = stepSettings["outer"]["minMove"]
-moveAfterTriggerInner = stepSettings["inner"]["afterTrigger"]
-moveAfterTriggerOuter = stepSettings["outer"]["afterTrigger"]
-
-defaultSchedule = {"inner": [{"day": ["everyday"], "hour":17, "minute":0}], "outer": [
-    {"day": ["everyday"], "hour":18, "minute":0}]}
-schedule = getFirebaseValue('schedule', defaultSchedule)
-
-scheduleOuter = schedule["outer"]
-scheduleInner = schedule["inner"]
-
-
-
 def getLatestScheduleFromFirebase():
     global scheduleInner
     global scheduleOuter
+
+
+    defaultSchedule = {"inner": [{"day": ["everyday"], "hour":17, "minute":0}], "outer": [
+        {"day": ["everyday"], "hour":18, "minute":0}]}
+
     schedule = getFirebaseValue('schedule', defaultSchedule)
     scheduleOuter = schedule["outer"]
     scheduleInner = schedule["inner"]
+
+    defaultStepSettings = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {
+        "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
+    stepSettings = getFirebaseValue('stepSettings', defaultStepSettings)
 
     boxSettings.innerStepper.afterTrigger = stepSettings["inner"]["afterTrigger"]
     boxSettings.innerStepper.maxMove = stepSettings["inner"]["maxMove"]
@@ -195,16 +184,14 @@ GPIO.output(whiteLedPin, GPIO.LOW)
 irSensorPin = 4
 GPIO.setup(irSensorPin, GPIO.IN)
 
-chan_list_stepper_inner = [17, 27, 22, 23]  # GPIO ports to use
-chan_list_stepper_outer = [24, 13, 26, 12]  # GPIO ports to use
 delay = .001  # delay between each sequence step
 # initialize array for sequence shift
 arr1 = [1, 1, 0, 0]
 arr2 = [0, 1, 0, 0]
 arrOff = [0, 0, 0, 0]
 
-boxSettings.innerStepper.chanList = chan_list_stepper_inner
-boxSettings.outerStepper.chanList = chan_list_stepper_outer
+boxSettings.innerStepper.chanList = [17, 27, 22, 23]  # GPIO ports to use
+boxSettings.outerStepper.chanList = chan_list_stepper_ou[24, 13, 26, 12]  # GPIO ports to useter
 boxSettings.innerStepper.name = "inner"
 boxSettings.outerStepper.name = "outer"
 
@@ -359,6 +346,8 @@ def getWeekday(datetime):
 
 nextMoveInner = 0
 nextMoveOuter = 0
+
+
 def getNextMove(innerOrOuter):
     global nextMoveInner
     global nextMoveOuter
@@ -369,7 +358,7 @@ def getNextMove(innerOrOuter):
     else:
         schedule = scheduleOuter
         currentCachedValue = nextMoveOuter
-        
+
     nextMove = 0
     todayWeekday = getWeekday(datetime.datetime.today())
     for scheduledMove in schedule:
@@ -396,11 +385,12 @@ def getNextMove(innerOrOuter):
                     nextMove = possibleNextMove
 
     if(str(nextMove) != str(currentCachedValue)):
-        setFirebaseValue(str("nextMove" + str(innerOrOuter.capitalize())), str(nextMove).strip())
+        setFirebaseValue(
+            str("nextMove" + str(innerOrOuter.capitalize())), str(nextMove).strip())
         if(innerOrOuter == "inner"):
             nextMoveInner = nextMove
         else:
-            nextMoveOuter = nextMove                
+            nextMoveOuter = nextMove
     return nextMove
 
 
@@ -444,6 +434,7 @@ def stream_handler(message):
                 move_stepper_inner()
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
+
 
 def thread_time(name):
     lastTimeStampUpdate = 0
@@ -630,9 +621,10 @@ if __name__ == '__main__':
         setFirebaseValue("ipAddress", boxSettings.ipAddress)
         setFirebaseValue("hostname", boxSettings.hostname)
         setFirebaseValue("version", boxState.version)
-        logging.info("next move today of inner is " + str(getNextMove("inner")))
-        logging.info("next move today of outer is " + str(getNextMove("outer")))
-
+        logging.info("next move today of inner is " +
+                     str(getNextMove("inner")))
+        logging.info("next move today of outer is " +
+                     str(getNextMove("outer")))
 
         latestVersionAvailable = getLatestBoxVersionAvailable()
         if(boxState.version != latestVersionAvailable):
@@ -644,7 +636,6 @@ if __name__ == '__main__':
         else:
             logging.info(
                 "OK our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
-
 
         buttonThread = threading.Thread(target=thread_button, args=(1,))
         buttonThread.start()
