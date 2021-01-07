@@ -72,12 +72,12 @@ class FirebaseConnection:
         if settingValue.val() is None:
             setFirebaseValue(settingname, defaultValue, parent, grandparent)
         
-        if(parent is None):
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
-        elif(grandparent is None):
+        if(grandparent is not None):
+            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child
+        elif(parent is not none):
             returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
         else:
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
+            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
         
         logging.info("getting firebase value [" + settingname + "])
         return returnVal
