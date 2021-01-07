@@ -441,8 +441,6 @@ def stream_handler(message):
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
 
-# turn off led at midnight
-
 def thread_time(name):
     lastTimeStampUpdate = 0
 
@@ -628,8 +626,8 @@ if __name__ == '__main__':
         setFirebaseValue("ipAddress", ipaddr)
         setFirebaseValue("hostname", host)
         setFirebaseValue("version", boxState.version)
-        logging.info("next move today of inner is " + str(getNextMove(scheduleInner)))
-        logging.info("next move today of outer is " + str(getNextMove(scheduleOuter)))
+        logging.info("next move today of inner is " + str(getNextMove("inner")))
+        logging.info("next move today of outer is " + str(getNextMove("outer")))
 
 
         latestVersionAvailable = getLatestBoxVersionAvailable()
