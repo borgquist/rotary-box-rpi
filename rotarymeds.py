@@ -239,9 +239,9 @@ def move(stepper):
     }
 
     # TODO move to setting method at start
-    firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).child(
-        "latestMove").child(stepper.name).set(latestMove)
-
+    #firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).child(
+    #    "latestMove").child(stepper.name).set(latestMove)
+    firebaseConnection.setFirebaseValue(stepper.name, latestMove, "latestMove")
     GPIO.output(stepper.chanList, arrOff)
 
     setButtonLedOn(True)

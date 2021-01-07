@@ -33,11 +33,29 @@ class FirebaseConnection:
         logging.info("getting [" + str(settingname) +
                     "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
         
-        currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
+        if(parent is None):
+            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
+        elif(grandparent is None):
+            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
+        else:
+            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
+
         if(currentValue.val() != newValue):
-            self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
+            
+            if(parent is None):
+                self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
+            elif(grandparent is None):
+                self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).set(newValue)
+            else:
+                self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).set(newValue)
+
             if(settingname != "timestamp"):
-                logging.info("updated [" + settingname + "] from [" +
+                logMessasge = settingname
+                if(parent is not None)
+                    logMessasge = parent + "/" + logMessasge
+                    if(grandparent is not None)
+                        logMessasge = grandparent + "/" + logMessasge
+                logging.info("updated [" + logMessasge + "] from [" +
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
 
 
