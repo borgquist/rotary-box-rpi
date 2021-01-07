@@ -74,11 +74,14 @@ class FirebaseConnection:
         
         if(grandparent is not None):
             returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child
+            logging.info("grandparent is not None getting firebase value [" + settingname + "]")
         elif(parent is not None):
             returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
+            logging.info("parent is not Nonegetting firebase value [" + settingname + "]")
         else:
             returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
-        
+            logging.info("else getting firebase value [" + settingname + "]")
+
         logging.info("getting firebase value [" + settingname + "]")
         return returnVal
 
