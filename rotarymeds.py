@@ -78,7 +78,7 @@ logging.info("Creating FirebaseConnection")
 firebaseConnection = FirebaseConnection(str(boxState.cpuId))
 logging.info("Done creating FirebaseConnection")
 
-def getLatestScheduleFromFirebase():
+def getFirebaseValuesAndSetDefaultsIfNeeded():
     global scheduleInner
     global scheduleOuter
 
@@ -104,8 +104,19 @@ def getLatestScheduleFromFirebase():
 
     boxSettings.innerSchedule = scheduleInner
 
+    defaultLatestMove = {
+        "totalStepsDone": 0,
+        "stopMoving": 0,
+        "stepsDoneAfterIRtrigger": 0,
+        "timestamp": "1900-01-01 00:00:00",
+    }
+    boxState.latestMoveInner = firebaseConnection.getFirebaseValue("latestMove",defaultLatestMove, "inner")
+    boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("latestMove",defaultLatestMove, "outer")
 
-getLatestScheduleFromFirebase()
+
+
+
+getFirebaseValuesAndSetDefaultsIfNeeded()
 
 
 firebaseConnection.setFirebaseValue("moveNowInner", False)
@@ -231,12 +242,13 @@ def move(stepper):
     latestMove = {
         "totalStepsDone": stepsDone,
         "stopMoving": stopMoving,
-        "stepsDoneWhenIRtrigger": stepsDoneWhenIRtrigger,
         "stepsDoneAfterIRtrigger": stepsDone - stepsDoneWhenIRtrigger,
-        "minimumMove": stepper.minMove,
-        "maximumMove": stepper.maxMove,
         "timestamp": now.strftime('%Y-%m-%d %H:%M:%S'),
     }
+    if(stepper.name == "inner"):
+        boxState.latestMoveInner = latestMove
+    else:
+        boxState.latestMoveOuter = latestMove
 
     firebaseConnection.setFirebaseValue(stepper.name, latestMove, "latestMove")
     GPIO.output(stepper.chanList, arrOff)
@@ -247,21 +259,20 @@ def move(stepper):
     logging.info(" ")
 
 
-buttonLedIsOn = True
+boxState.buttonLedOn = True
 
 
 def setButtonLedOn(setToOn):
-    global buttonLedIsOn
     if(setToOn):
         logging.info("setButtonLedOn    : turning ON the buttonLed")
-        buttonLedIsOn = True
+        boxState.buttonLedOn = True
         GPIO.output(buttonLedPin, GPIO.HIGH)
         GPIO.output(whiteLedPin, GPIO.HIGH)
         firebaseConnection.setFirebaseValue("buttonLedOn", True)
 
     else:
         logging.info("setButtonLedOn    : turning OFF the buttonLed")
-        buttonLedIsOn = False
+        boxState.buttonLedOn = False
         GPIO.output(buttonLedPin, GPIO.LOW)
         GPIO.output(whiteLedPin, GPIO.LOW)
         firebaseConnection.setFirebaseValue("buttonLedOn", False)
@@ -468,7 +479,6 @@ def thread_button(name):
     timeButtonNotPressed = 0
     timeGreenButtonPushed = 0
 
-    global buttonLedIsOn
     while not exitapp:
         try:
 
@@ -479,7 +489,7 @@ def thread_button(name):
                     logging.info(
                         "thread_button    : buttonPin button was pushed!")
 
-                    if(buttonLedIsOn):
+                    if(boxState.buttonLedOn):
                         setButtonLedOn(False)
                     else:
                         setButtonLedOn(True)
