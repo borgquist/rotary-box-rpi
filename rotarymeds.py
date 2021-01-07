@@ -30,7 +30,7 @@ logging.info("pyrebase loaded")
 
 boxSettings = FirebaseBoxSettings()
 boxState = FirebaseBoxState()
-boxState.version = "1.0.17"
+boxState.version = "1.0.18"
 logging.info("version is " + boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
@@ -442,7 +442,6 @@ def stream_handler(message):
         logging.error("exception in stream_handler " + traceback.format_exc())
 
 # turn off led at midnight
-
 
 def thread_time(name):
     lastTimeStampUpdate = 0
