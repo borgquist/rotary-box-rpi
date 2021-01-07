@@ -29,7 +29,7 @@ class FirebaseConnection:
     database = firebase.database()
 
 
-    def setFirebaseValue(self, settingname, newValue, parent, grandparent):
+    def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None):
         logging.info("getting [" + str(settingname) +
                     "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
         node = self.database.child("box").child(
