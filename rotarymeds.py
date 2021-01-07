@@ -402,7 +402,7 @@ def thread_time(name):
                 setupStreamToFirebase()
 
             if(timestampNow - lastTimeStampUpdate > 60):
-                setFirebaseValue(
+                firebaseConnection.setFirebaseValue(
                     "timestamp", now.strftime('%Y-%m-%d %H:%M:%S'))
                 lastTimeStampUpdate = timestampNow
 
