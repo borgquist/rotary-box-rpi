@@ -29,14 +29,15 @@ class FirebaseConnection:
     database = firebase.database()
 
 
-    def setFirebaseValue(self, settingname, newValue):
+    def setFirebaseValue(self, settingname, newValue, parent, grandparent):
         logging.info("getting [" + str(settingname) +
                     "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
-        currentValue = self.database.child("box").child(
-            "boxes").child(self.cpuid).child(settingname).get()
+        node = self.database.child("box").child(
+            "boxes").child(self.cpuid).child(settingname)
+
+        currentValue = node.get()
         if(currentValue.val() != newValue):
-            self.database.child("box").child("boxes").child(
-                self.cpuid).child(settingname).set(newValue)
+           node.set(newValue)
             if(settingname != "timestamp"):
                 logging.info("updated [" + settingname + "] from [" +
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
