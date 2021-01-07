@@ -75,7 +75,7 @@ while(not haveInternet()):
 logging.info("have internet connectivity")
 
 logging.info("Creating FirebaseConnection")
-firebaseConnection = FirebaseConnection(boxState.cpuId)
+firebaseConnection = FirebaseConnection(str(boxState.cpuId))
 logging.info("Done creating FirebaseConnection")
 
 def getLatestScheduleFromFirebase():

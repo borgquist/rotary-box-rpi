@@ -6,6 +6,8 @@ class FirebaseConnection:
     
     def __init__(self, cpuid):
         self.cpuid = cpuid
+        print("cpuid constructor: [" + cpuid "]")
+        
 
     configFilePath = '/home/pi/shared/config.json'
     with open(configFilePath, 'r') as f:
@@ -41,6 +43,7 @@ class FirebaseConnection:
 
 
     def getFirebaseValue(self, settingname, defaultValue):
+        print("cpuid" + cpuid)
         settingValue = self.database.child("box").child(
             "boxes").child(cpuid).child(settingname).get()
         if settingValue.val() is None:
