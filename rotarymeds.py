@@ -11,7 +11,6 @@ import traceback
 import subprocess
 from boxsettings import FirebaseBoxSettings
 from boxstate import FirebaseBoxState
-from stepper import Stepper
 
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
