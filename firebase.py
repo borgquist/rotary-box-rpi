@@ -37,7 +37,7 @@ class FirebaseConnection:
 
         currentValue = node.get()
         if(currentValue.val() != newValue):
-           node.set(newValue)
+            node.set(newValue)
             if(settingname != "timestamp"):
                 logging.info("updated [" + settingname + "] from [" +
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
