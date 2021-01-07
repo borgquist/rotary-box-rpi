@@ -78,7 +78,7 @@ class FirebaseConnection:
         else:
             returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
         
-        logging.info("getting firebase value [" + settingname + "], value is [" + returnVal +"]")
+        logging.info("getting firebase value [" + settingname + "], value is [" + str(returnVal) +"]")
         return returnVal
 
 
