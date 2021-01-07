@@ -110,8 +110,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
         "stepsDoneAfterIRtrigger": 0,
         "timestamp": "1900-01-01 00:00:00",
     }
-    boxState.latestMoveInner = firebaseConnection.getFirebaseValue("latestMove",defaultLatestMove, "inner")
-    boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("latestMove",defaultLatestMove, "outer")
+    boxState.latestMoveInner = firebaseConnection.getFirebaseValue("inner", defaultLatestMove, "latestMove")
+    boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("outer", defaultLatestMove, "latestMove")
 
 
 
