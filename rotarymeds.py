@@ -340,13 +340,11 @@ def getNextMove(innerOrOuter):
 def stream_handler(message):
     try:
         if message["path"].startswith("/schedule"):
-            newVal = firebaseConnection.database.child("box").child("boxes").child(
-                boxState.cpuId).child("schedule").get().val()
+            newVal = firebaseConnection.getFirebaseValue("schedule")
             logging.info("firebase: schedule has new value: " + str(newVal))
-            firebaseConnection.getLatestScheduleFromFirebase()
+            getLatestScheduleFromFirebase()
         if message["path"] == "/setButtonLed":
-            newVal = firebaseConnection.database.child("box").child("boxes").child(
-                boxState.cpuId).child("setButtonLed").get().val()
+            newVal = firebaseConnection.getFirebaseValue("setButtonLed")
             logging.info(
                 "firebase: setButtonLed has new value: " + str(newVal))
             if(newVal == "on"):
@@ -355,8 +353,7 @@ def stream_handler(message):
                 setButtonLedOn(False)
             firebaseConnection.setFirebaseValue("setButtonLed", False)
         if message["path"] == "/moveNowOuter":
-            newVal = firebaseConnection.database.child("box").child("boxes").child(
-                boxState.cpuId).child("moveNowOuter").get().val()
+            newVal = firebaseConnection.getFirebaseValue("moveNowOuter")
             logging.info(
                 "firebase: moveNowOuter has new value: " + str(newVal))
             if(bool(newVal)):
@@ -365,8 +362,7 @@ def stream_handler(message):
                 firebaseConnection.setFirebaseValue("moveNowOuter", False)
                 move_stepper_outer()
         if message["path"] == "/moveNowInner":
-            newVal = firebaseConnection.database.child("box").child("boxes").child(
-                boxState.cpuId).child("moveNowInner").get().val()
+            newVal = firebaseConnection.getFirebaseValue("moveNowInner")
             logging.info(
                 "firebase: moveNowInner has new value: " + str(newVal))
             if(bool(newVal)):

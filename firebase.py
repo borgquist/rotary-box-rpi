@@ -59,9 +59,7 @@ class FirebaseConnection:
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
 
 
-    def getFirebaseValue(self, settingname, defaultValue):
-        parent = None
-        grandparent = None
+    def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None):
         if(parent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
         elif(grandparent is None):
@@ -70,18 +68,17 @@ class FirebaseConnection:
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
         
         if settingValue.val() is None:
+            if defaultValue is None:
+                return None
             setFirebaseValue(settingname, defaultValue, parent, grandparent)
         
         if(grandparent is not None):
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child
-            logging.info("grandparent is not None getting firebase value [" + settingname + "]")
+            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get().val()
         elif(parent is not None):
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
-            logging.info("parent is not Nonegetting firebase value [" + settingname + "]")
+            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get().val()
         else:
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
-            logging.info("else getting firebase value [" + settingname + "]")
-
+            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get().val()
+        
         logging.info("getting firebase value [" + settingname + "]")
         return returnVal
 
