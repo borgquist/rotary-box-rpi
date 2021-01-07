@@ -32,12 +32,10 @@ class FirebaseConnection:
     def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None):
         logging.info("getting [" + str(settingname) +
                     "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
-        node = self.database.child("box").child(
-            "boxes").child(self.cpuid).child(settingname)
-
-        currentValue = node.get()
+        
+        currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
         if(currentValue.val() != newValue):
-            node.set(newValue)
+            self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
             if(settingname != "timestamp"):
                 logging.info("updated [" + settingname + "] from [" +
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
