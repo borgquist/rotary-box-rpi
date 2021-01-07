@@ -2,6 +2,10 @@ import pyrebase
 import json
 
 class FirebaseConnection:
+
+    def ___init__(self, cpuid):
+        self.cpuid = cpuid
+
     configFilePath = '/home/pi/shared/config.json'
     with open(configFilePath, 'r') as f:
         configToBeLoaded = json.load(f)
@@ -26,10 +30,10 @@ class FirebaseConnection:
         logging.info("getting [" + str(settingname) +
                     "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
         currentValue = self.database.child("box").child(
-            "boxes").child(boxState.cpuId).child(settingname).get()
+            "boxes").child(cpuid).child(settingname).get()
         if(currentValue.val() != newValue):
             self.database.child("box").child("boxes").child(
-                boxState.cpuId).child(settingname).set(newValue)
+                cpuid).child(settingname).set(newValue)
             if(settingname != "timestamp"):
                 logging.info("updated [" + settingname + "] from [" +
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
@@ -37,11 +41,11 @@ class FirebaseConnection:
 
     def getFirebaseValue(self, settingname, defaultValue):
         settingValue = self.database.child("box").child(
-            "boxes").child(boxState.cpuId).child(settingname).get()
+            "boxes").child(cpuid).child(settingname).get()
         if settingValue.val() is None:
             setFirebaseValue(settingname, defaultValue)
         returnVal = self.database.child("box").child("boxes").child(
-            boxState.cpuId).child(settingname).get().val()
+            cpuid).child(settingname).get().val()
         logging.info("getting firebase value [" + settingname + "]")
         return returnVal
 
