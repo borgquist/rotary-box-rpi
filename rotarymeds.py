@@ -223,7 +223,7 @@ def move_stepper_inner():
         logging.info("inner: waiting for other move to be done")
         time.sleep(1)
     moveIsBeingDone = True
-    move("move_stepper_inner", boxSettings.outerStepper)
+    move("move_stepper_inner", boxSettings.innerStepper)
     moveIsBeingDone = False
 
 
