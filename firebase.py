@@ -51,9 +51,9 @@ class FirebaseConnection:
 
             if(settingname != "timestamp"):
                 logMessasge = settingname
-                if(parent is not None)
+                if(parent is not None):
                     logMessasge = parent + "/" + logMessasge
-                    if(grandparent is not None)
+                    if(grandparent is not None):
                         logMessasge = grandparent + "/" + logMessasge
                 logging.info("updated [" + logMessasge + "] from [" +
                             str(currentValue.val()) + "] to[" + str(newValue) + "]")
