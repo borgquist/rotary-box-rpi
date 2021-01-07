@@ -2,7 +2,8 @@ import pyrebase
 import json
 
 class FirebaseConnection:
-
+    cpuid = 0
+    
     def ___init__(self, cpuid):
         self.cpuid = cpuid
 
