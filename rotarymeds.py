@@ -11,6 +11,7 @@ import traceback
 import subprocess
 from boxsettings import FirebaseBoxSettings
 from boxstate import FirebaseBoxState
+from stepper import Stepper
 
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
@@ -151,6 +152,8 @@ scheduleOuter = schedule["outer"]
 scheduleInner = schedule["inner"]
 
 
+logging.info("next move today of inner is " + str(getNextMove(scheduleInner)))
+logging.info("next move today of outer is " + str(getNextMove(scheduleOuter)))
 
 
 def getLatestScheduleFromFirebase():
@@ -395,14 +398,20 @@ def getNextMoveInner():
     return nextMove
 
 nextMoveOuter = 0
-def getNextMoveOuter():
-    global scheduleOuter
+def getNextMove(innerOrOuter):
+    global nextMoveInner
     global nextMoveOuter
 
-    todayWeekday = getWeekday(datetime.datetime.today())
-
+    if(innerOrOuter == "inner"):
+        schedule = scheduleInner
+        currentCachedValue = nextMoveInner
+    else:
+        schedule = scheduleOuter
+        currentCachedValue = nextMoveOuter
+        
     nextMove = 0
-    for scheduledMove in scheduleOuter:
+    todayWeekday = getWeekday(datetime.datetime.today())
+    for scheduledMove in schedule:
         for dayInRecord in scheduledMove['day']:
 
             isTodayMoveDay = False
@@ -424,16 +433,14 @@ def getNextMoveOuter():
                     nextMove = possibleNextMove
                 elif(possibleNextMove < nextMove):
                     nextMove = possibleNextMove
-                    logging.info(
-                        "getNextMoveOuter    :  setting nextMove to " + str(nextMove))
-    if(str(nextMove) != str(nextMoveOuter)):
-        logging.info("nextMoveOuter has changed, old [" + str(
-            nextMoveOuter) + "] new [" + str(nextMove) + "] updating Firebase")
-        setFirebaseValue("nextMoveOuter", str(nextMove).strip())
-        nextMoveOuter = nextMove
 
+    if(str(nextMove) != str(currentCachedValue)):
+        setFirebaseValue("nextMove" + innerOrOuter, str(nextMove).strip())
+        if(innerOrOuter == "inner"):
+            nextMoveInner = nextMove
+        else:
+            nextMoveOuter = nextMove                
     return nextMove
-
 
 
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
@@ -544,7 +551,7 @@ def thread_move_outer(name):
 
     while not exitapp:
         try:
-            nextMove = getNextMoveOuter()
+            nextMove = getNextMove(scheduleOuter)
             if(nextMove != 0):
                 now = datetime.datetime.now()
 
@@ -677,8 +684,6 @@ if __name__ == '__main__':
             logging.info(
                 "OK our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
 
-        logging.info("next move today of inner is " + str(getNextMoveInner()))
-        logging.info("next move today of outer is " + str(getNextMoveOuter()))
 
         buttonThread = threading.Thread(target=thread_button, args=(1,))
         buttonThread.start()
