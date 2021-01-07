@@ -223,7 +223,7 @@ def move_stepper_inner():
         logging.info("inner: waiting for other move to be done")
         time.sleep(1)
     moveIsBeingDone = True
-    move("move_stepper_inner", boxSettings.innerStepper)
+    move(boxSettings.innerStepper)
     moveIsBeingDone = False
 
 
@@ -234,7 +234,7 @@ def move_stepper_outer():
                      moveIsBeingDone)
         time.sleep(1)
     moveIsBeingDone = True
-    move("move_stepper_outer", boxSettings.outerStepper)
+    move(boxSettings.outerStepper)
     moveIsBeingDone = False
 
 
@@ -254,7 +254,7 @@ def releaseBothMotors():
 stopMoving = False
 
 
-def move(rotaryName, stepper):
+def move(stepper):
     global stopMoving
     global arr1  # enables the edit of arr1 var inside a function
     global arr2  # enables the edit of arr2 var inside a function
@@ -291,7 +291,7 @@ def move(rotaryName, stepper):
     while stopMoving == False and stepsDone < stepper.maxMove:
         stepsDone = oneStep(stepsDone)
 
-    logMessage = rotaryName + " totalStepsDone [" + str(stepsDone) + "] stopMoving [" + str(stopMoving) + "] stepsDoneWhenIRtrigger [" + str(
+    logMessage = stepper.name + " totalStepsDone [" + str(stepsDone) + "] stopMoving [" + str(stopMoving) + "] stepsDoneWhenIRtrigger [" + str(
         stepsDoneWhenIRtrigger) + "] stepsDoneAfterIRtrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "] minimumMove [" + str(stepper.minMove) + "] maximumMove [" + str(stepper.maxMove) + "]"
     logging.info("move    : " + logMessage)
     now = datetime.datetime.now()
@@ -308,7 +308,7 @@ def move(rotaryName, stepper):
 
     # TODO move to setting method at start
     database.child("box").child("boxes").child(boxState.cpuId).child(
-        "latestMove").child(rotaryName).set(latestMove)
+        "latestMove").child(stepper.name).set(latestMove)
 
     GPIO.output(stepper.chanList, arrOff)
 
