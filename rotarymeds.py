@@ -1,9 +1,9 @@
-
 import os
 import logging
 from typing import List
 import RPi.GPIO as GPIO
 import datetime
+from datetime import timedelta  
 import time
 import threading
 import json
@@ -13,6 +13,7 @@ import subprocess
 
 from firebase import FirebaseConnection
 from box import Box
+from datetimefunctions import DateTimeFunctions
 
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
@@ -285,24 +286,6 @@ def setButtonLedOn(setToOn):
         firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
 
 
-def getWeekday(datetime):
-    if datetime.weekday() == 0:
-        return "Monday"
-    if datetime.weekday() == 1:
-        return "Tuesday"
-    if datetime.weekday() == 2:
-        return "Wednesday"
-    if datetime.weekday() == 3:
-        return "Thursday"
-    if datetime.weekday() == 4:
-        return "Friday"
-    if datetime.weekday() == 5:
-        return "Saturday"
-    if datetime.weekday() == 6:
-        return "Sunday"
-
-    return "unknownDay"
-
 
 nextMoveInner = 0
 nextMoveOuter = 0
@@ -312,6 +295,8 @@ def getNextMove(innerOrOuter):
     global nextMoveInner
     global nextMoveOuter
 
+    todayWeekday = DateTimeFunctions.getWeekday(datetime.datetime.today())
+
     if(innerOrOuter == "inner"):
         schedule = scheduleInner
         currentCachedValue = nextMoveInner
@@ -320,29 +305,19 @@ def getNextMove(innerOrOuter):
         currentCachedValue = nextMoveOuter
 
     nextMove = 0
-    todayWeekday = getWeekday(datetime.datetime.today())
     for scheduledMove in schedule:
         for dayInRecord in scheduledMove['day']:
+            candiate = DateTimeFunctions.dateTimeFromSchedule(dayInRecord, scheduledMove['hour'], scheduledMove['minute'])
+            logging.info("evaluating [" + str(scheduledMove) + "]")
+            if(nextMove == 0):
+                nextMove = candiate
+                logging.info("setting [" + str(scheduledMove) + "] to next move since previous was 0")
+            elif(nextMove > candiate):
+                logging.info("setting [" + str(scheduledMove) + "] to next move since it is earlier than [" + str(nextMove) + "]")
+                nextMove = candiate
+                
+                
 
-            isTodayMoveDay = False
-
-            if(dayInRecord == todayWeekday):
-                isTodayMoveDay = True
-            elif(dayInRecord == "everyday"):
-                isTodayMoveDay = True
-
-            if(isTodayMoveDay):
-                moveDate = datetime.datetime.today()
-                moveTime = datetime.time(
-                    scheduledMove['hour'], scheduledMove['minute'], 0)
-                possibleNextMove = datetime.datetime.combine(
-                    moveDate, moveTime)
-                if(possibleNextMove < datetime.datetime.now()):
-                    break
-                elif(nextMove == 0):
-                    nextMove = possibleNextMove
-                elif(possibleNextMove < nextMove):
-                    nextMove = possibleNextMove
 
     if(str(nextMove) != str(currentCachedValue)):
         firebaseConnection.setFirebaseValue(
