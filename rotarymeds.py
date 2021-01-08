@@ -29,8 +29,8 @@ logging.info("Starting rotarymeds.py")
 box = Box()
 
 
-box.boxSettings.version = "1.0.20"
-logging.info("version is " + box.boxSettings.version)
+box.boxState.version = "1.0.20"
+logging.info("version is " + box.boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -46,6 +46,7 @@ def getserial():
         f.close()
     except:
         cpuserial = "ERROR000000000"
+        logging.error("cpuserial was not found")
 
     return cpuserial
 
@@ -56,8 +57,8 @@ logging.info("CPU serial is [" + str(box.boxState.cpuId) + "]")
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect((googleHostForInternetCheck, 0))
-box.boxSettings.ipAddress = s.getsockname()[0]
-box.boxSettings.hostname = socket.gethostname()
+box.boxState.ipAddress = s.getsockname()[0]
+box.boxState.hostname = socket.gethostname()
 
 
 logging.info("checking internet connectivity")
@@ -516,24 +517,24 @@ if __name__ == '__main__':
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
-        firebaseConnection.setFirebaseValue("ipAddress", box.boxSettings.ipAddress, "settings")
-        firebaseConnection.setFirebaseValue("hostname", box.boxSettings.hostname, "settings")
-        firebaseConnection.setFirebaseValue("version", box.boxSettings.version, "settings")
+        firebaseConnection.setFirebaseValue("ipAddress", box.boxState.ipAddress, "state")
+        firebaseConnection.setFirebaseValue("hostname", box.boxState.hostname, "state")
+        firebaseConnection.setFirebaseValue("version", box.boxState.version, "state")
         logging.info("next move today of inner is " +
                      str(getNextMove("inner")))
         logging.info("next move today of outer is " +
                      str(getNextMove("outer")))
 
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
-        if(box.boxSettings.version != latestVersionAvailable):
+        if(box.boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
                 logging.error("unable to get latest_version from firebase")
             else:
                 logging.warning(
-                    "our version [" + box.boxSettings.version + "] latest_version [" + latestVersionAvailable + "]")
+                    "our version [" + box.boxState.version + "] latest_version [" + latestVersionAvailable + "]")
         else:
             logging.info(
-                "OK our version [" + box.boxSettings.version + "] latest_version [" + latestVersionAvailable + "]")
+                "OK our version [" + box.boxState.version + "] latest_version [" + latestVersionAvailable + "]")
 
         buttonThread = threading.Thread(target=thread_button, args=(1,))
         buttonThread.start()
