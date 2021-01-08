@@ -88,13 +88,11 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     global scheduleInner
     global scheduleOuter
 
-
     defaultSchedule = {"inner": [{"day": ["everyday"], "hour":7, "minute":0}], "outer": [
         {"day": ["everyday"], "hour":7, "minute":0}]}
 
-    schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule)
-    scheduleOuter = schedule["outer"]
-    scheduleInner = schedule["inner"]
+    scheduleInner = firebaseConnection.getFirebaseValue('innerSchedule', defaultSchedule, "settings")
+    scheduleOuter = firebaseConnection.getFirebaseValue('outerSchedule', defaultSchedule, "settings")
 
     defaultStepSettings = {"inner": {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360}, "outer": {
         "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
@@ -119,11 +117,6 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     }
     box.boxState.latestMoveInner = firebaseConnection.getFirebaseValue("inner", defaultLatestMove, "latestMove")
     box.boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("outer", defaultLatestMove, "latestMove")
-
-    logging.info("trying the json")
-    logging.info(box.boxSettings.toJSON())
-    firebaseConnection.setFirebaseValue("settings", box.boxSettings.toJSON())
-    logging.info("done with the json")
     
 
 
