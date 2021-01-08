@@ -289,26 +289,26 @@ def getNextMove(innerOrOuter):
         schedule = box.boxSettings.outerSchedule
         currentCachedValue = box.boxState.nextMoveOuter
 
-    _nextMove = 0
+    nextMove = 0
     for scheduledMove in schedule:
         for dayInRecord in scheduledMove['day']:
             candiate = DateTimeFunctions.dateTimeFromSchedule(dayInRecord, scheduledMove['hour'], scheduledMove['minute'])
             if(candiate is None):
                 logging.warning("this is odd, candidate was None [" + str(scheduledMove) + "]")
             else:
-                if(_nextMove == 0):
+                if(nextMove == 0):
                     nextMove = candiate
-                elif(_nextMove > candiate):
+                elif(nextMove > candiate):
                     nextMove = candiate
                 
-    if(str(_nextMove) != str(currentCachedValue)):
+    if(str(nextMove) != str(currentCachedValue)):
         firebaseConnection.setFirebaseValue(
-            str("nextMove" + str(innerOrOuter.capitalize())), str(_nextMove).strip(), "state")
+            str("nextMove" + str(innerOrOuter.capitalize())), str(nextMove).strip(), "state")
         if(innerOrOuter == "inner"):
-            box.boxState.nextMoveInner = _nextMove
+            box.boxState.nextMoveInner = nextMove
         else:
-            box.boxState.nextMoveOuter = _nextMove
-    return _nextMove
+            box.boxState.nextMoveOuter = nextMove
+    return nextMove
 
 
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
