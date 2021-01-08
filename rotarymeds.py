@@ -355,9 +355,13 @@ def getNextMove(innerOrOuter):
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
 def stream_handler(message):
     try:
-        if message["path"].startswith("/schedule"):
-            newVal = firebaseConnection.getFirebaseValue("schedule")
-            logging.info("firebase: schedule has new value: " + str(newVal))
+        if message["path"].startswith("/settings/innerSchedule"):
+            newVal = firebaseConnection.getFirebaseValue("innerSchedule",None,"settings")
+            logging.info("firebase: innerSchedule has new value: " + str(newVal))
+            getFirebaseValuesAndSetDefaultsIfNeeded()
+        if message["path"].startswith("/settings/outerSchedule"):
+            newVal = firebaseConnection.getFirebaseValue("outerSchedule",None,"settings")
+            logging.info("firebase: outerSchedule has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
         if message["path"] == "/setButtonLed":
             newVal = firebaseConnection.getFirebaseValue("setButtonLed")
