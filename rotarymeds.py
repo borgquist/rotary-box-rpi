@@ -310,6 +310,41 @@ def getNextMove(innerOrOuter):
     return nextMove
 
 
+def checkCommandSetButtonLed():
+    newVal = firebaseConnection.getFirebaseValue("setButtonLed", False, "commands")
+    if(bool(newVal) is False):
+        return
+    logging.info(
+        "firebase: setButtonLed has new value: " + str(newVal))
+    if(newVal == "on"):
+        setButtonLedOn(True)
+    if(newVal == "off"):
+        setButtonLedOn(False)
+    firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
+
+def checkCommandMoveNowOuter():
+    newVal = firebaseConnection.getFirebaseValue("moveNowOuter", False, "commands")
+    if(bool(newVal)):
+        logging.info(
+            "we should move outer now, setting moveNowOuter to false before moving to avoid multiple triggers")
+        firebaseConnection.setFirebaseValue("moveNowOuter", False, "commands")
+        move_stepper_outer()
+
+def checkCommandMoveNowInner():
+    newVal = firebaseConnection.getFirebaseValue("moveNowInner", False, "commands")
+    if(bool(newVal)):
+        logging.info(
+            "we should move outer now, setting moveNowInner to false before moving to avoid multiple triggers")
+        firebaseConnection.setFirebaseValue("moveNowInner", False, "commands")
+        move_stepper_inner()
+
+
+def checkCommandsNodes():
+    logging.info("checkCommandsNodes called")
+    checkCommandSetButtonLed()
+    checkCommandMoveNowOuter()
+    checkCommandMoveNowInner()
+
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
 def stream_handler(message):
     try:
@@ -322,32 +357,11 @@ def stream_handler(message):
             logging.info("firebase: scheduleOuter has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
         if message["path"] == "/commands/setButtonLed":
-            newVal = firebaseConnection.getFirebaseValue("setButtonLed", False, "commands")
-            logging.info(
-                "firebase: setButtonLed has new value: " + str(newVal))
-            if(newVal == "on"):
-                setButtonLedOn(True)
-            if(newVal == "off"):
-                setButtonLedOn(False)
-            firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
+            checkCommandSetButtonLed()
         if message["path"] == "/commands/moveNowOuter":
-            newVal = firebaseConnection.getFirebaseValue("moveNowOuter", False, "commands")
-            logging.info(
-                "firebase: moveNowOuter has new value: " + str(newVal))
-            if(bool(newVal)):
-                logging.info(
-                    "we should move outer now, setting moveNowOuter to false before moving to avoid multiple triggers")
-                firebaseConnection.setFirebaseValue("moveNowOuter", False, "commands")
-                move_stepper_outer()
+           checkCommandMoveNowOuter()
         if message["path"] == "/commands/moveNowInner":
-            newVal = firebaseConnection.getFirebaseValue("moveNowInner", False, "commands")
-            logging.info(
-                "firebase: moveNowInner has new value: " + str(newVal))
-            if(bool(newVal)):
-                logging.info(
-                    "we should move outer now, setting moveNowInner to false before moving to avoid multiple triggers")
-                firebaseConnection.setFirebaseValue("moveNowInner", False, "commands")
-                move_stepper_inner()
+            checkCommandMoveNowInner()
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
 
@@ -505,6 +519,9 @@ def setupStreamToFirebase():
     my_stream = firebaseConnection.database.child("box").child(
         "boxes").child(box.boxState.cpuId).stream(stream_handler)
     logging.info("done setting up the stream to firebase")
+    checkCommandsNodes()
+
+
 
 
 if __name__ == '__main__':
