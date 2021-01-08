@@ -54,6 +54,11 @@ box.boxState.cpuId = getserial()
 
 logging.info("CPU serial is [" + str(box.boxState.cpuId) + "]")
 
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect((googleHostForInternetCheck, 0))
+box.boxSettings.ipAddress = s.getsockname()[0]
+box.boxSettings.hostname = socket.gethostname()
+
 
 logging.info("checking internet connectivity")
 
@@ -104,6 +109,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxSettings.outerStepper.minMove = stepSettings["outer"]["minMove"]
 
     box.boxSettings.innerSchedule = scheduleInner
+    box.boxSettings.outerSchedule = scheduleInner
 
     defaultLatestMove = {
         "totalStepsDone": 0,
@@ -554,10 +560,7 @@ if __name__ == '__main__':
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect((googleHostForInternetCheck, 0))
-        box.boxSettings.ipAddress = s.getsockname()[0]
-        box.boxSettings.hostname = socket.gethostname()
+
         firebaseConnection.setFirebaseValue("ipAddress", box.boxSettings.ipAddress)
         firebaseConnection.setFirebaseValue("hostname", box.boxSettings.hostname)
         firebaseConnection.setFirebaseValue("version", box.boxSettings.version)
