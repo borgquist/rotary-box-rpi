@@ -54,17 +54,17 @@ class DateTimeFunctions:
 
         if(weekdayOfMove == "everyday"):
             if(DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
-                logging.info("has already passed today: [" + str(hourOfMove) + "] minute [" + minuteOfMove + "] is before now [" + str(datetime.datetime.now()) + "]")
+                logging.info("has already passed today: [" + str(hourOfMove) + "] minute [" + str(minuteOfMove) + "] is before now [" + str(datetime.datetime.now()) + "]")
                 dayPart = datetime.datetime.today() + timedelta(days=1)
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
             else:
-                logging.info("this is for today and hasn't passed: [" + str(hourOfMove) + "] minute [" + minuteOfMove + "] is NOT before now [" + str(datetime.datetime.now()) + "]")
+                logging.info("this is for today and hasn't passed: [" + str(hourOfMove) + "] minute [" + str(minuteOfMove) + "] is NOT before now [" + str(datetime.datetime.now()) + "]")
                 dayPart = datetime.datetime.today()
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
             logging.info("everyday identified candidate: " + candidateForNextMove.strftime('%Y-%m-%d %H:%M:%S'))
             return candidateForNextMove
 
-        if(weekdayOfMove == todayWeekday and not self.isTimeBeforeNow(hourOfMove, minuteOfMove)):
+        if(weekdayOfMove == todayWeekday and not DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
             dayPart = datetime.datetime.today()
             candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
             logging.info("nextDateTime identified candidate: " + candidateForNextMove.strftime('%Y-%m-%d %H:%M:%S'))
@@ -78,5 +78,5 @@ class DateTimeFunctions:
                 logging.info("identified candidate [" + str(x + 1) + "] days from now: " + candidateForNextMove.strftime('%Y-%m-%d %H:%M:%S'))
                 return candidateForNextMove
         
-        logging.warning("this shouldn't happen, we should have found it by now [" + weekdayOfMove + "] hour [" + hourOfMove + "] minute [" + minuteOfMove + "] now ["+ datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "]" )
+        logging.warning("this shouldn't happen, we should have found it by now [" + str(weekdayOfMove) + "] hour [" + str(hourOfMove) + "] minute [" + str(minuteOfMove) + "] now ["+ datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "]" )
         return None
