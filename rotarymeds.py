@@ -88,8 +88,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     global scheduleInner
     global scheduleOuter
 
-    defaultSchedule = {"inner": [{"day": ["everyday"], "hour":7, "minute":0}], "outer": [
-        {"day": ["everyday"], "hour":7, "minute":0}]}
+    defaultSchedule ={"day": ["everyday"], "hour":7, "minute":0}
 
     scheduleInner = firebaseConnection.getFirebaseValue('innerSchedule', defaultSchedule, "settings")
     scheduleOuter = firebaseConnection.getFirebaseValue('outerSchedule', defaultSchedule, "settings")
