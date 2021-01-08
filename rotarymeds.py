@@ -6,7 +6,6 @@ import datetime
 from datetime import timedelta  
 import time
 import threading
-import json
 import socket  # used for hostname
 import traceback
 import subprocess
@@ -86,13 +85,11 @@ firebaseConnection = FirebaseConnection(str(box.boxState.cpuId))
 logging.info("Done creating FirebaseConnection")
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
-    global scheduleInner
-    global scheduleOuter
 
     defaultSchedule =[{"day": ["everyday"], "hour":7, "minute":0}]
 
-    scheduleInner = firebaseConnection.getFirebaseValue('innerSchedule', defaultSchedule, "settings")
-    scheduleOuter = firebaseConnection.getFirebaseValue('outerSchedule', defaultSchedule, "settings")
+    box.boxSettings.innerSchedule = firebaseConnection.getFirebaseValue('innerSchedule', defaultSchedule, "settings")
+    box.boxSettings.outerSchedule = firebaseConnection.getFirebaseValue('outerSchedule', defaultSchedule, "settings")
 
     defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [17, 27, 22, 23]} 
     defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640, "chanList": [24, 13, 26, 12]} 
@@ -112,9 +109,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxSettings.outerStepper.minMove = outerStepSettnigs["minMove"]
     box.boxSettings.outerStepper.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
     box.boxSettings.outerStepper.name = outerStepSettnigs["name"]
-    
-    box.boxSettings.innerSchedule = scheduleInner
-    box.boxSettings.outerSchedule = scheduleInner
+
 
     defaultLatestMove = {
         "totalStepsDone": 0,
@@ -286,44 +281,34 @@ def setButtonLedOn(setToOn):
         firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
 
 
-
-nextMoveInner = 0
-nextMoveOuter = 0
-
-
 def getNextMove(innerOrOuter):
-    global nextMoveInner
-    global nextMoveOuter
-
     if(innerOrOuter == "inner"):
-        schedule = scheduleInner
-        currentCachedValue = nextMoveInner
+        schedule = box.boxSettings.innerSchedule
+        currentCachedValue = box.boxState.nextMoveInner
     else:
-        schedule = scheduleOuter
-        currentCachedValue = nextMoveOuter
+        schedule = box.boxSettings.outerSchedule
+        currentCachedValue = box.boxState.nextMoveOuter
 
-    nextMove = 0
+    _nextMove = 0
     for scheduledMove in schedule:
         for dayInRecord in scheduledMove['day']:
             candiate = DateTimeFunctions.dateTimeFromSchedule(dayInRecord, scheduledMove['hour'], scheduledMove['minute'])
             if(candiate is None):
-                logging.info("this is odd, candidate was None [" + str(scheduledMove) + "]")
+                logging.warning("this is odd, candidate was None [" + str(scheduledMove) + "]")
             else:
-                if(nextMove == 0):
+                if(_nextMove == 0):
                     nextMove = candiate
-                    logging.info("setting [" + str(scheduledMove) + "] to next move since previous was 0")
-                elif(nextMove > candiate):
-                    logging.info("setting [" + str(scheduledMove) + "] to next move since it is earlier than [" + str(nextMove) + "]")
+                elif(_nextMove > candiate):
                     nextMove = candiate
                 
-    if(str(nextMove) != str(currentCachedValue)):
+    if(str(_nextMove) != str(currentCachedValue)):
         firebaseConnection.setFirebaseValue(
-            str("nextMove" + str(innerOrOuter.capitalize())), str(nextMove).strip(), "state")
+            str("nextMove" + str(innerOrOuter.capitalize())), str(_nextMove).strip(), "state")
         if(innerOrOuter == "inner"):
-            nextMoveInner = nextMove
+            box.boxState.nextMoveInner = _nextMove
         else:
-            nextMoveOuter = nextMove
-    return nextMove
+            box.boxState.nextMoveOuter = _nextMove
+    return _nextMove
 
 
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is

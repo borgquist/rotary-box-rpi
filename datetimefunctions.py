@@ -1,24 +1,8 @@
 import datetime
 from datetime import timedelta
-import logging
-import os
-
-
-
 
 
 class DateTimeFunctions:
-    folderPath = '/home/pi/shared/'
-    os.makedirs(folderPath + "logs/", exist_ok=True)
-    logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-                        datefmt='%Y-%m-%d:%H:%M:%S',
-                        level=logging.INFO,
-                        handlers=[
-                            logging.FileHandler(
-                                folderPath + "logs/datetimefunctions.log"),
-                            logging.StreamHandler()
-                        ])
-    logging.info("accessing datetimefunctions.py")
 
     @staticmethod
     def getWeekday(datetime):
@@ -37,6 +21,7 @@ class DateTimeFunctions:
         if datetime.weekday() == 6:
             return "Sunday"
         return "unknownDay"
+        
     @staticmethod
     def isTimeBeforeNow(hourOfMove, minuteOfMove):
             moveTime = datetime.time(hourOfMove, minuteOfMove, 0)
@@ -46,6 +31,7 @@ class DateTimeFunctions:
                 return True
             else:
                 return False
+
     @staticmethod
     def dateTimeFromSchedule(weekdayOfMove, hourOfMove, minuteOfMove):
         weekdayOfMove = weekdayOfMove.lower()
@@ -74,5 +60,4 @@ class DateTimeFunctions:
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
                 return candidateForNextMove
         
-        logging.warning("this shouldn't happen, we should have found it by now [" + str(weekdayOfMove) + "] hour [" + str(hourOfMove) + "] minute [" + str(minuteOfMove) + "] now ["+ datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "]" )
         return None
