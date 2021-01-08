@@ -17,6 +17,7 @@ class FirebaseBoxSettings:
 
     hostname = "hostname"
     ipAddress = "1.1.1.1"
+    version = "0.0.0"
 
     def __str__(self):
         return "innerStepper [" + str(self.innerStepper) + "] outerStepper [" + str(self.outerStepper) + "] innerSchedule [" + str(self.innerSchedule) + "] outerSchedule [" + str(self.outerSchedule) + "] hostname [" + str(self.hostname) + "] ipAddress [" + str(self.ipAddress) + "]"

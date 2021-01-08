@@ -1,10 +1,8 @@
 class FirebaseBoxState:
     buttonLedOn = False
-    version = "0.0.0"
     timestamp = "1900-01-01 00:00:00"
     nextMoveInner = "0"
     nextMoveOuter = "0"
-    cpuId = ""
 
     class LatestMove:
         stepsDone = 0
@@ -19,4 +17,4 @@ class FirebaseBoxState:
     latestMoveInner = LatestMove()
 
     def __str__(self):
-        return "buttonLedOn [" + str(self.buttonLedOn) + "] version [" + str(self.version) + "] timestamp [" + str(self.timestamp) + "] nextMoveInner [" + str(self.nextMoveInner) + "] nextMoveOuter [" + str(self.nextMoveOuter) + "] cpuId [" + str(cpuId) + "]"
+        return "buttonLedOn [" + str(self.buttonLedOn) + "] timestamp [" + str(self.timestamp) + "] nextMoveInner [" + str(self.nextMoveInner) + "] nextMoveOuter [" + str(self.nextMoveOuter) + "]"

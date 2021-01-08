@@ -1,3 +1,4 @@
+
 import os
 import logging
 from typing import List
@@ -9,10 +10,9 @@ import json
 import socket  # used for hostname
 import traceback
 import subprocess
-from boxsettings import FirebaseBoxSettings
-from boxstate import FirebaseBoxState
-from stepper import Stepper
+
 from firebase import FirebaseConnection
+from box import Box
 
 folderPath = '/home/pi/shared/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
@@ -26,10 +26,11 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                     ])
 logging.info("Starting rotarymeds.py")
 
-boxSettings = FirebaseBoxSettings()
-boxState = FirebaseBoxState()
-boxState.version = "1.0.19"
-logging.info("version is " + boxState.version)
+box = Box()
+
+
+box.boxSettings.version = "1.0.19"
+logging.info("version is " + box.boxSettings.version)
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -49,9 +50,9 @@ def getserial():
     return cpuserial
 
 
-boxState.cpuId = getserial()
+box.boxState.cpuId = getserial()
 
-logging.info("CPU serial is [" + str(boxState.cpuId) + "]")
+logging.info("CPU serial is [" + str(box.boxState.cpuId) + "]")
 
 
 logging.info("checking internet connectivity")
@@ -75,7 +76,7 @@ while(not haveInternet()):
 logging.info("have internet connectivity")
 
 logging.info("Creating FirebaseConnection")
-firebaseConnection = FirebaseConnection(str(boxState.cpuId))
+firebaseConnection = FirebaseConnection(str(box.boxState.cpuId))
 logging.info("Done creating FirebaseConnection")
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
@@ -94,15 +95,15 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
         "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640}}
     stepSettings = firebaseConnection.getFirebaseValue('stepSettings', defaultStepSettings)
 
-    boxSettings.innerStepper.afterTrigger = stepSettings["inner"]["afterTrigger"]
-    boxSettings.innerStepper.maxMove = stepSettings["inner"]["maxMove"]
-    boxSettings.innerStepper.minMove = stepSettings["inner"]["minMove"]
+    box.boxSettings.innerStepper.afterTrigger = stepSettings["inner"]["afterTrigger"]
+    box.boxSettings.innerStepper.maxMove = stepSettings["inner"]["maxMove"]
+    box.boxSettings.innerStepper.minMove = stepSettings["inner"]["minMove"]
 
-    boxSettings.outerStepper.afterTrigger = stepSettings["outer"]["afterTrigger"]
-    boxSettings.outerStepper.maxMove = stepSettings["outer"]["maxMove"]
-    boxSettings.outerStepper.minMove = stepSettings["outer"]["minMove"]
+    box.boxSettings.outerStepper.afterTrigger = stepSettings["outer"]["afterTrigger"]
+    box.boxSettings.outerStepper.maxMove = stepSettings["outer"]["maxMove"]
+    box.boxSettings.outerStepper.minMove = stepSettings["outer"]["minMove"]
 
-    boxSettings.innerSchedule = scheduleInner
+    box.boxSettings.innerSchedule = scheduleInner
 
     defaultLatestMove = {
         "totalStepsDone": 0,
@@ -110,8 +111,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
         "stepsDoneAfterIRtrigger": 0,
         "timestamp": "1900-01-01 00:00:00",
     }
-    boxState.latestMoveInner = firebaseConnection.getFirebaseValue("inner", defaultLatestMove, "latestMove")
-    boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("outer", defaultLatestMove, "latestMove")
+    box.boxState.latestMoveInner = firebaseConnection.getFirebaseValue("inner", defaultLatestMove, "latestMove")
+    box.boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("outer", defaultLatestMove, "latestMove")
 
 
 
@@ -146,14 +147,14 @@ arr1 = [1, 1, 0, 0]
 arr2 = [0, 1, 0, 0]
 arrOff = [0, 0, 0, 0]
 
-boxSettings.innerStepper.chanList = [17, 27, 22, 23]  # GPIO ports to use
-boxSettings.outerStepper.chanList = [24, 13, 26, 12]  # GPIO ports to useter
-boxSettings.innerStepper.name = "inner"
-boxSettings.outerStepper.name = "outer"
+box.boxSettings.innerStepper.chanList = [17, 27, 22, 23]  # GPIO ports to use
+box.boxSettings.outerStepper.chanList = [24, 13, 26, 12]  # GPIO ports to useter
+box.boxSettings.innerStepper.name = "inner"
+box.boxSettings.outerStepper.name = "outer"
 
-for pin in boxSettings.innerStepper.chanList:
+for pin in box.boxSettings.innerStepper.chanList:
     GPIO.setup(pin, GPIO.OUT)
-for pin in boxSettings.outerStepper.chanList:
+for pin in box.boxSettings.outerStepper.chanList:
     GPIO.setup(pin, GPIO.OUT)
 
 
@@ -166,7 +167,7 @@ def move_stepper_inner():
         logging.info("inner: waiting for other move to be done")
         time.sleep(1)
     moveIsBeingDone = True
-    move(boxSettings.innerStepper)
+    move(box.boxSettings.innerStepper)
     moveIsBeingDone = False
 
 
@@ -177,21 +178,21 @@ def move_stepper_outer():
                      moveIsBeingDone)
         time.sleep(1)
     moveIsBeingDone = True
-    move(boxSettings.outerStepper)
+    move(box.boxSettings.outerStepper)
     moveIsBeingDone = False
 
 
 def holdBothMotors():
     global arr1  # enables the edit of arr1 var inside a function
     arrOUT = arr1[1:]+arr1[:1]  # rotates array values of 1 digi
-    GPIO.output(boxSettings.innerStepper.chanList, arrOUT)
-    GPIO.output(boxSettings.outerStepper.chanList, arrOUT)
+    GPIO.output(box.boxSettings.innerStepper.chanList, arrOUT)
+    GPIO.output(box.boxSettings.outerStepper.chanList, arrOUT)
 
 
 def releaseBothMotors():
     global arrOff
-    GPIO.output(boxSettings.innerStepper.chanList, arrOff)
-    GPIO.output(boxSettings.outerStepper.chanList, arrOff)
+    GPIO.output(box.boxSettings.innerStepper.chanList, arrOff)
+    GPIO.output(box.boxSettings.outerStepper.chanList, arrOff)
 
 
 stopMoving = False
@@ -246,9 +247,9 @@ def move(stepper):
         "timestamp": now.strftime('%Y-%m-%d %H:%M:%S'),
     }
     if(stepper.name == "inner"):
-        boxState.latestMoveInner = latestMove
+        box.boxState.latestMoveInner = latestMove
     else:
-        boxState.latestMoveOuter = latestMove
+        box.boxState.latestMoveOuter = latestMove
 
     firebaseConnection.setFirebaseValue(stepper.name, latestMove, "latestMove")
     GPIO.output(stepper.chanList, arrOff)
@@ -259,20 +260,20 @@ def move(stepper):
     logging.info(" ")
 
 
-boxState.buttonLedOn = True
+box.boxState.buttonLedOn = True
 
 
 def setButtonLedOn(setToOn):
     if(setToOn):
         logging.info("setButtonLedOn    : turning ON the buttonLed")
-        boxState.buttonLedOn = True
+        box.boxState.buttonLedOn = True
         GPIO.output(buttonLedPin, GPIO.HIGH)
         GPIO.output(whiteLedPin, GPIO.HIGH)
         firebaseConnection.setFirebaseValue("buttonLedOn", True)
 
     else:
         logging.info("setButtonLedOn    : turning OFF the buttonLed")
-        boxState.buttonLedOn = False
+        box.boxState.buttonLedOn = False
         GPIO.output(buttonLedPin, GPIO.LOW)
         GPIO.output(whiteLedPin, GPIO.LOW)
         firebaseConnection.setFirebaseValue("buttonLedOn", False)
@@ -486,7 +487,7 @@ def thread_button(name):
                     logging.info(
                         "thread_button    : buttonPin button was pushed!")
 
-                    if(boxState.buttonLedOn):
+                    if(box.boxState.buttonLedOn):
                         setButtonLedOn(False)
                     else:
                         setButtonLedOn(True)
@@ -536,7 +537,7 @@ def setupStreamToFirebase():
 
     logging.info("setting up the stream to firebase")
     my_stream = firebaseConnection.database.child("box").child(
-        "boxes").child(boxState.cpuId).stream(stream_handler)
+        "boxes").child(box.boxState.cpuId).stream(stream_handler)
     logging.info("done setting up the stream to firebase")
 
 
@@ -550,26 +551,26 @@ if __name__ == '__main__':
 
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect((googleHostForInternetCheck, 0))
-        boxSettings.ipAddress = s.getsockname()[0]
-        boxSettings.hostname = socket.gethostname()
-        firebaseConnection.setFirebaseValue("ipAddress", boxSettings.ipAddress)
-        firebaseConnection.setFirebaseValue("hostname", boxSettings.hostname)
-        firebaseConnection.setFirebaseValue("version", boxState.version)
+        box.boxSettings.ipAddress = s.getsockname()[0]
+        box.boxSettings.hostname = socket.gethostname()
+        firebaseConnection.setFirebaseValue("ipAddress", box.boxSettings.ipAddress)
+        firebaseConnection.setFirebaseValue("hostname", box.boxSettings.hostname)
+        firebaseConnection.setFirebaseValue("version", box.boxSettings.version)
         logging.info("next move today of inner is " +
                      str(getNextMove("inner")))
         logging.info("next move today of outer is " +
                      str(getNextMove("outer")))
 
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
-        if(boxState.version != latestVersionAvailable):
+        if(box.boxSettings.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
                 logging.error("unable to get latest_version from firebase")
             else:
                 logging.warning(
-                    "our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
+                    "our version [" + box.boxSettings.version + "] latest_version [" + latestVersionAvailable + "]")
         else:
             logging.info(
-                "OK our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
+                "OK our version [" + box.boxSettings.version + "] latest_version [" + latestVersionAvailable + "]")
 
         buttonThread = threading.Thread(target=thread_button, args=(1,))
         buttonThread.start()
