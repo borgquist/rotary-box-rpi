@@ -557,10 +557,9 @@ if __name__ == '__main__':
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
-
-        firebaseConnection.setFirebaseValue("ipAddress", box.boxSettings.ipAddress)
-        firebaseConnection.setFirebaseValue("hostname", box.boxSettings.hostname)
-        firebaseConnection.setFirebaseValue("version", box.boxSettings.version)
+        firebaseConnection.setFirebaseValue("ipAddress", box.boxSettings.ipAddress, "settings")
+        firebaseConnection.setFirebaseValue("hostname", box.boxSettings.hostname, "settings")
+        firebaseConnection.setFirebaseValue("version", box.boxSettings.version, "settings")
         logging.info("next move today of inner is " +
                      str(getNextMove("inner")))
         logging.info("next move today of outer is " +
