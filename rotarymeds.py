@@ -121,8 +121,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
         "stepsDoneAfterIRtrigger": 0,
         "timestamp": "1900-01-01 00:00:00",
     }
-    box.boxState.latestMoveInner = firebaseConnection.getFirebaseValue("inner", defaultLatestMove, "latestMove")
-    box.boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("outer", defaultLatestMove, "latestMove")
+    box.boxState.latestMoveInner = firebaseConnection.getFirebaseValue("inner", defaultLatestMove, "latestMove", "state")
+    box.boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("outer", defaultLatestMove, "latestMove", "state")
     
 
 
@@ -130,9 +130,9 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
 getFirebaseValuesAndSetDefaultsIfNeeded()
 
 
-firebaseConnection.setFirebaseValue("moveNowInner", False)
-firebaseConnection.setFirebaseValue("moveNowOuter", False)
-firebaseConnection.setFirebaseValue("setButtonLed", False)
+firebaseConnection.setFirebaseValue("moveNowInner", False, "commands")
+firebaseConnection.setFirebaseValue("moveNowOuter", False, "commands")
+firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
 
 GPIO.setmode(GPIO.BCM)
 
@@ -242,8 +242,7 @@ def move(stepper):
     while stopMoving == False and stepsDone < stepper.maxMove:
         stepsDone = oneStep(stepsDone)
 
-    logMessage = stepper.name + " totalStepsDone [" + str(stepsDone) + "] stopMoving [" + str(stopMoving) + "] stepsDoneWhenIRtrigger [" + str(
-        stepsDoneWhenIRtrigger) + "] stepsDoneAfterIRtrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "] minimumMove [" + str(stepper.minMove) + "] maximumMove [" + str(stepper.maxMove) + "]"
+    logMessage = stepper.name + " totalStepsDone [" + str(stepsDone) + "] stopMoving [" + str(stopMoving) + "] stepsDoneAfterIRtrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "]"
     logging.info("move    : " + logMessage)
     now = datetime.datetime.now()
 
@@ -258,7 +257,7 @@ def move(stepper):
     else:
         box.boxState.latestMoveOuter = latestMove
 
-    firebaseConnection.setFirebaseValue(stepper.name, latestMove, "latestMove")
+    firebaseConnection.setFirebaseValue(stepper.name, latestMove, "latestMove", "state")
     GPIO.output(stepper.chanList, arrOff)
 
     setButtonLedOn(True)
@@ -276,14 +275,14 @@ def setButtonLedOn(setToOn):
         box.boxState.buttonLedOn = True
         GPIO.output(buttonLedPin, GPIO.HIGH)
         GPIO.output(whiteLedPin, GPIO.HIGH)
-        firebaseConnection.setFirebaseValue("buttonLedOn", True)
+        firebaseConnection.setFirebaseValue("buttonLedOn", True, "state")
 
     else:
         logging.info("setButtonLedOn    : turning OFF the buttonLed")
         box.boxState.buttonLedOn = False
         GPIO.output(buttonLedPin, GPIO.LOW)
         GPIO.output(whiteLedPin, GPIO.LOW)
-        firebaseConnection.setFirebaseValue("buttonLedOn", False)
+        firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
 
 
 def getWeekday(datetime):
@@ -366,32 +365,32 @@ def stream_handler(message):
             newVal = firebaseConnection.getFirebaseValue("outerSchedule",None,"settings")
             logging.info("firebase: outerSchedule has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
-        if message["path"] == "/setButtonLed":
-            newVal = firebaseConnection.getFirebaseValue("setButtonLed")
+        if message["path"] == "/commands/setButtonLed":
+            newVal = firebaseConnection.getFirebaseValue("setButtonLed", False, "commands")
             logging.info(
                 "firebase: setButtonLed has new value: " + str(newVal))
             if(newVal == "on"):
                 setButtonLedOn(True)
             if(newVal == "off"):
                 setButtonLedOn(False)
-            firebaseConnection.setFirebaseValue("setButtonLed", False)
-        if message["path"] == "/moveNowOuter":
-            newVal = firebaseConnection.getFirebaseValue("moveNowOuter")
+            firebaseConnection.setFirebaseValue("setButtonLed", False, False, "commands")
+        if message["path"] == "/commands/moveNowOuter":
+            newVal = firebaseConnection.getFirebaseValue("moveNowOuter", False, "commands")
             logging.info(
                 "firebase: moveNowOuter has new value: " + str(newVal))
             if(bool(newVal)):
                 logging.info(
                     "we should move outer now, setting moveNowOuter to false before moving to avoid multiple triggers")
-                firebaseConnection.setFirebaseValue("moveNowOuter", False)
+                firebaseConnection.setFirebaseValue("moveNowOuter", False, False, "commands")
                 move_stepper_outer()
-        if message["path"] == "/moveNowInner":
-            newVal = firebaseConnection.getFirebaseValue("moveNowInner")
+        if message["path"] == "/commands/moveNowInner":
+            newVal = firebaseConnection.getFirebaseValue("moveNowInner", False, "commands")
             logging.info(
                 "firebase: moveNowInner has new value: " + str(newVal))
             if(bool(newVal)):
                 logging.info(
                     "we should move outer now, setting moveNowInner to false before moving to avoid multiple triggers")
-                firebaseConnection.setFirebaseValue("moveNowInner", False)
+                firebaseConnection.setFirebaseValue("moveNowInner", False, "commands")
                 move_stepper_inner()
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
