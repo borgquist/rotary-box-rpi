@@ -45,7 +45,6 @@ class DateTimeFunctions:
             else:
                 return False
 
-
     def dateTimeFromSchedule(self, weekdayOfMove, hourOfMove, minuteOfMove):
         candidateForNextMove = None
         timePart = datetime.time(hourOfMove, minuteOfMove, 0)
