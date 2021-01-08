@@ -89,8 +89,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
 
     defaultSchedule =[{"day": ["everyday"], "hour":7, "minute":0}]
 
-    box.boxSettings.innerSchedule = firebaseConnection.getFirebaseValue('innerSchedule', defaultSchedule, "settings")
-    box.boxSettings.outerSchedule = firebaseConnection.getFirebaseValue('outerSchedule', defaultSchedule, "settings")
+    box.boxSettings.scheduleInner = firebaseConnection.getFirebaseValue('scheduleInner', defaultSchedule, "settings")
+    box.boxSettings.scheduleOuter = firebaseConnection.getFirebaseValue('scheduleOuter', defaultSchedule, "settings")
 
     defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [17, 27, 22, 23]} 
     defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640, "chanList": [24, 13, 26, 12]} 
@@ -284,10 +284,10 @@ def setButtonLedOn(setToOn):
 
 def getNextMove(innerOrOuter):
     if(innerOrOuter == "inner"):
-        schedule = box.boxSettings.innerSchedule
+        schedule = box.boxSettings.scheduleInner
         currentCachedValue = box.boxState.nextMoveInner
     else:
-        schedule = box.boxSettings.outerSchedule
+        schedule = box.boxSettings.scheduleOuter
         currentCachedValue = box.boxState.nextMoveOuter
 
     nextMove = 0
@@ -315,13 +315,13 @@ def getNextMove(innerOrOuter):
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
 def stream_handler(message):
     try:
-        if message["path"].startswith("/settings/innerSchedule"):
-            newVal = firebaseConnection.getFirebaseValue("innerSchedule",None,"settings")
-            logging.info("firebase: innerSchedule has new value: " + str(newVal))
+        if message["path"].startswith("/settings/scheduleInner"):
+            newVal = firebaseConnection.getFirebaseValue("scheduleInner",None,"settings")
+            logging.info("firebase: scheduleInner has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
-        if message["path"].startswith("/settings/outerSchedule"):
-            newVal = firebaseConnection.getFirebaseValue("outerSchedule",None,"settings")
-            logging.info("firebase: outerSchedule has new value: " + str(newVal))
+        if message["path"].startswith("/settings/scheduleOuter"):
+            newVal = firebaseConnection.getFirebaseValue("scheduleOuter",None,"settings")
+            logging.info("firebase: scheduleOuter has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
         if message["path"] == "/commands/setButtonLed":
             newVal = firebaseConnection.getFirebaseValue("setButtonLed", False, "commands")
