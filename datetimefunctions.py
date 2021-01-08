@@ -65,16 +65,13 @@ class DateTimeFunctions:
         if(weekdayOfMove == todayWeekday and not DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
             dayPart = datetime.datetime.today()
             candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
-            logging.info("nextDateTime identified candidate: " + candidateForNextMove.strftime('%Y-%m-%d %H:%M:%S'))
             return candidateForNextMove
 
         #it's a weekday and if today then it's already passed, count days until that weekday
         for x in range(7):
             dayPart = datetime.datetime.today() + timedelta(days=x+1)
-            logging.info("checking [" + DateTimeFunctions.getWeekday(dayPart).lower() + "]")
             if(DateTimeFunctions.getWeekday(dayPart).lower() == weekdayOfMove):
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
-                logging.info("identified candidate [" + str(x + 1) + "] days from now: " + candidateForNextMove.strftime('%Y-%m-%d %H:%M:%S'))
                 return candidateForNextMove
         
         logging.warning("this shouldn't happen, we should have found it by now [" + str(weekdayOfMove) + "] hour [" + str(hourOfMove) + "] minute [" + str(minuteOfMove) + "] now ["+ datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "]" )
