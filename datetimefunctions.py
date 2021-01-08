@@ -70,8 +70,8 @@ class DateTimeFunctions:
 
         #it's a weekday and if today then it's already passed, count days until that weekday
         for x in range(5):
-            dayPart = DateTimeFunctions.getWeekday(datetime.datetime.today() + timedelta(days=x+1)).lower()
-            if(dayPart == weekdayOfMove):
+            dayPart = datetime.datetime.today() + timedelta(days=x+1)
+            if(DateTimeFunctions.getWeekday(dayPart).lower() == weekdayOfMove):
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
                 logging.info("identified candidate [" + str(x + 1) + "] days from now: " + candidateForNextMove.strftime('%Y-%m-%d %H:%M:%S'))
                 return candidateForNextMove
