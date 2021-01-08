@@ -17,7 +17,7 @@ class FirebaseBoxSettings:
         return "innerStepper [" + str(self.innerStepper) + "] outerStepper [" + str(self.outerStepper) + "] innerSchedule [" + str(self.innerSchedule) + "] outerSchedule [" + str(self.outerSchedule) + "] hostname [" + str(self.hostname) + "] ipAddress [" + str(self.ipAddress) + "]"
 
     def toJSON(self):
-        return {"innerStepper": self.innerStepper.toJSON(), "outerStepper": self.outerStepper.toJSON(),
+        return {
                 "innerSchedule": self.innerSchedule,
                 "outerSchedule": self.outerSchedule,
                 "hostname": self.hostname,
