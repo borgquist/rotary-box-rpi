@@ -306,13 +306,15 @@ def getNextMove(innerOrOuter):
     for scheduledMove in schedule:
         for dayInRecord in scheduledMove['day']:
             candiate = DateTimeFunctions.dateTimeFromSchedule(dayInRecord, scheduledMove['hour'], scheduledMove['minute'])
-            logging.info("evaluating [" + str(scheduledMove) + "]")
-            if(nextMove == 0):
-                nextMove = candiate
-                logging.info("setting [" + str(scheduledMove) + "] to next move since previous was 0")
-            elif(nextMove > candiate):
-                logging.info("setting [" + str(scheduledMove) + "] to next move since it is earlier than [" + str(nextMove) + "]")
-                nextMove = candiate
+            if(candiate is None):
+                logging.info("this is odd, candidate was None [" + str(scheduledMove) + "]")
+            else:
+                if(nextMove == 0):
+                    nextMove = candiate
+                    logging.info("setting [" + str(scheduledMove) + "] to next move since previous was 0")
+                elif(nextMove > candiate):
+                    logging.info("setting [" + str(scheduledMove) + "] to next move since it is earlier than [" + str(nextMove) + "]")
+                    nextMove = candiate
                 
     if(str(nextMove) != str(currentCachedValue)):
         firebaseConnection.setFirebaseValue(
