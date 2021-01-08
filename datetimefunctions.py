@@ -3,40 +3,42 @@ from datetime import timedelta
 import logging
 import os
 
-folderPath = '/home/pi/shared/'
-os.makedirs(folderPath + "logs/", exist_ok=True)
-logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-                    datefmt='%Y-%m-%d:%H:%M:%S',
-                    level=logging.INFO,
-                    handlers=[
-                        logging.FileHandler(
-                            folderPath + "logs/datetimefunctions.log"),
-                        logging.StreamHandler()
-                    ])
-logging.info("accessing datetimefunctions.py")
 
 
-def getWeekday(self, datetime):
-    if datetime.weekday() == 0:
-        return "Monday"
-    if datetime.weekday() == 1:
-        return "Tuesday"
-    if datetime.weekday() == 2:
-        return "Wednesday"
-    if datetime.weekday() == 3:
-        return "Thursday"
-    if datetime.weekday() == 4:
-        return "Friday"
-    if datetime.weekday() == 5:
-        return "Saturday"
-    if datetime.weekday() == 6:
-        return "Sunday"
-
-    return "unknownDay"
 
 
 class DateTimeFunctions:
-    def isTimeBeforeNow(self, hourOfMove, minuteOfMove):
+    folderPath = '/home/pi/shared/'
+    os.makedirs(folderPath + "logs/", exist_ok=True)
+    logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
+                        datefmt='%Y-%m-%d:%H:%M:%S',
+                        level=logging.INFO,
+                        handlers=[
+                            logging.FileHandler(
+                                folderPath + "logs/datetimefunctions.log"),
+                            logging.StreamHandler()
+                        ])
+    logging.info("accessing datetimefunctions.py")
+
+    @staticmethod
+    def getWeekday(datetime):
+        if datetime.weekday() == 0:
+            return "Monday"
+        if datetime.weekday() == 1:
+            return "Tuesday"
+        if datetime.weekday() == 2:
+            return "Wednesday"
+        if datetime.weekday() == 3:
+            return "Thursday"
+        if datetime.weekday() == 4:
+            return "Friday"
+        if datetime.weekday() == 5:
+            return "Saturday"
+        if datetime.weekday() == 6:
+            return "Sunday"
+        return "unknownDay"
+    @staticmethod
+    def isTimeBeforeNow(hourOfMove, minuteOfMove):
             moveTime = datetime.time(hourOfMove, minuteOfMove, 0)
             todaysDate = datetime.datetime.today()
             possibleNextMove = datetime.datetime.combine(todaysDate, moveTime)
@@ -44,14 +46,14 @@ class DateTimeFunctions:
                 return True
             else:
                 return False
-
-    def dateTimeFromSchedule(self, weekdayOfMove, hourOfMove, minuteOfMove):
+    @staticmethod
+    def dateTimeFromSchedule(weekdayOfMove, hourOfMove, minuteOfMove):
         candidateForNextMove = None
         timePart = datetime.time(hourOfMove, minuteOfMove, 0)
-        todayWeekday = self.getWeekday(datetime.datetime.today())
+        todayWeekday = DateTimeFunctions.getWeekday(datetime.datetime.today())
 
         if(weekdayOfMove == "everyday"):
-            if(self.isTimeBeforeNow(hourOfMove, minuteOfMove)):
+            if(DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
                 logging.info("has already passed today: [" + str(hourOfMove) + "] minute [" + minuteOfMove + "] is before now [" + str(datetime.datetime.now()) + "]")
                 dayPart = datetime.datetime.today() + timedelta(days=1)
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
