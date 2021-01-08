@@ -97,20 +97,20 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640, "chanList": [24, 13, 26, 12]} 
     
     
-    box.boxSettings.innerStepper = firebaseConnection.getFirebaseValue("stepSettingsInner",  defaultStepSettingsInner, "settings")
-    box.boxSettings.outerStepper = firebaseConnection.getFirebaseValue("stepSettingsOuter",  defaultStepSettingsOuter, "settings")
+    innerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettingsInner",  defaultStepSettingsInner, "settings")
+    outerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettingsOuter",  defaultStepSettingsOuter, "settings")
     
-    #box.boxSettings.innerStepper.afterTrigger = stepSettings["inner"]["afterTrigger"]
-    #box.boxSettings.innerStepper.maxMove = stepSettings["inner"]["maxMove"]
-    #box.boxSettings.innerStepper.minMove = stepSettings["inner"]["minMove"]
-    #box.boxSettings.innerStepper.chanList = [17, 27, 22, 23]  # GPIO ports to use
-    #box.boxSettings.innerStepper.name = "inner"
+    box.boxSettings.innerStepper.afterTrigger = innerStepSettnigs["afterTrigger"]
+    box.boxSettings.innerStepper.maxMove = innerStepSettnigs["maxMove"]
+    box.boxSettings.innerStepper.minMove = innerStepSettnigs["minMove"]
+    box.boxSettings.innerStepper.chanList = innerStepSettnigs["chanList"]  # GPIO ports to use
+    box.boxSettings.innerStepper.name = innerStepSettnigs["name"]
     
-    #box.boxSettings.outerStepper.afterTrigger = stepSettings["outer"]["afterTrigger"]
-    #box.boxSettings.outerStepper.maxMove = stepSettings["outer"]["maxMove"]
-    #box.boxSettings.outerStepper.minMove = stepSettings["outer"]["minMove"]
-    #box.boxSettings.outerStepper.chanList = [24, 13, 26, 12]  # GPIO ports to useter
-    #box.boxSettings.outerStepper.name = "outer"
+    box.boxSettings.outerStepper.afterTrigger = outerStepSettnigs["afterTrigger"]
+    box.boxSettings.outerStepper.maxMove = outerStepSettnigs["maxMove"]
+    box.boxSettings.outerStepper.minMove = outerStepSettnigs["minMove"]
+    box.boxSettings.outerStepper.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
+    box.boxSettings.outerStepper.name = outerStepSettnigs["name"]
     
     box.boxSettings.innerSchedule = scheduleInner
     box.boxSettings.outerSchedule = scheduleInner
