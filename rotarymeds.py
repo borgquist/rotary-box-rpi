@@ -28,7 +28,7 @@ logging.info("Starting rotarymeds.py")
 
 boxSettings = FirebaseBoxSettings()
 boxState = FirebaseBoxState()
-boxState.version = "1.0.18"
+boxState.version = "1.0.19"
 logging.info("version is " + boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
@@ -475,13 +475,10 @@ def thread_move_outer(name):
 def thread_button(name):
 
     timeButtonPressMostRecent = 0
-    timeButtonPressSecondMostRecent = 0
     timeButtonNotPressed = 0
-    timeGreenButtonPushed = 0
 
     while not exitapp:
         try:
-
             if GPIO.input(buttonPin) == GPIO.HIGH:
                 timestampNow = time.time()
 
@@ -493,17 +490,7 @@ def thread_button(name):
                         setButtonLedOn(False)
                     else:
                         setButtonLedOn(True)
-
-                    # new press
-                    timeButtonPressSecondMostRecent = timeButtonPressMostRecent
                     timeButtonPressMostRecent = timestampNow
-
-                    if timeButtonPressMostRecent - timeButtonPressSecondMostRecent < 2:  # double click
-                        logging.info(
-                            "thread_button    : button pressed two times, move!")
-                        move_stepper_inner()
-                        move_stepper_outer()
-
             else:
                 timeButtonNotPressed = time.time()
             time.sleep(delay)
@@ -514,7 +501,6 @@ def thread_button(name):
 
 
 def thread_ir_sensor(name):
-    timeIRtrigger = 0
     global stopMoving
 
     lastBlack = 0
