@@ -48,9 +48,10 @@ class DateTimeFunctions:
                 return False
     @staticmethod
     def dateTimeFromSchedule(weekdayOfMove, hourOfMove, minuteOfMove):
+        weekdayOfMove = weekdayOfMove.lower()
         candidateForNextMove = None
         timePart = datetime.time(hourOfMove, minuteOfMove, 0)
-        todayWeekday = DateTimeFunctions.getWeekday(datetime.datetime.today())
+        todayWeekday = DateTimeFunctions.getWeekday(datetime.datetime.today()).lower()
 
         if(weekdayOfMove == "everyday"):
             if(DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
@@ -69,7 +70,7 @@ class DateTimeFunctions:
 
         #it's a weekday and if today then it's already passed, count days until that weekday
         for x in range(5):
-            dayPart = datetime.datetime.today() + timedelta(days=x+1)
+            dayPart = DateTimeFunctions.getWeekday(datetime.datetime.today() + timedelta(days=x+1)).lower()
             if(dayPart == weekdayOfMove):
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
                 logging.info("identified candidate [" + str(x + 1) + "] days from now: " + candidateForNextMove.strftime('%Y-%m-%d %H:%M:%S'))
