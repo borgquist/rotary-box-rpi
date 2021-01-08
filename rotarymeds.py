@@ -295,8 +295,6 @@ def getNextMove(innerOrOuter):
     global nextMoveInner
     global nextMoveOuter
 
-    todayWeekday = DateTimeFunctions.getWeekday(datetime.datetime.today())
-
     if(innerOrOuter == "inner"):
         schedule = scheduleInner
         currentCachedValue = nextMoveInner
@@ -316,9 +314,6 @@ def getNextMove(innerOrOuter):
                 logging.info("setting [" + str(scheduledMove) + "] to next move since it is earlier than [" + str(nextMove) + "]")
                 nextMove = candiate
                 
-                
-
-
     if(str(nextMove) != str(currentCachedValue)):
         firebaseConnection.setFirebaseValue(
             str("nextMove" + str(innerOrOuter.capitalize())), str(nextMove).strip(), "state")
