@@ -30,6 +30,9 @@ class FirebaseConnection:
 
 
     def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None):
+        if(settingname == "timestamp"):
+            self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
+            return
         logging.info("getting [" + str(settingname) +
                     "] from firebase as part of setFirebaseValue, setting it to [" + str(newValue) + "]")
         
@@ -49,14 +52,14 @@ class FirebaseConnection:
             else:
                 self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).set(newValue)
 
-            if(settingname != "timestamp"):
-                logMessasge = settingname
-                if(parent is not None):
-                    logMessasge = parent + "/" + logMessasge
-                    if(grandparent is not None):
-                        logMessasge = grandparent + "/" + logMessasge
-                logging.info("updated [" + logMessasge + "] from [" +
-                            str(currentValue.val()) + "] to[" + str(newValue) + "]")
+            
+            logMessasge = settingname
+            if(parent is not None):
+                logMessasge = parent + "/" + logMessasge
+                if(grandparent is not None):
+                    logMessasge = grandparent + "/" + logMessasge
+            logging.info("updated [" + logMessasge + "] from [" +
+                        str(currentValue.val()) + "] to[" + str(newValue) + "]")
 
 
     def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None):
