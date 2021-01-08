@@ -55,14 +55,8 @@ box.boxState.cpuId = getserial()
 
 logging.info("CPU serial is [" + str(box.boxState.cpuId) + "]")
 
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect((googleHostForInternetCheck, 0))
-box.boxState.ipAddress = s.getsockname()[0]
-box.boxState.hostname = socket.gethostname()
-
 
 logging.info("checking internet connectivity")
-
 
 def haveInternet():
     try:
@@ -74,10 +68,14 @@ def haveInternet():
 
     return True
 
-
 while(not haveInternet()):
     logging.info("internet is not available, sleeping 1 second")
     time.sleep(1)
+
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect((googleHostForInternetCheck, 0))
+box.boxState.ipAddress = s.getsockname()[0]
+box.boxState.hostname = socket.gethostname()
 
 logging.info("have internet connectivity")
 
