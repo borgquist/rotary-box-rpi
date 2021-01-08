@@ -1,4 +1,5 @@
 from stepper import Stepper
+import json
 
 class FirebaseBoxSettings:
     innerStepper = Stepper()
@@ -21,3 +22,7 @@ class FirebaseBoxSettings:
 
     def __str__(self):
         return "innerStepper [" + str(self.innerStepper) + "] outerStepper [" + str(self.outerStepper) + "] innerSchedule [" + str(self.innerSchedule) + "] outerSchedule [" + str(self.outerSchedule) + "] hostname [" + str(self.hostname) + "] ipAddress [" + str(self.ipAddress) + "]"
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)

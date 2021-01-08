@@ -114,6 +114,11 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxState.latestMoveInner = firebaseConnection.getFirebaseValue("inner", defaultLatestMove, "latestMove")
     box.boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("outer", defaultLatestMove, "latestMove")
 
+    logging.info("trying the json")
+    logging.info(box.boxSettings.toJSON)
+    firebaseConnection.setFirebaseValue("settings", box.boxSettings.toJSON)
+    logging.info("done with the json")
+    
 
 
 
