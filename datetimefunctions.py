@@ -54,14 +54,11 @@ class DateTimeFunctions:
 
         if(weekdayOfMove == "everyday"):
             if(DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
-                logging.info("has already passed today: [" + str(hourOfMove) + "] minute [" + str(minuteOfMove) + "] is before now [" + str(datetime.datetime.now()) + "]")
                 dayPart = datetime.datetime.today() + timedelta(days=1)
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
             else:
-                logging.info("this is for today and hasn't passed: [" + str(hourOfMove) + "] minute [" + str(minuteOfMove) + "] is NOT before now [" + str(datetime.datetime.now()) + "]")
                 dayPart = datetime.datetime.today()
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
-            logging.info("everyday identified candidate: " + candidateForNextMove.strftime('%Y-%m-%d %H:%M:%S'))
             return candidateForNextMove
 
         if(weekdayOfMove == todayWeekday and not DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
