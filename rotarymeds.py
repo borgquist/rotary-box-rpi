@@ -373,7 +373,7 @@ def stream_handler(message):
                 setButtonLedOn(True)
             if(newVal == "off"):
                 setButtonLedOn(False)
-            firebaseConnection.setFirebaseValue("setButtonLed", False, False, "commands")
+            firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
         if message["path"] == "/commands/moveNowOuter":
             newVal = firebaseConnection.getFirebaseValue("moveNowOuter", False, "commands")
             logging.info(
@@ -381,7 +381,7 @@ def stream_handler(message):
             if(bool(newVal)):
                 logging.info(
                     "we should move outer now, setting moveNowOuter to false before moving to avoid multiple triggers")
-                firebaseConnection.setFirebaseValue("moveNowOuter", False, False, "commands")
+                firebaseConnection.setFirebaseValue("moveNowOuter", False, "commands")
                 move_stepper_outer()
         if message["path"] == "/commands/moveNowInner":
             newVal = firebaseConnection.getFirebaseValue("moveNowInner", False, "commands")
