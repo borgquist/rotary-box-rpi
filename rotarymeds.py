@@ -29,7 +29,7 @@ logging.info("Starting rotarymeds.py")
 box = Box()
 
 
-box.boxSettings.version = "1.0.19"
+box.boxSettings.version = "1.0.20"
 logging.info("version is " + box.boxSettings.version)
 
 googleHostForInternetCheck = "8.8.8.8"
@@ -346,7 +346,7 @@ def getNextMove(innerOrOuter):
 
     if(str(nextMove) != str(currentCachedValue)):
         firebaseConnection.setFirebaseValue(
-            str("nextMove" + str(innerOrOuter.capitalize())), str(nextMove).strip())
+            str("nextMove" + str(innerOrOuter.capitalize())), str(nextMove).strip(), "state")
         if(innerOrOuter == "inner"):
             nextMoveInner = nextMove
         else:
