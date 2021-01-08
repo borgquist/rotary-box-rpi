@@ -10,5 +10,8 @@ class Stepper:
         return "maxMove [" + str(self.maxMove) + "] minMove [" + str(self.minMove) + "] afterTrigger [" + str(self.afterTrigger) + "]"
 
     def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, 
-            sort_keys=True, indent=4)
+        return {"name": self.name,
+                "maxMove": self.maxMove,
+                "minMove": self.minMove,
+                "afterTrigger": self.afterTrigger
+                }
