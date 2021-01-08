@@ -517,13 +517,11 @@ if __name__ == '__main__':
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
+        firebaseConnection.setFirebaseValue("cpuId", box.boxState.cpuId, "state")
         firebaseConnection.setFirebaseValue("ipAddress", box.boxState.ipAddress, "state")
         firebaseConnection.setFirebaseValue("hostname", box.boxState.hostname, "state")
         firebaseConnection.setFirebaseValue("version", box.boxState.version, "state")
-        logging.info("next move today of inner is " +
-                     str(getNextMove("inner")))
-        logging.info("next move today of outer is " +
-                     str(getNextMove("outer")))
+
 
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         if(box.boxState.version != latestVersionAvailable):
@@ -538,25 +536,20 @@ if __name__ == '__main__':
 
         buttonThread = threading.Thread(target=thread_button, args=(1,))
         buttonThread.start()
-        logging.info("Main    : thread_button started")
 
         irThread = threading.Thread(target=thread_ir_sensor, args=(1,))
         irThread.start()
-        logging.info("Main    : thread_ir_sensor started")
 
         timeThread = threading.Thread(target=thread_time, args=(1,))
         timeThread.start()
-        logging.info("Main    : time thread stared")
 
         setupStreamToFirebase()
 
         moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
         moveThreadInner.start()
-        logging.info("Main    : thread_move_inner stared")
 
         moveThreadOuter = threading.Thread(target=thread_move_outer, args=(1,))
         moveThreadOuter.start()
-        logging.info("Main    : thread_move_outer stared")
 
         releaseBothMotors()
         setButtonLedOn(True)
