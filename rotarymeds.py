@@ -83,8 +83,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     global scheduleOuter
 
 
-    defaultSchedule = {"inner": [{"day": ["everyday"], "hour":17, "minute":0}], "outer": [
-        {"day": ["everyday"], "hour":18, "minute":0}]}
+    defaultSchedule = {"inner": [{"day": ["everyday"], "hour":7, "minute":0}], "outer": [
+        {"day": ["everyday"], "hour":7, "minute":0}]}
 
     schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule)
     scheduleOuter = schedule["outer"]
@@ -353,7 +353,7 @@ def stream_handler(message):
         if message["path"].startswith("/schedule"):
             newVal = firebaseConnection.getFirebaseValue("schedule")
             logging.info("firebase: schedule has new value: " + str(newVal))
-            getLatestScheduleFromFirebase()
+            getFirebaseValuesAndSetDefaultsIfNeeded()
         if message["path"] == "/setButtonLed":
             newVal = firebaseConnection.getFirebaseValue("setButtonLed")
             logging.info(
