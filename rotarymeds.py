@@ -146,7 +146,7 @@ GPIO.output(whiteLedPin, GPIO.LOW)
 irSensorPin = 4
 GPIO.setup(irSensorPin, GPIO.IN)
 
-delay = .001  # delay between each sequence step
+delay = .01  # delay between each sequence step
 # initialize array for sequence shift
 arr1 = [1, 1, 0, 0]
 arr2 = [0, 1, 0, 0]
