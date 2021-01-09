@@ -22,7 +22,7 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
 GPIO.setmode(GPIO.BCM)
 
 exitapp = False
-delay=.001
+delay=.5
 resetButtonPin = 5
 GPIO.setup(resetButtonPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
 
