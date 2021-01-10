@@ -146,7 +146,7 @@ GPIO.output(whiteLedPin, GPIO.LOW)
 irSensorPin = 4
 GPIO.setup(irSensorPin, GPIO.IN)
 
-delay = .01  # delay between each sequence step
+
 # initialize array for sequence shift
 arr1 = [1, 1, 0, 0]
 arr2 = [0, 1, 0, 0]
@@ -473,7 +473,7 @@ def thread_button(name):
                     timeButtonPressMostRecent = timestampNow
             else:
                 timeButtonNotPressed = time.time()
-            time.sleep(delay)
+            time.sleep(0.1)
         except Exception as err:
             logging.error("exception " + traceback.format_exc())
 
