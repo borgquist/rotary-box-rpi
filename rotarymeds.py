@@ -199,7 +199,6 @@ def releaseBothMotors():
 
 stopMoving = False
 
-
 def move(stepper):
     global stopMoving
     global arr1  # enables the edit of arr1 var inside a function
@@ -489,15 +488,16 @@ def thread_ir_sensor(name):
 
     while not exitapp:
         try:
-            if GPIO.input(irSensorPin) == GPIO.LOW:
-                lastWhite = time.time()
-            else:
-                lastBlack = time.time()
+            if(stopMoving == False):
+                if GPIO.input(irSensorPin) == GPIO.LOW:
+                    lastWhite = time.time()
+                else:
+                    lastBlack = time.time()
 
-            if(lastWhite > lastBlack and lastWhite - lastBlack < 0.05 and stopMoving == False):  # just turned white
-                stopMoving = True
-                logging.info("thread_ir_sensor    : stopMoving")
-            time.sleep(delay)
+                if(lastWhite > lastBlack):  # just turned white
+                    stopMoving = True
+                    logging.info("thread_ir_sensor    : stopMoving")
+            time.sleep(0.05)
         except Exception as err:
             logging.error("exception " + traceback.format_exc())
 
