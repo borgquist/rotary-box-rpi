@@ -85,7 +85,7 @@ logging.info("Done creating FirebaseConnection")
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
 
-    defaultSchedule =[{"day": ["everyday"], "hour":7, "minute":0}]
+    defaultSchedule =[{"day": "everyday", "hour":7, "minute":0}]
 
     box.boxSettings.scheduleInner = firebaseConnection.getFirebaseValue('scheduleInner', defaultSchedule, "settings")
     box.boxSettings.scheduleOuter = firebaseConnection.getFirebaseValue('scheduleOuter', defaultSchedule, "settings")
@@ -289,15 +289,14 @@ def getNextMove(innerOrOuter):
 
     nextMove = 0
     for scheduledMove in schedule:
-        for dayInRecord in scheduledMove['day']:
-            candiate = DateTimeFunctions.dateTimeFromSchedule(dayInRecord, scheduledMove['hour'], scheduledMove['minute'])
-            if(candiate is None):
-                logging.warning("this is odd, candidate was None [" + str(scheduledMove) + "]")
-            else:
-                if(nextMove == 0):
-                    nextMove = candiate
-                elif(nextMove > candiate):
-                    nextMove = candiate
+        candiate = DateTimeFunctions.dateTimeFromSchedule(scheduledMove['day'], scheduledMove['hour'], scheduledMove['minute'])
+        if(candiate is None):
+            logging.warning("this is odd, candidate was None [" + str(scheduledMove) + "]")
+        else:
+            if(nextMove == 0):
+                nextMove = candiate
+            elif(nextMove > candiate):
+                nextMove = candiate
                 
     if(str(nextMove) != str(currentCachedValue)):
         firebaseConnection.setFirebaseValue(
