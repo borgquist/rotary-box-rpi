@@ -111,13 +111,13 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
 
 
     defaultLatestMove = {
-        "totalStepsDone": 0,
-        "stopMoving": 0,
-        "stepsDoneAfterIRtrigger": 0,
+        "totalSteps": 0,
+        "irTriggered": 0,
+        "stepsAfterTrigger": 0,
         "timestamp": "1900-01-01 00:00:00",
     }
-    box.boxState.latestMoveInner = firebaseConnection.getFirebaseValue("inner", defaultLatestMove, "latestMove", "state")
-    box.boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("outer", defaultLatestMove, "latestMove", "state")
+    box.boxState.latestMoveInner = firebaseConnection.getFirebaseValue("latestMoveInner", defaultLatestMove, "state")
+    box.boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("latestMoveOuter", defaultLatestMove, "state")
     
 
 
@@ -197,10 +197,10 @@ def releaseBothMotors():
     GPIO.output(box.boxSettings.outerStepper.chanList, arrOff)
 
 
-stopMoving = False
+irTriggered = False
 
 def move(stepper):
-    global stopMoving
+    global irTriggered
     global arr1  # enables the edit of arr1 var inside a function
     global arr2  # enables the edit of arr2 var inside a function
 
@@ -210,12 +210,12 @@ def move(stepper):
 
     global stepsDoneWhenIRtrigger
     stepsDoneWhenIRtrigger = 0
-    stopMoving = False
+    irTriggered = False
 
     def oneStep(stepsDone):
         global arr1
         global arr2
-        global stopMoving
+        global irTriggered
         global stepsDoneWhenIRtrigger
         arrOUT = arr1[3:]+arr1[:3]  # rotates array values of 1 digi
         # arrOUT = arr1[1:]+arr1[:1] # rotates array values of 1 digit counterclockwise
@@ -223,7 +223,7 @@ def move(stepper):
         arr2 = arrOUT
         GPIO.output(stepper.chanList, arrOUT)
         time.sleep(0.002)
-        if stopMoving and stepsDoneWhenIRtrigger == 0:
+        if irTriggered and stepsDoneWhenIRtrigger == 0:
             stepsDoneWhenIRtrigger = stepsDone
         return stepsDone + 1
 
@@ -233,25 +233,27 @@ def move(stepper):
     while stepsDone < stepsDoneWhenIRtrigger + stepper.afterTrigger and stepsDone < stepper.maxMove:
         stepsDone = oneStep(stepsDone)
 
-    while stopMoving == False and stepsDone < stepper.maxMove:
+    while irTriggered == False and stepsDone < stepper.maxMove:
         stepsDone = oneStep(stepsDone)
 
-    logMessage = stepper.name + " totalStepsDone [" + str(stepsDone) + "] stopMoving [" + str(stopMoving) + "] stepsDoneAfterIRtrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "]"
+    logMessage = stepper.name + " totalSteps [" + str(stepsDone) + "] irTriggered [" + str(irTriggered) + "] stepsAfterTrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "]"
     logging.info("move    : " + logMessage)
     now = datetime.datetime.now()
 
     latestMove = {
-        "totalStepsDone": stepsDone,
-        "stopMoving": stopMoving,
-        "stepsDoneAfterIRtrigger": stepsDone - stepsDoneWhenIRtrigger,
+        "totalSteps": stepsDone,
+        "irTriggered": irTriggered,
+        "stepsAfterTrigger": stepsDone - stepsDoneWhenIRtrigger,
         "timestamp": now.strftime('%Y-%m-%d %H:%M:%S'),
     }
     if(stepper.name == "inner"):
         box.boxState.latestMoveInner = latestMove
+        firebaseConnection.setFirebaseValue("latestMoveInner", latestMove, "state")
     else:
         box.boxState.latestMoveOuter = latestMove
+        firebaseConnection.setFirebaseValue("latestMoveOuter", latestMove, "state")
 
-    firebaseConnection.setFirebaseValue(stepper.name, latestMove, "latestMove", "state")
+    
     GPIO.output(stepper.chanList, arrOff)
 
     setButtonLedOn(True)
@@ -480,22 +482,22 @@ def thread_button(name):
 
 
 def thread_ir_sensor(name):
-    global stopMoving
+    global irTriggered
 
     lastBlack = 0
     lastWhite = 0
 
     while not exitapp:
         try:
-            if(stopMoving == False):
+            if(irTriggered == False):
                 if GPIO.input(irSensorPin) == GPIO.LOW:
                     lastWhite = time.time()
                 else:
                     lastBlack = time.time()
 
                 if(lastWhite > lastBlack):  # just turned white
-                    stopMoving = True
-                    logging.info("thread_ir_sensor    : stopMoving")
+                    irTriggered = True
+                    logging.info("thread_ir_sensor    : irTriggered")
             time.sleep(0.05)
         except Exception as err:
             logging.error("exception " + traceback.format_exc())
