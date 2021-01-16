@@ -352,12 +352,12 @@ def checkCommandsPockets(innerOrOuter):
     newVal = firebaseConnection.getFirebaseValue(settingName, False, "commands")
     if(newVal != False):
         logging.info(
-            settingName + " called to be updated to " + int(newVal))
+            settingName + " called to be updated to " + str(int(newVal)))
         firebaseConnection.setFirebaseValue(settingName, False, "commands")
         firebaseConnection.setFirebaseValue("pocketsFull" + innerOrOuter, int(newVal), "state")
         box.boxState.pocketsFullInner = int(newVal)
         logging.info(
-            settingName + " updated to " + int(newVal))
+            settingName + " updated to " + str(int(newVal)))
 
 def checkCommandsNodes():
     logging.info("checkCommandsNodes called")
