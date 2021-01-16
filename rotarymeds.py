@@ -175,7 +175,7 @@ def move_stepper_inner():
     moveIsBeingDone = True
     move(box.boxSettings.innerStepper)
     box.boxState.pocketsFullInner = max(box.boxState.pocketsFullInner -1, 0)
-    firebaseConnection.setFirebaseValue("pocketsFullOuter", box.boxState.pocketsFullInner, "state")
+    firebaseConnection.setFirebaseValue("pocketsFullInner", box.boxState.pocketsFullInner, "state")
     moveIsBeingDone = False
 
 
