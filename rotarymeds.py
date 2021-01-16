@@ -122,7 +122,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxState.pocketsFullInner = firebaseConnection.getFirebaseValue("pocketsFullInner", 0, "state")
     box.boxState.pocketsFullOuter = firebaseConnection.getFirebaseValue("pocketsFullOuter", 0, "state")
 
-print(box)
+
 
 getFirebaseValuesAndSetDefaultsIfNeeded()
 
@@ -132,6 +132,8 @@ firebaseConnection.setFirebaseValue("moveNowOuter", False, "commands")
 firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
 firebaseConnection.setFirebaseValue("setPocketsFullInner", False, "commands")
 firebaseConnection.setFirebaseValue("setPocketsFullOuter", False, "commands")
+
+
 
 GPIO.setmode(GPIO.BCM)
 
@@ -172,12 +174,12 @@ def move_stepper_inner():
     while (moveIsBeingDone):
         logging.info("inner: waiting for other move to be done")
         time.sleep(1)
-    print("box.boxState.pocketsFullInner before move is " + box.boxState.pocketsFullInner)
+    print("box.boxState.pocketsFullInner before move is " + str(box.boxState.pocketsFullInner))
     moveIsBeingDone = True
     move(box.boxSettings.innerStepper)
     box.boxState.pocketsFullInner = max(box.boxState.pocketsFullInner -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFullInner", box.boxState.pocketsFullInner, "state")
-    print("box.boxState.pocketsFullInner after move is " + box.boxState.pocketsFullInner)
+    print("box.boxState.pocketsFullInner after move is " + str(box.boxState.pocketsFullInner))
     moveIsBeingDone = False
 
 
@@ -187,12 +189,12 @@ def move_stepper_outer():
         logging.info("outer: waiting for other move to be done",
                      moveIsBeingDone)
         time.sleep(1)
-    print("box.boxState.pocketsFullOuter before move is " + box.boxState.pocketsFullOuter)
+    print("box.boxState.pocketsFullOuter before move is " + str(box.boxState.pocketsFullOuter))
     moveIsBeingDone = True
     move(box.boxSettings.outerStepper)
     box.boxState.pocketsFullOuter = max(box.boxState.pocketsFullOuter -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFullOuter", box.boxState.pocketsFullOuter, "state")
-    print("box.boxState.pocketsFullOuter before move is " + box.boxState.pocketsFullOuter)
+    print("box.boxState.pocketsFullOuter before move is " + str(box.boxState.pocketsFullOuter))
     moveIsBeingDone = False
 
 
@@ -604,7 +606,8 @@ if __name__ == '__main__':
 
         releaseBothMotors()
         setButtonLedOn(True)
-
+        print(box)
+        
         while (True):
             time.sleep(10)
 
