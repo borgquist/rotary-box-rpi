@@ -23,4 +23,4 @@ class FirebaseBoxState:
     latestMoveInner = LatestMove()
 
     def __str__(self):
-        return "cpuId [" + str(self.cpuId) + "] buttonLedOn [" + str(self.buttonLedOn) + "] timestamp [" + str(self.timestamp) + "] nextMoveInner [" + str(self.nextMoveInner) + "] nextMoveOuter [" + str(self.nextMoveOuter) + "] hostname [" + str(self.hostname) + "] ipAddress [" + str(self.ipAddress) + "] version [" + str(self.version) + "] pocketsFullInner [" + str(self.pocketsFullInner) + "] pocketsFullInner [" + str(self.pocketsFullInner) + "]"
+        return "cpuId [" + str(self.cpuId) + "] buttonLedOn [" + str(self.buttonLedOn) + "] timestamp [" + str(self.timestamp) + "] nextMoveInner [" + str(self.nextMoveInner) + "] nextMoveOuter [" + str(self.nextMoveOuter) + "] hostname [" + str(self.hostname) + "] ipAddress [" + str(self.ipAddress) + "] version [" + str(self.version) + "] pocketsFullInner [" + str(self.pocketsFullInner) + "] pocketsFullOuter [" + str(self.pocketsFullOuter) + "]"
