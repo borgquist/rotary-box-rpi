@@ -31,6 +31,13 @@ GPIO.setup(buttonLedPin,GPIO.OUT)
 
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     ledOn = False
+    
+    def setButtonLedOn(setToOn):
+        if(setToOn):
+            GPIO.output(buttonLedPin,GPIO.HIGH)
+        else:
+            GPIO.output(buttonLedPin,GPIO.LOW)
+
     for x in range(int(nrFlashes)):
         ledOn = not ledOn
         setButtonLedOn(ledOn)
@@ -77,7 +84,6 @@ def thread_internet_connectivity(name):
                     logging.warning("internet is not available, outage count: " + str(internetOutCount))
                     
                 timestampLastInternetNotOk = time.time()
-                flashButtonLed(0.3,10,False)
             else:
                 if(timestampInternetOK < timestampLastInternetNotOk):
                     logging.info("there is internet again, outage count: " + str(internetOutCount))
@@ -89,16 +95,7 @@ def thread_internet_connectivity(name):
         
     logging.info("thread_internet_connectivity    : exiting")    
 
-buttonLedIsOn = True
-def setButtonLedOn(setToOn):
-    global buttonLedIsOn
-    if(setToOn):
-        buttonLedIsOn = True
-        GPIO.output(buttonLedPin,GPIO.HIGH)
-    else:
-        buttonLedIsOn = False
-        GPIO.output(buttonLedPin,GPIO.LOW)
-        
+
 try:
     timestampNow = time.time()
     timeGreenButtonPushed = timestampNow + 5
