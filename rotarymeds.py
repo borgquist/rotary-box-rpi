@@ -122,7 +122,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxState.pocketsFullInner = firebaseConnection.getFirebaseValue("pocketsFullInner", 0, "state")
     box.boxState.pocketsFullOuter = firebaseConnection.getFirebaseValue("pocketsFullOuter", 0, "state")
 
-
+print(box)
 
 getFirebaseValuesAndSetDefaultsIfNeeded()
 
@@ -172,10 +172,12 @@ def move_stepper_inner():
     while (moveIsBeingDone):
         logging.info("inner: waiting for other move to be done")
         time.sleep(1)
+    print("box.boxState.pocketsFullInner before move is " + box.boxState.pocketsFullInner)
     moveIsBeingDone = True
     move(box.boxSettings.innerStepper)
     box.boxState.pocketsFullInner = max(box.boxState.pocketsFullInner -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFullInner", box.boxState.pocketsFullInner, "state")
+    print("box.boxState.pocketsFullInner after move is " + box.boxState.pocketsFullInner)
     moveIsBeingDone = False
 
 
@@ -185,10 +187,12 @@ def move_stepper_outer():
         logging.info("outer: waiting for other move to be done",
                      moveIsBeingDone)
         time.sleep(1)
+    print("box.boxState.pocketsFullOuter before move is " + box.boxState.pocketsFullOuter)
     moveIsBeingDone = True
     move(box.boxSettings.outerStepper)
     box.boxState.pocketsFullOuter = max(box.boxState.pocketsFullOuter -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFullOuter", box.boxState.pocketsFullOuter, "state")
+    print("box.boxState.pocketsFullOuter before move is " + box.boxState.pocketsFullOuter)
     moveIsBeingDone = False
 
 
@@ -342,7 +346,7 @@ def checkCommandMoveNowInner():
     newVal = firebaseConnection.getFirebaseValue("moveNowInner", False, "commands")
     if(bool(newVal)):
         logging.info(
-            "we should move outer now, setting moveNowInner to false before moving to avoid multiple triggers")
+            "we should move inner now, setting moveNowInner to false before moving to avoid multiple triggers")
         firebaseConnection.setFirebaseValue("moveNowInner", False, "commands")
         move_stepper_inner()
 
@@ -355,7 +359,11 @@ def checkCommandsPockets(innerOrOuter):
             settingName + " called to be updated to " + str(int(newVal)))
         firebaseConnection.setFirebaseValue(settingName, False, "commands")
         firebaseConnection.setFirebaseValue("pocketsFull" + innerOrOuter, int(newVal), "state")
-        box.boxState.pocketsFullInner = int(newVal)
+        
+        if(innerOrOuter == "Inner"):
+            box.boxState.pocketsFullInner = int(newVal)
+        else:
+            box.boxState.pocketsFullOuter = int(newVal)
         logging.info(
             settingName + " updated to " + str(int(newVal)))
 
