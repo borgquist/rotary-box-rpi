@@ -108,7 +108,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxSettings.outerStepper.minMove = outerStepSettnigs["minMove"]
     box.boxSettings.outerStepper.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
     box.boxSettings.outerStepper.name = outerStepSettnigs["name"]
-
+    box.boxSettings.innerPockets = firebaseConnection.getFirebaseValue("innerPockets", 7, "settings")
+    box.boxSettings.outerPockets = firebaseConnection.getFirebaseValue("outerPockets", 7, "settings")
 
     defaultLatestMove = {
         "totalSteps": 0,
@@ -118,7 +119,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     }
     box.boxState.latestMoveInner = firebaseConnection.getFirebaseValue("latestMoveInner", defaultLatestMove, "state")
     box.boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("latestMoveOuter", defaultLatestMove, "state")
-    
+    box.boxState.pocketsFullInner = firebaseConnection.getFirebaseValue("pocketsFullInner", 0, "state")
+    box.boxState.pocketsFullOuter = firebaseConnection.getFirebaseValue("pocketsFullOuter", 0, "state")
 
 
 
@@ -128,6 +130,8 @@ getFirebaseValuesAndSetDefaultsIfNeeded()
 firebaseConnection.setFirebaseValue("moveNowInner", False, "commands")
 firebaseConnection.setFirebaseValue("moveNowOuter", False, "commands")
 firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
+firebaseConnection.setFirebaseValue("setPocketsFullInner", False, "commands")
+firebaseConnection.setFirebaseValue("setPocketsFullOuter", False, "commands")
 
 GPIO.setmode(GPIO.BCM)
 
@@ -170,6 +174,8 @@ def move_stepper_inner():
         time.sleep(1)
     moveIsBeingDone = True
     move(box.boxSettings.innerStepper)
+    box.boxState.pocketsFullInner = max(box.boxState.pocketsFullInner -1, 0)
+    firebaseConnection.setFirebaseValue("pocketsFullOuter", box.boxState.pocketsFullInner, "state")
     moveIsBeingDone = False
 
 
@@ -181,6 +187,8 @@ def move_stepper_outer():
         time.sleep(1)
     moveIsBeingDone = True
     move(box.boxSettings.outerStepper)
+    box.boxState.pocketsFullOuter = max(box.boxState.pocketsFullOuter -1, 0)
+    firebaseConnection.setFirebaseValue("pocketsFullOuter", box.boxState.pocketsFullOuter, "state")
     moveIsBeingDone = False
 
 
@@ -338,12 +346,27 @@ def checkCommandMoveNowInner():
         firebaseConnection.setFirebaseValue("moveNowInner", False, "commands")
         move_stepper_inner()
 
+def checkCommandsPockets(innerOrOuter):
+    settingName = "setPocketsFull" + innerOrOuter
+
+    newVal = firebaseConnection.getFirebaseValue(settingName, False, "commands")
+    if(newVal != False):
+        logging.info(
+            settingName + " called to be updated to " + int(newVal))
+        firebaseConnection.setFirebaseValue(settingName, False, "commands")
+        firebaseConnection.setFirebaseValue("pocketsFull" + innerOrOuter, int(newVal), "state")
+        box.boxState.pocketsFullInner = int(newVal)
+        logging.info(
+            settingName + " updated to " + int(newVal))
 
 def checkCommandsNodes():
     logging.info("checkCommandsNodes called")
     checkCommandSetButtonLed()
     checkCommandMoveNowOuter()
     checkCommandMoveNowInner()
+    checkCommandsPockets("Inner")
+    checkCommandsPockets("Outer")
+    
 
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
 def stream_handler(message):
@@ -362,6 +385,10 @@ def stream_handler(message):
            checkCommandMoveNowOuter()
         if message["path"] == "/commands/moveNowInner":
             checkCommandMoveNowInner()
+        if message["path"] == "/commands/setPocketsFullInner":
+            checkCommandsPockets("Inner")
+        if message["path"] == "/commands/setPocketsFullOuter":
+            checkCommandsPockets("Outer")
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
 
