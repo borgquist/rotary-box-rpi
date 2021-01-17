@@ -110,6 +110,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxSettings.outerStepper.name = outerStepSettnigs["name"]
     box.boxSettings.innerPockets = firebaseConnection.getFirebaseValue("innerPockets", 7, "settings")
     box.boxSettings.outerPockets = firebaseConnection.getFirebaseValue("outerPockets", 7, "settings")
+    box.boxSettings.timestampSeconds = firebaseConnection.getFirebaseValue("timestampSeconds", 600, "settings")
 
     defaultLatestMove = {
         "totalSteps": 0,
@@ -423,9 +424,8 @@ def thread_time(name):
                     "internet is back, resetting the stream to firebase")
                 setupStreamToFirebase()
 
-            if(timestampNow - lastTimeStampUpdate > 60):
-                firebaseConnection.setFirebaseValue(
-                    "timestamp", now.strftime('%Y-%m-%d %H:%M:%S'))
+            if(timestampNow - lastTimeStampUpdate > box.boxSettings.timestampSeconds and timestampNow - lastTimeStampUpdate > 60):
+                firebaseConnection.setFirebaseTimestamp()
                 lastTimeStampUpdate = timestampNow
 
         except Exception as err:
@@ -607,7 +607,7 @@ if __name__ == '__main__':
         releaseBothMotors()
         setButtonLedOn(True)
         print(box)
-        
+
         while (True):
             time.sleep(10)
 

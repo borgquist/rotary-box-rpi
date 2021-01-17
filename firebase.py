@@ -1,6 +1,7 @@
 import pyrebase
 import json
 import logging
+import datetime
 
 class FirebaseConnection:
     cpuid = 0
@@ -57,8 +58,14 @@ class FirebaseConnection:
                 if(grandparent is not None):
                     logMessasge = grandparent + "/" + logMessasge
             logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
+    
+    def setFirebaseTimestamp(self):
+        now = datetime.datetime.now()
+        newValue = now.strftime('%Y-%m-%d %H:%M:%S')
+        self.database.child("box").child("timestamp").child(self.cpuid).set(newValue)
+        return
 
-
+        
     def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None):
         if(parent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
