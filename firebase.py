@@ -65,7 +65,14 @@ class FirebaseConnection:
         self.database.child("box").child("timestamp").child(self.cpuid).set(newValue)
         return
 
-        
+    def getTimestampSeconds(self):
+        timestampSeconds = self.database.child("timestamp_seconds").get()
+        if timestampSeconds.val() is None:
+            logging.warning("couldn't get timestamp_seconds")
+            return 600
+        logging.info("timestamp_seconds is: " + str(timestampSeconds.val()))
+        return str(timestampSeconds.val())
+
     def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None):
         if(parent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()

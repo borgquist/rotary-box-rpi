@@ -110,8 +110,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxSettings.outerStepper.name = outerStepSettnigs["name"]
     box.boxSettings.innerPockets = firebaseConnection.getFirebaseValue("innerPockets", 7, "settings")
     box.boxSettings.outerPockets = firebaseConnection.getFirebaseValue("outerPockets", 7, "settings")
-    box.boxSettings.timestampSeconds = firebaseConnection.getFirebaseValue("timestampSeconds", 600, "settings")
-
+    
     defaultLatestMove = {
         "totalSteps": 0,
         "irTriggered": 0,
@@ -424,7 +423,7 @@ def thread_time(name):
                     "internet is back, resetting the stream to firebase")
                 setupStreamToFirebase()
 
-            if(timestampNow - lastTimeStampUpdate > box.boxSettings.timestampSeconds and timestampNow - lastTimeStampUpdate > 60):
+            if(timestampNow - lastTimeStampUpdate > timestampSeconds and timestampNow - lastTimeStampUpdate > 60):
                 firebaseConnection.setFirebaseTimestamp()
                 lastTimeStampUpdate = timestampNow
 
@@ -577,6 +576,8 @@ if __name__ == '__main__':
 
 
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
+        timestampSeconds = firebaseConnection.getTimestampSeconds()
+
         if(box.boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
                 logging.error("unable to get latest_version from firebase")
