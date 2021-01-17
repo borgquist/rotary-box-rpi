@@ -576,7 +576,7 @@ if __name__ == '__main__':
 
 
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
-        timestampSeconds = firebaseConnection.getTimestampSeconds()
+        timestampSeconds = int(firebaseConnection.getTimestampSeconds())
 
         if(box.boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
