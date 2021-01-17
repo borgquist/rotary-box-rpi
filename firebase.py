@@ -66,7 +66,7 @@ class FirebaseConnection:
         return
 
     def getTimestampSeconds(self):
-        timestampSeconds = self.database.child("timestamp_seconds").get()
+        timestampSeconds = self.database.child("box").child("timestamp_seconds").get()
         if timestampSeconds.val() is None:
             logging.warning("couldn't get timestamp_seconds")
             return 600
