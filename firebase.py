@@ -10,7 +10,7 @@ class FirebaseConnection:
         self.cpuid = cpuid
         
 
-    configFilePath = '/home/pi/shared/config.json'
+    configFilePath = '/home/pi/config.json'
     with open(configFilePath, 'r') as f:
         configToBeLoaded = json.load(f)
     apiKey = configToBeLoaded['apiKey']

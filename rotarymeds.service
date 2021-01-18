@@ -4,7 +4,7 @@ Description=RotaryMedsService
 [Service]
 Type=simple
 User=pi
-ExecStart=/usr/bin/python3 /home/pi/shared/rotary-box-rpi/rotarymeds.py
+ExecStart=/usr/bin/python3 /home/pi/rotary-box-rpi/rotarymeds.py
 
 [Install]
 WantedBy=multi-user.target
