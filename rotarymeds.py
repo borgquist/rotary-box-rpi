@@ -10,7 +10,7 @@ import socket  # used for hostname
 import traceback
 import subprocess
 from firebase import FirebaseConnection
-from datetimefunctions import DateTimeFunctions
+from .datetimefunctions import DateTimeFunctions
 from .box import Box
 
 folderPath = '/home/pi/'
