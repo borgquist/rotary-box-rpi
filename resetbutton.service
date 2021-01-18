@@ -4,6 +4,7 @@ Description=ResetButtonService
 [Service]
 Type=simple
 User=pi
+ExecStartPre=/bin/sleep 10
 ExecStart=/usr/bin/python3 /home/pi/rotary-box-rpi/resetbutton.py
 
 [Install]
