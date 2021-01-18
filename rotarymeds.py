@@ -10,8 +10,8 @@ import socket  # used for hostname
 import traceback
 import subprocess
 from firebase import FirebaseConnection
-from /home/pi/rotary-box-rpi/datetimefunctions import DateTimeFunctions
-from /home/pi/rotary-box-rpi/datetimefunctions import Box
+from datetimefunctions import DateTimeFunctions
+from box import Box
 
 folderPath = '/home/pi/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
