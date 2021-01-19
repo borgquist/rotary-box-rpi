@@ -5,7 +5,7 @@ import threading
 import os
 import traceback
 import subprocess
-
+import json
 
 folderPath = '/home/pi/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
@@ -18,25 +18,30 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
     ])
 
 
+pinConfigFilePath = '/home/pi/pinlayout.json'
+with open(pinConfigFilePath, 'r') as f:
+    pinConfigToBeLoaded = json.load(f)
+
+button_led_pin = pinConfigToBeLoaded['button_led_pin']
+button_pushed_pin = pinConfigToBeLoaded['button_pushed_pin']
+
 
 GPIO.setmode(GPIO.BCM)
 
 exitapp = False
 delay=.5
-resetButtonPin = 5
-GPIO.setup(resetButtonPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
+GPIO.setup(button_pushed_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
 
-buttonLedPin = 6  
-GPIO.setup(buttonLedPin,GPIO.OUT)
+GPIO.setup(button_led_pin,GPIO.OUT)
 
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     ledOn = False
     
     def setButtonLedOn(setToOn):
         if(setToOn):
-            GPIO.output(buttonLedPin,GPIO.HIGH)
+            GPIO.output(button_led_pin,GPIO.HIGH)
         else:
-            GPIO.output(buttonLedPin,GPIO.LOW)
+            GPIO.output(button_led_pin,GPIO.LOW)
 
     for x in range(int(nrFlashes)):
         ledOn = not ledOn
@@ -112,7 +117,7 @@ try:
     logging.info("ready")
     while (True): 
 
-        if GPIO.input(resetButtonPin) == GPIO.HIGH :
+        if GPIO.input(button_pushed_pin) == GPIO.HIGH :
             timestampNow = time.time()
 
             if(timeButtonNotPressed > timeButtonPressMostRecent):
@@ -121,7 +126,7 @@ try:
 
             timeButtonPressMostRecent = timestampNow
             
-            if(timestampNow - timeButtonNotPressed > 3):
+            if(timestampNow - timeButtonNotPressed > 5):
                 if(fiveSecondPressDone == False):
                     logging.info("five second press, calling wifi-connect")
                     triggerResetMode()
