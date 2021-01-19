@@ -1,0 +1,14 @@
+{
+    "ir_pin": 4,
+    "button_led_pin": 6,
+    "button_pushed_pin": 5,
+    "stepper_inner_in1": 17,
+    "stepper_inner_in2": 27,
+    "stepper_inner_in3": 22,
+    "stepper_inner_in4": 23,
+    "stepper_outer_in1": 24,
+    "stepper_outer_in2": 13,
+    "stepper_outer_in3": 26,
+    "stepper_outer_in4": 12,
+    "led_pin": 16
+}
