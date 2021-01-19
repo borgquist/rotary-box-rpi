@@ -10,6 +10,7 @@ import socket  # used for hostname
 import traceback
 import subprocess
 from firebase import FirebaseConnection
+import json
 from datetimefunctions import DateTimeFunctions
 from box import Box
 
@@ -27,8 +28,24 @@ logging.info("Starting rotarymeds.py")
 
 box = Box()
 
+pinConfigFilePath = '/home/pi/pinlayout.json'
+with open(pinConfigFilePath, 'r') as f:
+    pinConfigToBeLoaded = json.load(f)
 
-box.boxState.version = "1.0.20"
+ir_pin = pinConfigToBeLoaded['ir_pin']
+button_led_pin = pinConfigToBeLoaded['button_led_pin']
+button_pushed_pin = pinConfigToBeLoaded['button_pushed_pin']
+stepper_inner_in1 = pinConfigToBeLoaded['stepper_inner_in1']
+stepper_inner_in2 = pinConfigToBeLoaded['stepper_inner_in2']
+stepper_inner_in3 = pinConfigToBeLoaded['stepper_inner_in3']
+stepper_inner_in4 = pinConfigToBeLoaded['stepper_inner_in4']
+stepper_outer_in1 = pinConfigToBeLoaded['stepper_outer_in1']
+stepper_outer_in2 = pinConfigToBeLoaded['stepper_outer_in2']
+stepper_outer_in3 = pinConfigToBeLoaded['stepper_outer_in3']
+stepper_outer_in4 = pinConfigToBeLoaded['stepper_outer_in4']
+led_pin = pinConfigToBeLoaded['led_pin']
+
+box.boxState.version = "1.0.21"
 logging.info("version is " + box.boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
@@ -89,8 +106,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxSettings.scheduleInner = firebaseConnection.getFirebaseValue('scheduleInner', defaultSchedule, "settings")
     box.boxSettings.scheduleOuter = firebaseConnection.getFirebaseValue('scheduleOuter', defaultSchedule, "settings")
 
-    defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [17, 27, 22, 23]} 
-    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640, "chanList": [24, 13, 26, 12]} 
+    defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]} 
+    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640, "chanList": [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]} 
     
     
     innerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettingsInner",  defaultStepSettingsInner, "settings")
@@ -138,15 +155,14 @@ GPIO.setmode(GPIO.BCM)
 
 exitapp = False
 
-buttonLedPin = 6
-GPIO.setup(buttonLedPin, GPIO.OUT)
+GPIO.setup(button_led_pin, GPIO.OUT)
 
-buttonPin = 5
-GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-whiteLedPin = 16
-GPIO.setup(whiteLedPin, GPIO.OUT)
-GPIO.output(whiteLedPin, GPIO.LOW)
+GPIO.setup(button_pushed_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+
+GPIO.setup(led_pin, GPIO.OUT)
+GPIO.output(led_pin, GPIO.LOW)
 
 irSensorPin = 4
 GPIO.setup(irSensorPin, GPIO.IN)
@@ -282,15 +298,15 @@ def setButtonLedOn(setToOn):
     if(setToOn):
         logging.info("setButtonLedOn    : turning ON the buttonLed")
         box.boxState.buttonLedOn = True
-        GPIO.output(buttonLedPin, GPIO.HIGH)
-        GPIO.output(whiteLedPin, GPIO.HIGH)
+        GPIO.output(button_led_pin, GPIO.HIGH)
+        GPIO.output(led_pin, GPIO.HIGH)
         firebaseConnection.setFirebaseValue("buttonLedOn", True, "state")
 
     else:
         logging.info("setButtonLedOn    : turning OFF the buttonLed")
         box.boxState.buttonLedOn = False
-        GPIO.output(buttonLedPin, GPIO.LOW)
-        GPIO.output(whiteLedPin, GPIO.LOW)
+        GPIO.output(button_led_pin, GPIO.LOW)
+        GPIO.output(led_pin, GPIO.LOW)
         firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
 
 
@@ -495,12 +511,12 @@ def thread_button(name):
 
     while not exitapp:
         try:
-            if GPIO.input(buttonPin) == GPIO.HIGH:
+            if GPIO.input(button_pushed_pin) == GPIO.HIGH:
                 timestampNow = time.time()
 
                 if(timeButtonNotPressed > timeButtonPressMostRecent):
                     logging.info(
-                        "thread_button    : buttonPin button was pushed!")
+                        "thread_button    : button_pushed_pin button was pushed!")
 
                     if(box.boxState.buttonLedOn):
                         setButtonLedOn(False)
