@@ -439,7 +439,7 @@ def thread_time(name):
                 setupStreamToFirebase()
 
             if(timestampNow - lastTimeStampUpdate > timestampSeconds and timestampNow - lastTimeStampUpdate > 60):
-                firebaseConnection.setFirebaseTimestamp()
+                firebaseConnection.setFirebaseTimestamp(box.boxState.hostname)
                 lastTimeStampUpdate = timestampNow
 
         except Exception as err:
