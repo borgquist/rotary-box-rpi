@@ -588,7 +588,7 @@ if __name__ == '__main__':
         firebaseConnection.setFirebaseValue("ipAddress", box.boxState.ipAddress, "state")
         firebaseConnection.setFirebaseValue("hostname", box.boxState.hostname, "state")
         firebaseConnection.setFirebaseValue("version", box.boxState.version, "state")
-
+        firebaseConnection.setByHostnameTimestamp(box.boxState.hostname)
 
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         timestampSeconds = int(firebaseConnection.getTimestampSeconds())
