@@ -68,7 +68,7 @@ class FirebaseConnection:
     def setByHostnameTimestamp(self, hostname):
         now = datetime.datetime.now()
         timestamp = now.strftime('%Y-%m-%d %H:%M:%S')
-        self.database.child("box").child("hostnames").child(hostname).set(self.cpuid).set(timestamp)
+        self.database.child("box").child("hostnames").child(hostname).child(self.cpuid).set(timestamp)
         return
 
     def getTimestampSeconds(self):
