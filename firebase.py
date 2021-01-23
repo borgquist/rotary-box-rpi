@@ -62,8 +62,7 @@ class FirebaseConnection:
     # TODO at some point this should be only one call, is not optimal as is
     def setFirebaseTimestamp(self, hostname):
         now = datetime.datetime.now()
-        newValue = now.strftime('%Y-%m-%d %H:%M:%S')
-        self.database.child("box").child("timestamp").child(self.cpuid).set(newValue)
+        timestamp = now.strftime('%Y-%m-%d %H:%M:%S')
         self.database.child("box").child("hostnames").child(hostname).child(self.cpuid).set(timestamp)
         return
 
