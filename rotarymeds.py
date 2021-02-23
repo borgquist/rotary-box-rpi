@@ -404,6 +404,14 @@ def stream_handler(message):
             newVal = firebaseConnection.getFirebaseValue("scheduleOuter",None,"settings")
             logging.info("firebase: scheduleOuter has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
+        if message["path"].startswith("/settings/stepSettingsOuter"):
+            newVal = firebaseConnection.getFirebaseValue("stepSettingsOuter",None,"settings")
+            logging.info("firebase: stepSettingsOuter has new value: " + str(newVal))
+            getFirebaseValuesAndSetDefaultsIfNeeded()
+        if message["path"].startswith("/settings/stepSettingsInner"):
+            newVal = firebaseConnection.getFirebaseValue("stepSettingsInner",None,"settings")
+            logging.info("firebase: stepSettingsInner has new value: " + str(newVal))
+            getFirebaseValuesAndSetDefaultsIfNeeded()
         if message["path"] == "/commands/setButtonLed":
             checkCommandSetButtonLed()
         if message["path"] == "/commands/moveNowOuter":
