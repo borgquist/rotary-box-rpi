@@ -34,9 +34,7 @@ class DateTimeFunctions:
     @staticmethod
     def daysSinceEpoch():
         logging.info("calling daysSinceEpoch")
-        today = datetime.datetime.today()
-        past_date = datetime.date(1970, 1, 1) #Jan 1 1970
-        return ((today - past_date).days)
+        return (datetime.datetime.utcnow() - datetime.datetime(1970,1,1)).days
 
     @staticmethod
     def isTimeBeforeNow(hourOfMove, minuteOfMove):
