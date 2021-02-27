@@ -64,7 +64,7 @@ class DateTimeFunctions:
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
             return candidateForNextMove
 
-        if(weekdayOfMove == "evenDays"):
+        if(weekdayOfMove == "evendays"):
             logging.info("checking evenDays")
         
             if(DateTimeFunctions.isTodayEvenDay()):
@@ -80,7 +80,7 @@ class DateTimeFunctions:
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
             return candidateForNextMove
 
-        if(weekdayOfMove == "oddDays"):
+        if(weekdayOfMove == "odddays"):
             logging.info("checking oddDays")
             if(not DateTimeFunctions.isTodayEvenDay()):
                 logging.info("isTodayEvenDay is NOT true")
