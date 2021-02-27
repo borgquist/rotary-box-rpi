@@ -26,7 +26,7 @@ class DateTimeFunctions:
     @staticmethod
     def isTodayEvenDay():
         logging.info("calling isTodayEvenDay")
-        daysSinceEpoch = DateTimeFunctions.daysSinceEpoch
+        daysSinceEpoch = DateTimeFunctions.daysSinceEpoch()
         logging.info("days since Epoch [" + daysSinceEpoch + "]")
         return daysSinceEpoch % 2 == 0
 
