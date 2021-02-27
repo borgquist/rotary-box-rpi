@@ -101,10 +101,7 @@ logging.info("Done creating FirebaseConnection")
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
 
-    defaultSchedule =[{"day": "everyday", "hour":7, "minute":0}]
-
-    box.boxSettings.scheduleInner = firebaseConnection.getFirebaseValue('scheduleInner', defaultSchedule, "settings")
-    box.boxSettings.scheduleOuter = firebaseConnection.getFirebaseValue('scheduleOuter', defaultSchedule, "settings")
+    getSchedules()
 
     defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]} 
     defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640, "chanList": [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]} 
@@ -137,6 +134,12 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.boxState.latestMoveOuter = firebaseConnection.getFirebaseValue("latestMoveOuter", defaultLatestMove, "state")
     box.boxState.pocketsFullInner = firebaseConnection.getFirebaseValue("pocketsFullInner", 0, "state")
     box.boxState.pocketsFullOuter = firebaseConnection.getFirebaseValue("pocketsFullOuter", 0, "state")
+
+def getSchedules():
+    defaultSchedule =[{"day": "everyday", "hour":7, "minute":0}]
+    box.boxSettings.scheduleInner = firebaseConnection.getFirebaseValue('scheduleInner', defaultSchedule, "settings")
+    box.boxSettings.scheduleOuter = firebaseConnection.getFirebaseValue('scheduleOuter', defaultSchedule, "settings")
+
 
 
 
@@ -399,11 +402,11 @@ def stream_handler(message):
         if message["path"].startswith("/settings/scheduleInner"):
             newVal = firebaseConnection.getFirebaseValue("scheduleInner",None,"settings")
             logging.info("firebase: scheduleInner has new value: " + str(newVal))
-            getFirebaseValuesAndSetDefaultsIfNeeded()
+            getSchedules()
         if message["path"].startswith("/settings/scheduleOuter"):
             newVal = firebaseConnection.getFirebaseValue("scheduleOuter",None,"settings")
             logging.info("firebase: scheduleOuter has new value: " + str(newVal))
-            getFirebaseValuesAndSetDefaultsIfNeeded()
+            getSchedules()
         if message["path"].startswith("/settings/stepSettingsOuter"):
             newVal = firebaseConnection.getFirebaseValue("stepSettingsOuter",None,"settings")
             logging.info("firebase: stepSettingsOuter has new value: " + str(newVal))
