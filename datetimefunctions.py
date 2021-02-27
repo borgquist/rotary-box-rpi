@@ -21,7 +21,20 @@ class DateTimeFunctions:
         if datetime.weekday() == 6:
             return "Sunday"
         return "unknownDay"
-        
+
+    @staticmethod
+    def isTodayEvenDay():
+        daysSinceEpoch = DateTimeFunctions.daysSinceEpoch
+        print(daysSinceEpoch)
+        return DateTimeFunctions.daysSinceEpoch % 2 == 0
+
+    
+    @staticmethod
+    def daysSinceEpoch():
+        today = datetime.datetime.today()
+        past_date = datetime.date(1970, 1, 1) #Jan 1 1970
+        return ((today - past_date).days)
+
     @staticmethod
     def isTimeBeforeNow(hourOfMove, minuteOfMove):
             moveTime = datetime.time(hourOfMove, minuteOfMove, 0)
@@ -45,6 +58,34 @@ class DateTimeFunctions:
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
             else:
                 dayPart = datetime.datetime.today()
+                candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
+            return candidateForNextMove
+
+        if(weekdayOfMove == "evenDays"):
+            if(DateTimeFunctions.isTodayEvenDay()):
+                print("today is an even day")
+                if(DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
+                    dayPart = datetime.datetime.today() + timedelta(days=2)
+                    candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
+                else:
+                    dayPart = datetime.datetime.today()
+                    candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
+            else:
+                dayPart = datetime.datetime.today() + timedelta(days=1)
+                candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
+            return candidateForNextMove
+
+        if(weekdayOfMove == "oddDays"):
+            if(not DateTimeFunctions.isTodayEvenDay()):
+                print("today is an odd day")
+                if(DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
+                    dayPart = datetime.datetime.today() + timedelta(days=2)
+                    candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
+                else:
+                    dayPart = datetime.datetime.today()
+                    candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
+            else:
+                dayPart = datetime.datetime.today() + timedelta(days=1)
                 candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
             return candidateForNextMove
 
