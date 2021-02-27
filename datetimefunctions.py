@@ -1,5 +1,6 @@
 import datetime
 from datetime import timedelta
+import logging
 
 
 class DateTimeFunctions:
@@ -24,13 +25,15 @@ class DateTimeFunctions:
 
     @staticmethod
     def isTodayEvenDay():
+        logging.info("calling isTodayEvenDay")
         daysSinceEpoch = DateTimeFunctions.daysSinceEpoch
-        print(daysSinceEpoch)
-        return DateTimeFunctions.daysSinceEpoch % 2 == 0
+        logging.info("days since Epoch [" + daysSinceEpoch + "]")
+        return daysSinceEpoch % 2 == 0
 
     
     @staticmethod
     def daysSinceEpoch():
+        logging.info("calling daysSinceEpoch")
         today = datetime.datetime.today()
         past_date = datetime.date(1970, 1, 1) #Jan 1 1970
         return ((today - past_date).days)
@@ -62,8 +65,10 @@ class DateTimeFunctions:
             return candidateForNextMove
 
         if(weekdayOfMove == "evenDays"):
+            logging.info("checking evenDays")
+        
             if(DateTimeFunctions.isTodayEvenDay()):
-                print("today is an even day")
+                logging.info("isTodayEvenDay is true")
                 if(DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
                     dayPart = datetime.datetime.today() + timedelta(days=2)
                     candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
@@ -76,8 +81,9 @@ class DateTimeFunctions:
             return candidateForNextMove
 
         if(weekdayOfMove == "oddDays"):
+            logging.info("checking oddDays")
             if(not DateTimeFunctions.isTodayEvenDay()):
-                print("today is an odd day")
+                logging.info("isTodayEvenDay is NOT true")
                 if(DateTimeFunctions.isTimeBeforeNow(hourOfMove, minuteOfMove)):
                     dayPart = datetime.datetime.today() + timedelta(days=2)
                     candidateForNextMove = datetime.datetime.combine(dayPart, timePart)
