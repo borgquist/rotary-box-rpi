@@ -104,7 +104,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     getSchedules()
 
     defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]} 
-    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2600, "afterTrigger": 1640, "chanList": [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]} 
+    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2900, "afterTrigger": 1640, "chanList": [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]} 
     
     
     innerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettingsInner",  defaultStepSettingsInner, "settings")
@@ -254,7 +254,7 @@ def move(stepper):
         arr1 = arr2
         arr2 = arrOUT
         GPIO.output(stepper.chanList, arrOUT)
-        time.sleep(0.002)
+        time.sleep(0.0015)
         if irTriggered and stepsDoneWhenIRtrigger == 0:
             stepsDoneWhenIRtrigger = stepsDone
         return stepsDone + 1
