@@ -58,7 +58,7 @@ def getserial():
         f = open('/proc/cpuinfo', 'r')
         for line in f:
             if line[0:6] == 'Serial':
-                cpuserial = line[10:26].lstrip('0')
+                cpuserial = line[10:26].replace('0', '')
         f.close()
     except:
         cpuserial = "ERROR000000000"
