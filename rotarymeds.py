@@ -449,8 +449,8 @@ def thread_time(name):
                     "internet is back, resetting the stream to firebase")
                 setupStreamToFirebase()
 
-            if(timestampNow - lastTimeStampUpdate > timestampSeconds and timestampNow - lastTimeStampUpdate > 60):
-                firebaseConnection.setFirebaseTimestamp(box.boxState.hostname)
+            if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
+                firebaseConnection.setPing()
                 lastTimeStampUpdate = timestampNow
 
         except Exception as err:
@@ -601,7 +601,7 @@ if __name__ == '__main__':
         firebaseConnection.setFirebaseValue("version", box.boxState.version, "state")
         
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
-        timestampSeconds = int(firebaseConnection.getTimestampSeconds())
+        pingSeconds = int(firebaseConnection.getPingSeconds())
 
         if(box.boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):

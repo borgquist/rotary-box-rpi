@@ -60,19 +60,19 @@ class FirebaseConnection:
             logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
     
     # TODO at some point this should be only one call, is not optimal as is
-    def setFirebaseTimestamp(self, hostname):
+    def setPing(self):
         now = datetime.datetime.now()
         timestamp = now.strftime('%Y-%m-%d %H:%M:%S')
-        self.database.child("box").child("hostnames").child(hostname).child(self.cpuid).set(timestamp)
+        self.database.child("box").child("ping").child(self.cpuid).set(timestamp)
         return
 
-    def getTimestampSeconds(self):
-        timestampSeconds = self.database.child("box").child("timestamp_seconds").get()
-        if timestampSeconds.val() is None:
-            logging.warning("couldn't get timestamp_seconds")
+    def getPingSeconds(self):
+        pingSeconds = self.database.child("box").child("ping_seconds").get()
+        if pingSeconds.val() is None:
+            logging.warning("couldn't get ping_seconds")
             return 600
-        logging.info("timestamp_seconds is: " + str(timestampSeconds.val()))
-        return str(timestampSeconds.val())
+        logging.info("ping_seconds is: " + str(pingSeconds.val()))
+        return str(pingSeconds.val())
 
     def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None):
         if(parent is None):
