@@ -254,7 +254,7 @@ def move(stepper):
         arr1 = arr2
         arr2 = arrOUT
         GPIO.output(stepper.chanList, arrOUT)
-        time.sleep(0.0015)
+        time.sleep(0.0012)
         if irTriggered and stepsDoneWhenIRtrigger == 0:
             stepsDoneWhenIRtrigger = stepsDone
         return stepsDone + 1
