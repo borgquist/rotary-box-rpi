@@ -45,7 +45,7 @@ stepper_outer_in3 = pinConfigToBeLoaded['stepper_outer_in3']
 stepper_outer_in4 = pinConfigToBeLoaded['stepper_outer_in4']
 led_pin = pinConfigToBeLoaded['led_pin']
 
-box.boxState.version = "1.0.21"
+box.boxState.version = "1.0.22"
 logging.info("version is " + box.boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
