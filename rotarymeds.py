@@ -126,7 +126,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     
     defaultLatestMove = {
         "totalSteps": 0,
-        "irTriggered": 0,
+        "irTriggered": False,
         "stepsAfterTrigger": 0,
         "timestamp": "1900-01-01 00:00:00",
     }
