@@ -414,13 +414,13 @@ def stream_handler(message):
             getFirebaseValuesAndSetDefaultsIfNeeded()
         if message["path"] == "/commands/setButtonLed":
             checkCommandSetButtonLed()
-        if message["path"] == "/innerCircle/commands/moveNow":
+        if message["path"] == "/commands/innerCircle/moveNow":
            checkCommandMoveNowInner()
-        if message["path"] == "/outerCircle/commands/moveNow":
+        if message["path"] == "/commands/outerCircle/moveNow":
            checkCommandMoveNowOuter()
-        if message["path"] == "/innerCircle/commands/setPocketsFull":
+        if message["path"] == "/commands/innerCircle/setPocketsFull":
             checkCommandsPocketsInner()
-        if message["path"] == "/outerCircle/commands/setPocketsFull":
+        if message["path"] == "/commands/outerCircle/setPocketsFull":
             checkCommandsPocketsOuter()
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
