@@ -185,9 +185,9 @@ arrOff = [0, 0, 0, 0]
 
 
 
-for pin in box.boxSettings.innerStepper.chanList:
+for pin in box.innerCircle.settings.stepSettings.chanList:
     GPIO.setup(pin, GPIO.OUT)
-for pin in box.boxSettings.outerStepper.chanList:
+for pin in box.outerCircle.settings.stepSettings.chanList:
     GPIO.setup(pin, GPIO.OUT)
 
 
