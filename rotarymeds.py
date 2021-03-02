@@ -196,12 +196,13 @@ moveIsBeingDone = False
 
 def move_stepper_inner():
     global moveIsBeingDone
+    logging.info("move_stepper_inner called")
+    
     while (moveIsBeingDone):
         logging.info("inner: waiting for other move to be done")
         time.sleep(1)
     moveIsBeingDone = True
     move(box.innerCircle.settings.stepSettings)
-    logging.info("move now called on " + str(box.innerCircle.settings.stepSettings))
     box.innerCircle.state.pocketsFull = max(box.innerCircle.state.pocketsFull -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFullInner", box.innerCircle.state.pocketsFull, "innerCircle", "state")
     moveIsBeingDone = False
@@ -209,6 +210,8 @@ def move_stepper_inner():
 
 def move_stepper_outer():
     global moveIsBeingDone
+    logging.info("move_stepper_outer called")
+    
     while (moveIsBeingDone):
         logging.info("outer: waiting for other move to be done",
                      moveIsBeingDone)
