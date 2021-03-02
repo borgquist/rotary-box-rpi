@@ -10,7 +10,7 @@ class BoxCircleState:
         timestamp = "1900-01-01 00:00:00"
 
         def __str__(self):
-            return "stepsDone [" + str(self.stepsDone) + "] stepsDoneAfterIr [" + str(self.stepsDoneAfterIr) + "] irTriggered [" + str(self.irTriggered) + "] timestamp [" + str(self.timestamp) + "] latestMoveInner [" + str(self.latestMoveInner) +"] latestMoveOuter [" + str(self.latestMoveOuter) +"]"
+            return "stepsDone [" + str(self.stepsDone) + "] stepsDoneAfterIr [" + str(self.stepsDoneAfterIr) + "] irTriggered [" + str(self.irTriggered) + "] timestamp [" + str(self.timestamp) + "] latestMove [" + str(self.latestMove) +"]"
 
     latestMove = LatestMove()
     
