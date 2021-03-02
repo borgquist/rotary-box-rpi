@@ -1,3 +1,5 @@
+from boxstate import BoxState
+from boxcircle import BoxCircle
 import os
 import logging
 from typing import List
@@ -26,7 +28,9 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                     ])
 logging.info("Starting rotarymeds.py")
 
-box = Box()
+innerCircle = BoxCircle()
+outerCircle = BoxCircle()
+boxState = BoxState()
 
 pinConfigFilePath = '/home/pi/pinlayout.json'
 with open(pinConfigFilePath, 'r') as f:
@@ -45,8 +49,8 @@ stepper_outer_in3 = pinConfigToBeLoaded['stepper_outer_in3']
 stepper_outer_in4 = pinConfigToBeLoaded['stepper_outer_in4']
 led_pin = pinConfigToBeLoaded['led_pin']
 
-box.boxState.version = "1.0.22"
-logging.info("version is " + box.boxState.version)
+boxState.version = "1.0.22"
+logging.info("version is " + boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -67,9 +71,9 @@ def getserial():
     return cpuserial
 
 
-box.boxState.cpuId = getserial()
+boxState.cpuId = getserial()
 
-logging.info("CPU serial is [" + str(box.boxState.cpuId) + "]")
+logging.info("CPU serial is [" + str(boxState.cpuId) + "]")
 
 
 logging.info("checking internet connectivity")
@@ -90,13 +94,13 @@ while(not haveInternet()):
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect((googleHostForInternetCheck, 0))
-box.boxState.ipAddress = s.getsockname()[0]
-box.boxState.hostname = socket.gethostname()
+boxState.ipAddress = s.getsockname()[0]
+boxState.hostname = socket.gethostname()
 
 logging.info("have internet connectivity")
 
 logging.info("Creating FirebaseConnection")
-firebaseConnection = FirebaseConnection(str(box.boxState.cpuId))
+firebaseConnection = FirebaseConnection(str(boxState.cpuId))
 logging.info("Done creating FirebaseConnection")
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
@@ -113,23 +117,22 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     outerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsOuter, "outerCircle", "settings")
     logging.info("outerStepSettnigs " + str(outerStepSettnigs))
     
-    box.innerCircle.settings.stepSettings.name = "inner"
-    box.innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "innerCircle", "settings")
-    box.innerCircle.settings.stepSettings.afterTrigger = innerStepSettnigs["afterTrigger"]
-    box.innerCircle.settings.stepSettings.maxMove = innerStepSettnigs["maxMove"]
-    box.innerCircle.settings.stepSettings.minMove = innerStepSettnigs["minMove"]
-    box.innerCircle.settings.stepSettings.chanList = innerStepSettnigs["chanList"]  # GPIO ports to use
-    logging.info("box " + str(box))
+    innerCircle.settings.stepSettings.name = "inner"
+    innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "innerCircle", "settings")
+    innerCircle.settings.stepSettings.afterTrigger = innerStepSettnigs["afterTrigger"]
+    innerCircle.settings.stepSettings.maxMove = innerStepSettnigs["maxMove"]
+    innerCircle.settings.stepSettings.minMove = innerStepSettnigs["minMove"]
+    innerCircle.settings.stepSettings.chanList = innerStepSettnigs["chanList"]  # GPIO ports to use
+ 
+    outerCircle.settings.stepSettings.name = "outer"
+    outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "outerCircle", "settings")
+    outerCircle.settings.stepSettings.afterTrigger = outerStepSettnigs["afterTrigger"]
+    outerCircle.settings.stepSettings.maxMove = outerStepSettnigs["maxMove"]
+    outerCircle.settings.stepSettings.minMove = outerStepSettnigs["minMove"]
     
-    box.outerCircle.settings.stepSettings.name = "outer"
-    box.outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "outerCircle", "settings")
-    box.outerCircle.settings.stepSettings.afterTrigger = outerStepSettnigs["afterTrigger"]
-    box.outerCircle.settings.stepSettings.maxMove = outerStepSettnigs["maxMove"]
-    box.outerCircle.settings.stepSettings.minMove = outerStepSettnigs["minMove"]
-    
-    logging.info("box " + str(box))
-    box.outerCircle.settings.stepSettings.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
-    logging.info("box " + str(box))
+    logging.info("innerCircle " + str(innerCircle))
+    outerCircle.settings.stepSettings.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
+    logging.info("innerCircle " + str(innerCircle))
     
     
     defaultLatestMove = {
@@ -139,17 +142,17 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
         "timestamp": "1900-01-01 00:00:00",
     }
 
-    box.innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "innerCircle", "state")
-    box.innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "innerCircle", "state")
+    innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "innerCircle", "state")
+    innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "innerCircle", "state")
 
-    box.outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "outerCircle", "state")
-    box.outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "outerCircle", "state")
+    outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "outerCircle", "state")
+    outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "outerCircle", "state")
     
 
 def getSchedules():
     defaultSchedule =[{"day": "everyday", "hour":7, "minute":0}]
-    box.innerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "innerCircle", "settings")
-    box.outerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "outerCircle", "settings")
+    innerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "innerCircle", "settings")
+    outerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "outerCircle", "settings")
 
 
 
@@ -191,9 +194,9 @@ arrOff = [0, 0, 0, 0]
 
 
 
-for pin in box.innerCircle.settings.stepSettings.chanList:
+for pin in innerCircle.settings.stepSettings.chanList:
     GPIO.setup(pin, GPIO.OUT)
-for pin in box.outerCircle.settings.stepSettings.chanList:
+for pin in outerCircle.settings.stepSettings.chanList:
     GPIO.setup(pin, GPIO.OUT)
 
 
@@ -202,45 +205,45 @@ moveIsBeingDone = False
 
 def move_stepper_inner():
     global moveIsBeingDone
-    logging.info("move_stepper_inner called " + str(box.innerCircle.settings.stepSettings))
+    logging.info("move_stepper_inner called " + str(innerCircle.settings.stepSettings))
     
     while (moveIsBeingDone):
         logging.info("inner: waiting for other move to be done")
         time.sleep(1)
     moveIsBeingDone = True
-    move(box.innerCircle.settings.stepSettings)
-    box.innerCircle.state.pocketsFull = max(box.innerCircle.state.pocketsFull -1, 0)
-    firebaseConnection.setFirebaseValue("pocketsFullInner", box.innerCircle.state.pocketsFull, "innerCircle", "state")
+    move(innerCircle.settings.stepSettings)
+    innerCircle.state.pocketsFull = max(innerCircle.state.pocketsFull -1, 0)
+    firebaseConnection.setFirebaseValue("pocketsFullInner", innerCircle.state.pocketsFull, "innerCircle", "state")
     moveIsBeingDone = False
 
 
 def move_stepper_outer():
     global moveIsBeingDone
-    logging.info("move_stepper_outer called " + str(box.innerCircle.settings.stepSettings))
+    logging.info("move_stepper_outer called " + str(innerCircle.settings.stepSettings))
     
     while (moveIsBeingDone):
         logging.info("outer: waiting for other move to be done",
                      moveIsBeingDone)
         time.sleep(1)
     moveIsBeingDone = True
-    move(box.outerCircle.settings.stepSettings)
-    logging.info("move now called on " + str(box.outerCircle.settings.stepSettings))
-    box.outerCircle.state.pocketsFull = max(box.outerCircle.state.pocketsFull -1, 0)
-    firebaseConnection.setFirebaseValue("pocketsFull", box.outerCircle.state.pocketsFull,"outerCircle", "state")
+    move(outerCircle.settings.stepSettings)
+    logging.info("move now called on " + str(outerCircle.settings.stepSettings))
+    outerCircle.state.pocketsFull = max(outerCircle.state.pocketsFull -1, 0)
+    firebaseConnection.setFirebaseValue("pocketsFull", outerCircle.state.pocketsFull,"outerCircle", "state")
     moveIsBeingDone = False
 
 
 def holdBothMotors():
     global arr1  # enables the edit of arr1 var inside a function
     arrOUT = arr1[1:]+arr1[:1]  # rotates array values of 1 digi
-    GPIO.output(box.innerCircle.settings.stepSettings.chanList, arrOUT)
-    GPIO.output(box.outerCircle.settings.stepSettings.chanList, arrOUT)
+    GPIO.output(innerCircle.settings.stepSettings.chanList, arrOUT)
+    GPIO.output(outerCircle.settings.stepSettings.chanList, arrOUT)
 
 
 def releaseBothMotors():
     global arrOff
-    GPIO.output(box.innerCircle.settings.stepSettings.chanList, arrOff)
-    GPIO.output(box.outerCircle.settings.stepSettings.chanList, arrOff)
+    GPIO.output(innerCircle.settings.stepSettings.chanList, arrOff)
+    GPIO.output(outerCircle.settings.stepSettings.chanList, arrOff)
 
 
 irTriggered = False
@@ -293,10 +296,10 @@ def move(stepper):
         "timestamp": now.strftime('%Y-%m-%d %H:%M:%S'),
     }
     if(stepper.name == "inner"):
-        box.innerCircle.state.latestMove = latestMove
+        innerCircle.state.latestMove = latestMove
         firebaseConnection.setFirebaseValue("latestMove", latestMove, "innerCircle", "state")
     else:
-        box.outerCircle.state.latestMove = latestMove
+        outerCircle.state.latestMove = latestMove
         firebaseConnection.setFirebaseValue("latestMove", latestMove, "outerCircle", "state")
 
     
@@ -308,20 +311,20 @@ def move(stepper):
     logging.info(" ")
 
 
-box.boxState.buttonLedOn = True
+boxState.buttonLedOn = True
 
 
 def setButtonLedOn(setToOn):
     if(setToOn):
         logging.info("setButtonLedOn    : turning ON the buttonLed")
-        box.boxState.buttonLedOn = True
+        boxState.buttonLedOn = True
         GPIO.output(button_led_pin, GPIO.HIGH)
         GPIO.output(led_pin, GPIO.HIGH)
         firebaseConnection.setFirebaseValue("buttonLedOn", True, "state")
 
     else:
         logging.info("setButtonLedOn    : turning OFF the buttonLed")
-        box.boxState.buttonLedOn = False
+        boxState.buttonLedOn = False
         GPIO.output(button_led_pin, GPIO.LOW)
         GPIO.output(led_pin, GPIO.LOW)
         firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
@@ -378,7 +381,7 @@ def checkCommandsPocketsInner():
         firebaseConnection.setFirebaseValue("setPocketsFull", False, "innerCircle", "commands")
         firebaseConnection.setFirebaseValue("pocketsFull", int(newVal), "innerCircle", "state")
         
-        box.innerCircle.state.pocketsFull = int(newVal)
+        innerCircle.state.pocketsFull = int(newVal)
         logging.info(
             "setPocketsFull for innerCircle updated to " + str(int(newVal)))
 
@@ -390,7 +393,7 @@ def checkCommandsPocketsOuter():
         firebaseConnection.setFirebaseValue("setPocketsFull", False, "outerCircle", "commands")
         firebaseConnection.setFirebaseValue("pocketsFull", int(newVal), "outerCircle", "state")
         
-        box.outerCircle.state.pocketsFull = int(newVal)
+        outerCircle.state.pocketsFull = int(newVal)
         logging.info(
             "setPocketsFull for outerCircle updated to " + str(int(newVal)))
 
@@ -482,12 +485,12 @@ def thread_move_inner(name):
 
     while not exitapp:
         try:
-            currentCachedValue = box.innerCircle.state.nextMove
-            nextMove = getNextMove(box.innerCircle.settings.schedule)
+            currentCachedValue = innerCircle.state.nextMove
+            nextMove = getNextMove(innerCircle.settings.schedule)
             
             if(str(nextMove) != str(currentCachedValue)):
                 firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), "innerCircle", "state")
-                box.innerCircle.state.nextMove = nextMove
+                innerCircle.state.nextMove = nextMove
 
             if(nextMove != 0):
                 now = datetime.datetime.now()
@@ -516,12 +519,12 @@ def thread_move_outer(name):
 
     while not exitapp:
         try:
-            currentCachedValue = box.outerCircle.state.nextMove
-            nextMove = getNextMove(box.outerCircle.settings.schedule)
+            currentCachedValue = outerCircle.state.nextMove
+            nextMove = getNextMove(outerCircle.settings.schedule)
             
             if(str(nextMove) != str(currentCachedValue)):
                 firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), "outerCircle", "state")
-                box.outerCircle.state.nextMove = nextMove
+                outerCircle.state.nextMove = nextMove
             
             if(nextMove != 0):
                 now = datetime.datetime.now()
@@ -559,7 +562,7 @@ def thread_button(name):
                     logging.info(
                         "thread_button    : button_pushed_pin button was pushed!")
 
-                    if(box.boxState.buttonLedOn):
+                    if(boxState.buttonLedOn):
                         setButtonLedOn(False)
                     else:
                         setButtonLedOn(True)
@@ -609,7 +612,7 @@ def setupStreamToFirebase():
         logging.info("tried to close the stream but failed")
 
     logging.info("setting up the stream to firebase")
-    my_stream = firebaseConnection.database.child("box").child("boxes").child(box.boxState.cpuId).stream(stream_handler)
+    my_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
     logging.info("done setting up the stream to firebase")
     checkCommandsNodes()
 
@@ -624,23 +627,23 @@ if __name__ == '__main__':
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
-        firebaseConnection.setFirebaseValue("cpuId", box.boxState.cpuId, "state")
-        firebaseConnection.setFirebaseValue("ipAddress", box.boxState.ipAddress, "state")
-        firebaseConnection.setFirebaseValue("hostname", box.boxState.hostname, "state")
-        firebaseConnection.setFirebaseValue("version", box.boxState.version, "state")
+        firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "state")
+        firebaseConnection.setFirebaseValue("ipAddress", boxState.ipAddress, "state")
+        firebaseConnection.setFirebaseValue("hostname", boxState.hostname, "state")
+        firebaseConnection.setFirebaseValue("version", boxState.version, "state")
         
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         pingSeconds = int(firebaseConnection.getPingSeconds())
 
-        if(box.boxState.version != latestVersionAvailable):
+        if(boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
                 logging.error("unable to get latest_version from firebase")
             else:
                 logging.warning(
-                    "our version [" + box.boxState.version + "] latest_version [" + latestVersionAvailable + "]")
+                    "our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
         else:
             logging.info(
-                "OK our version [" + box.boxState.version + "] latest_version [" + latestVersionAvailable + "]")
+                "OK our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
 
         buttonThread = threading.Thread(target=thread_button, args=(1,))
         buttonThread.start()
