@@ -224,14 +224,14 @@ def move_stepper_outer():
 def holdBothMotors():
     global arr1  # enables the edit of arr1 var inside a function
     arrOUT = arr1[1:]+arr1[:1]  # rotates array values of 1 digi
-    GPIO.output(box.innerCircle.settings.chanList, arrOUT)
-    GPIO.output(box.outerCircle.settings.chanList, arrOUT)
+    GPIO.output(box.innerCircle.settings.stepSettings.chanList, arrOUT)
+    GPIO.output(box.outerCircle.settings.stepSettings.chanList, arrOUT)
 
 
 def releaseBothMotors():
     global arrOff
-    GPIO.output(box.innerCircle.settings.chanList, arrOff)
-    GPIO.output(box.outerCircle.settings.chanList, arrOff)
+    GPIO.output(box.innerCircle.settings.stepSettings.chanList, arrOff)
+    GPIO.output(box.outerCircle.settings.stepSettings.chanList, arrOff)
 
 
 irTriggered = False
