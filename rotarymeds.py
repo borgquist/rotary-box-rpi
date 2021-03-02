@@ -346,7 +346,7 @@ def checkCommandSetButtonLed():
     firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
 
 def checkCommandMoveNowInner():
-    newVal = firebaseConnection.getFirebaseValue("moveNow", False, "innerCircle, ""commands")
+    newVal = firebaseConnection.getFirebaseValue("moveNow", False, "innerCircle", "commands")
     if(bool(newVal)):
         logging.info(
             "we should move inner now, setting moveNow to false before moving to avoid multiple triggers")
