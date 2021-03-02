@@ -415,18 +415,23 @@ def stream_handler(message):
             logging.info("firebase: stepSettings for outerCircle has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
         if message["path"] == "/commands/setButtonLed":
+            newVal = firebaseConnection.getFirebaseValue("setButtonLed", None, "commands")
             logging.info("firebase: /commands/setButtonLed new value: " + str(newVal))
             checkCommandSetButtonLed()
         if message["path"] == "/commands/innerCircle/moveNow":
+            newVal = firebaseConnection.getFirebaseValue("moveNow", None, "innerCircle", "commands")
             logging.info("firebase: /commands/innerCircle/moveNow new value: " + str(newVal))
             checkCommandMoveNowInner()
         if message["path"] == "/commands/outerCircle/moveNow":
+            newVal = firebaseConnection.getFirebaseValue("moveNow", None, "outerCircle", "commands")
             logging.info("firebase: /commands/outerCircle/moveNow has new value: " + str(newVal))
             checkCommandMoveNowOuter()
         if message["path"] == "/commands/innerCircle/setPocketsFull":
+            newVal = firebaseConnection.getFirebaseValue("setPocketsFull", None, "innerCircle", "commands")
             logging.info("firebase: /commands/innerCircle/setPocketsFull has new value: " + str(newVal))
             checkCommandsPocketsInner()
         if message["path"] == "/commands/outerCircle/setPocketsFull":
+            newVal = firebaseConnection.getFirebaseValue("setPocketsFull", None, "outerCircle", "commands")
             logging.info("firebase: /commands/outerCircle/setPocketsFull has new value: " + str(newVal))
             checkCommandsPocketsOuter()
     except Exception:
