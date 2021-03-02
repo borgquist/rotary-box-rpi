@@ -104,11 +104,14 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     getSchedules()
 
     defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]} 
+    logging.info("defaultStepSettingsInner " + str(defaultStepSettingsInner))
     defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2900, "afterTrigger": 1640, "chanList": [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]} 
-    
+    logging.info("defaultStepSettingsOuter " + str(defaultStepSettingsOuter))
     
     innerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsInner, "innerCircle", "settings")
+    logging.info("innerStepSettnigs " + str(innerStepSettnigs))
     outerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsOuter, "outerCircle", "settings")
+    logging.info("outerStepSettnigs " + str(outerStepSettnigs))
     
     box.innerCircle.settings.stepSettings.name = "inner"
     box.innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "innerCircle", "settings")
@@ -116,6 +119,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.innerCircle.settings.stepSettings.maxMove = innerStepSettnigs["maxMove"]
     box.innerCircle.settings.stepSettings.minMove = innerStepSettnigs["minMove"]
     box.innerCircle.settings.stepSettings.chanList = innerStepSettnigs["chanList"]  # GPIO ports to use
+    logging.info("box.innerCircle.settings.stepSettings " + str(box.innerCircle.settings.stepSettings))
     
     
     box.outerCircle.settings.stepSettings.name = "outer"
@@ -124,7 +128,9 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.outerCircle.settings.stepSettings.maxMove = outerStepSettnigs["maxMove"]
     box.outerCircle.settings.stepSettings.minMove = outerStepSettnigs["minMove"]
     box.outerCircle.settings.stepSettings.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
+    logging.info("box.outerCircle.settings.stepSettings " + str(box.outerCircle.settings.stepSettings))
     
+    logging.info("box.innerCircle.settings.stepSettings " + str(box.innerCircle.settings.stepSettings))
     
     defaultLatestMove = {
         "totalSteps": 0,
