@@ -107,23 +107,23 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
 
     getSchedules()
 
-    defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]} 
+    defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360} 
     innerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsInner, "innerCircle", "settings")
     innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 4, "innerCircle", "settings")
     innerCircle.settings.stepSettings.name = "inner"
     innerCircle.settings.stepSettings.afterTrigger = innerStepSettnigs["afterTrigger"]
     innerCircle.settings.stepSettings.maxMove = innerStepSettnigs["maxMove"]
     innerCircle.settings.stepSettings.minMove = innerStepSettnigs["minMove"]
-    #innerCircle.settings.stepSettings.chanList = innerStepSettnigs["chanList"]  # GPIO ports to use
+    innerCircle.settings.stepSettings.chanList = [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]
     
-    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2900, "afterTrigger": 1640, "chanList": [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]} 
+    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2900, "afterTrigger": 1640} 
     outerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsOuter, "outerCircle", "settings")
     outerCircle.settings.stepSettings.name = "inner"
     outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 3, "outerCircle", "settings")
     outerCircle.settings.stepSettings.afterTrigger = outerStepSettnigs["afterTrigger"]
     outerCircle.settings.stepSettings.maxMove = outerStepSettnigs["maxMove"]
     outerCircle.settings.stepSettings.minMove = outerStepSettnigs["minMove"]
-    #outerCircle.settings.stepSettings.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
+    outerCircle.settings.stepSettings.chanList = [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]
     
     logging.info("innerCircle " + str(innerCircle))
     
