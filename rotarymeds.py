@@ -111,7 +111,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     outerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsOuter, "outerCircle", "settings")
     
     box.innerCircle.settings.stepSettings.name = "inner"
-    box.innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("innerPockets", 7, "settings")
+    box.innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "innerCircle", "settings")
     box.innerCircle.settings.stepSettings.afterTrigger = innerStepSettnigs["afterTrigger"]
     box.innerCircle.settings.stepSettings.maxMove = innerStepSettnigs["maxMove"]
     box.innerCircle.settings.stepSettings.minMove = innerStepSettnigs["minMove"]
@@ -119,7 +119,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     
     
     box.outerCircle.settings.stepSettings.name = "outer"
-    box.outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("outerPockets", 7, "settings")
+    box.outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "outerCircle", "settings")
     box.outerCircle.settings.stepSettings.afterTrigger = outerStepSettnigs["afterTrigger"]
     box.outerCircle.settings.stepSettings.maxMove = outerStepSettnigs["maxMove"]
     box.outerCircle.settings.stepSettings.minMove = outerStepSettnigs["minMove"]
