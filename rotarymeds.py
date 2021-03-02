@@ -14,7 +14,7 @@ import subprocess
 from firebase import FirebaseConnection
 import json
 from datetimefunctions import DateTimeFunctions
-from box import Box
+
 
 folderPath = '/home/pi/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
