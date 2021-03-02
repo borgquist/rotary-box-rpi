@@ -153,11 +153,11 @@ getFirebaseValuesAndSetDefaultsIfNeeded()
 
 firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
 
-firebaseConnection.setFirebaseValue("moveNow", False, "innerCirlce", "commands")
-firebaseConnection.setFirebaseValue("setPocketsFull", False, "innerCirlce", "commands")
+firebaseConnection.setFirebaseValue("moveNow", False, "innerCircle", "commands")
+firebaseConnection.setFirebaseValue("setPocketsFull", False, "innerCircle", "commands")
 
-firebaseConnection.setFirebaseValue("moveNow", False, "outerCirlce", "commands")
-firebaseConnection.setFirebaseValue("setPocketsFull", False, "outerCirlce", "commands")
+firebaseConnection.setFirebaseValue("moveNow", False, "outerCircle", "commands")
+firebaseConnection.setFirebaseValue("setPocketsFull", False, "outerCircle", "commands")
 
 
 
@@ -346,11 +346,11 @@ def checkCommandSetButtonLed():
     firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
 
 def checkCommandMoveNowInner():
-    newVal = firebaseConnection.getFirebaseValue("moveNow", False, "innerCirlce, ""commands")
+    newVal = firebaseConnection.getFirebaseValue("moveNow", False, "innerCircle, ""commands")
     if(bool(newVal)):
         logging.info(
             "we should move inner now, setting moveNow to false before moving to avoid multiple triggers")
-        firebaseConnection.setFirebaseValue("moveNow", False, "innerCirlce", "commands")
+        firebaseConnection.setFirebaseValue("moveNow", False, "innerCircle", "commands")
         move_stepper_inner()
 
 def checkCommandMoveNowOuter():
