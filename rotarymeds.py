@@ -396,19 +396,19 @@ def checkCommandsNodes():
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
 def stream_handler(message):
     try:
-        if message["path"].startswith("/innerCircle/settings/schedule"):
+        if message["path"].startswith("/commands/innerCircle/settings/schedule"):
             newVal = firebaseConnection.getFirebaseValue("schedule", None, "innerCircle", "settings")
             logging.info("firebase: schedule for innerCircle has new value: " + str(newVal))
             getSchedules()
-        if message["path"].startswith("/outerCircle/settings/schedule"):
+        if message["path"].startswith("/commands/outerCircle/settings/schedule"):
             newVal = firebaseConnection.getFirebaseValue("schedule", None, "outerCircle", "settings")
             logging.info("firebase: schedule for outerCircle has new value: " + str(newVal))
             getSchedules()
-        if message["path"].startswith("/innerCircle/settings/stepSettings"):
+        if message["path"].startswith("/commands/innerCircle/settings/stepSettings"):
             newVal = firebaseConnection.getFirebaseValue("stepSettings", None, "innerCircle", "settings")
             logging.info("firebase: stepSettings for innerCircle has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
-        if message["path"].startswith("/outerCircle/settings/stepSettings"):
+        if message["path"].startswith("/commands/outerCircle/settings/stepSettings"):
             newVal = firebaseConnection.getFirebaseValue("stepSettings", None, "outerCircle", "settings")
             logging.info("firebase: stepSettings for outerCircle has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
