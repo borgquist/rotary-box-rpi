@@ -201,6 +201,7 @@ def move_stepper_inner():
         time.sleep(1)
     moveIsBeingDone = True
     move(box.innerCircle.settings.stepSettings)
+    print("move now called on " + str(box.innerCircle.settings.stepSettings))
     box.innerCircle.state.pocketsFull = max(box.innerCircle.state.pocketsFull -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFullInner", box.innerCircle.state.pocketsFull, "innerCircle", "state")
     moveIsBeingDone = False
@@ -214,6 +215,7 @@ def move_stepper_outer():
         time.sleep(1)
     moveIsBeingDone = True
     move(box.outerCircle.settings.stepSettings)
+    print("move now called on " + str(box.outerCircle.settings.stepSettings))
     box.outerCircle.state.pocketsFull = max(box.outerCircle.state.pocketsFull -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFull", box.outerCircle.state.pocketsFull,"outerCircle", "state")
     moveIsBeingDone = False
