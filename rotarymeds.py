@@ -199,7 +199,6 @@ def move_stepper_inner():
     while (moveIsBeingDone):
         logging.info("inner: waiting for other move to be done")
         time.sleep(1)
-    print("box.innerCircle.state.pocketsFull before move is " + str(box.innerCircle.state.pocketsFull))
     moveIsBeingDone = True
     move(box.innerCircle.settings.stepSettings)
     box.innerCircle.state.pocketsFull = max(box.innerCircle.state.pocketsFull -1, 0)
@@ -213,7 +212,6 @@ def move_stepper_outer():
         logging.info("outer: waiting for other move to be done",
                      moveIsBeingDone)
         time.sleep(1)
-    print("box.outerCircle.state.pocketsFull before move is " + str(box.outerCircle.state.pocketsFull))
     moveIsBeingDone = True
     move(box.outerCircle.settings.stepSettings)
     box.outerCircle.state.pocketsFull = max(box.outerCircle.state.pocketsFull -1, 0)
@@ -590,8 +588,7 @@ def setupStreamToFirebase():
         logging.info("tried to close the stream but failed")
 
     logging.info("setting up the stream to firebase")
-    my_stream = firebaseConnection.database.child("box").child(
-        "boxes").child(box.boxState.cpuId).stream(stream_handler)
+    my_stream = firebaseConnection.database.child("box").child("boxes").child(box.boxState.cpuId).stream(stream_handler)
     logging.info("done setting up the stream to firebase")
     checkCommandsNodes()
 
@@ -643,7 +640,6 @@ if __name__ == '__main__':
 
         releaseBothMotors()
         setButtonLedOn(True)
-        print(box)
 
         while (True):
             time.sleep(10)
