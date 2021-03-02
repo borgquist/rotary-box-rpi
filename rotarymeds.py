@@ -108,32 +108,22 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     getSchedules()
 
     defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]} 
-    logging.info("defaultStepSettingsInner " + str(defaultStepSettingsInner))
-    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2900, "afterTrigger": 1640, "chanList": [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]} 
-    logging.info("defaultStepSettingsOuter " + str(defaultStepSettingsOuter))
-    
     innerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsInner, "innerCircle", "settings")
-    logging.info("innerStepSettnigs " + str(innerStepSettnigs))
-    outerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsOuter, "outerCircle", "settings")
-    logging.info("outerStepSettnigs " + str(outerStepSettnigs))
-    
-    innerCircle.settings.stepSettings.name = "inner"
     innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "innerCircle", "settings")
     innerCircle.settings.stepSettings.afterTrigger = innerStepSettnigs["afterTrigger"]
     innerCircle.settings.stepSettings.maxMove = innerStepSettnigs["maxMove"]
     innerCircle.settings.stepSettings.minMove = innerStepSettnigs["minMove"]
     innerCircle.settings.stepSettings.chanList = innerStepSettnigs["chanList"]  # GPIO ports to use
- 
-    outerCircle.settings.stepSettings.name = "outer"
+    logging.info("innerCircle " + str(innerCircle))
+    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2900, "afterTrigger": 1640, "chanList": [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]} 
+    outerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsOuter, "outerCircle", "settings")
     outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "outerCircle", "settings")
     outerCircle.settings.stepSettings.afterTrigger = outerStepSettnigs["afterTrigger"]
     outerCircle.settings.stepSettings.maxMove = outerStepSettnigs["maxMove"]
     outerCircle.settings.stepSettings.minMove = outerStepSettnigs["minMove"]
-    
-    logging.info("innerCircle " + str(innerCircle))
     outerCircle.settings.stepSettings.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
-    logging.info("innerCircle " + str(innerCircle))
     
+    logging.info("innerCircle " + str(innerCircle))
     
     defaultLatestMove = {
         "totalSteps": 0,
@@ -147,6 +137,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
 
     outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "outerCircle", "state")
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "outerCircle", "state")
+    
+    logging.info("innerCircle " + str(innerCircle))
     
 
 def getSchedules():
