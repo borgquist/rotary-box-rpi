@@ -292,10 +292,10 @@ def move(stepper):
         "timestamp": now.strftime('%Y-%m-%d %H:%M:%S'),
     }
     if(stepper.name == "inner"):
-        box.boxState.latestMoveInner = latestMove
+        box.innerCircle.state.latestMove = latestMove
         firebaseConnection.setFirebaseValue("latestMove", latestMove, "innerCircle", "state")
     else:
-        box.boxState.latestMoveOuter = latestMove
+        box.outerCircle.state.latestMove = latestMove
         firebaseConnection.setFirebaseValue("latestMove", latestMove, "outerCircle", "state")
 
     
