@@ -196,7 +196,7 @@ moveIsBeingDone = False
 
 def move_stepper_inner():
     global moveIsBeingDone
-    logging.info("move_stepper_inner called")
+    logging.info("move_stepper_inner called " + str(box.innerCircle.settings.stepSettings))
     
     while (moveIsBeingDone):
         logging.info("inner: waiting for other move to be done")
@@ -210,7 +210,7 @@ def move_stepper_inner():
 
 def move_stepper_outer():
     global moveIsBeingDone
-    logging.info("move_stepper_outer called")
+    logging.info("move_stepper_outer called " + str(box.innerCircle.settings.stepSettings))
     
     while (moveIsBeingDone):
         logging.info("outer: waiting for other move to be done",
