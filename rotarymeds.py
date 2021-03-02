@@ -467,7 +467,7 @@ def thread_move_inner(name):
             nextMove = getNextMove(box.innerCircle.settings.schedule)
             
             if(str(nextMove) != str(currentCachedValue)):
-                firebaseConnection.setFirebaseValue(str("nextMove", str(nextMove).strip(), "innerCircle", "state"))
+                firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), "innerCircle", "state")
                 box.innerCircle.state.nextMove = nextMove
 
             if(nextMove != 0):
@@ -501,7 +501,7 @@ def thread_move_outer(name):
             nextMove = getNextMove(box.outerCircle.settings.schedule)
             
             if(str(nextMove) != str(currentCachedValue)):
-                firebaseConnection.setFirebaseValue(str("nextMove", str(nextMove).strip(), "outerCircle", "state"))
+                firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), "outerCircle", "state")
                 box.outerCircle.state.nextMove = nextMove
             
             if(nextMove != 0):
