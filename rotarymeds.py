@@ -201,7 +201,7 @@ def move_stepper_inner():
         time.sleep(1)
     moveIsBeingDone = True
     move(box.innerCircle.settings.stepSettings)
-    print("move now called on " + str(box.innerCircle.settings.stepSettings))
+    logging.info("move now called on " + str(box.innerCircle.settings.stepSettings))
     box.innerCircle.state.pocketsFull = max(box.innerCircle.state.pocketsFull -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFullInner", box.innerCircle.state.pocketsFull, "innerCircle", "state")
     moveIsBeingDone = False
@@ -215,7 +215,7 @@ def move_stepper_outer():
         time.sleep(1)
     moveIsBeingDone = True
     move(box.outerCircle.settings.stepSettings)
-    print("move now called on " + str(box.outerCircle.settings.stepSettings))
+    logging.info("move now called on " + str(box.outerCircle.settings.stepSettings))
     box.outerCircle.state.pocketsFull = max(box.outerCircle.state.pocketsFull -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFull", box.outerCircle.state.pocketsFull,"outerCircle", "state")
     moveIsBeingDone = False
@@ -415,14 +415,19 @@ def stream_handler(message):
             logging.info("firebase: stepSettings for outerCircle has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
         if message["path"] == "/commands/setButtonLed":
+            logging.info("firebase: /commands/setButtonLed new value: " + str(newVal))
             checkCommandSetButtonLed()
         if message["path"] == "/commands/innerCircle/moveNow":
-           checkCommandMoveNowInner()
+            logging.info("firebase: /commands/innerCircle/moveNow new value: " + str(newVal))
+            checkCommandMoveNowInner()
         if message["path"] == "/commands/outerCircle/moveNow":
-           checkCommandMoveNowOuter()
+            logging.info("firebase: /commands/outerCircle/moveNow has new value: " + str(newVal))
+            checkCommandMoveNowOuter()
         if message["path"] == "/commands/innerCircle/setPocketsFull":
+            logging.info("firebase: /commands/innerCircle/setPocketsFull has new value: " + str(newVal))
             checkCommandsPocketsInner()
         if message["path"] == "/commands/outerCircle/setPocketsFull":
+            logging.info("firebase: /commands/outerCircle/setPocketsFull has new value: " + str(newVal))
             checkCommandsPocketsOuter()
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
