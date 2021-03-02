@@ -119,6 +119,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.innerCircle.settings.stepSettings.maxMove = innerStepSettnigs["maxMove"]
     box.innerCircle.settings.stepSettings.minMove = innerStepSettnigs["minMove"]
     box.innerCircle.settings.stepSettings.chanList = innerStepSettnigs["chanList"]  # GPIO ports to use
+    logging.info("box " + str(box))
     
     box.outerCircle.settings.stepSettings.name = "outer"
     box.outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "outerCircle", "settings")
@@ -126,9 +127,9 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     box.outerCircle.settings.stepSettings.maxMove = outerStepSettnigs["maxMove"]
     box.outerCircle.settings.stepSettings.minMove = outerStepSettnigs["minMove"]
     
-    logging.info("box.innerCircle " + str(box.innerCircle))
+    logging.info("box " + str(box))
     box.outerCircle.settings.stepSettings.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
-    logging.info("box.innerCircle " + str(box.innerCircle))
+    logging.info("box " + str(box))
     
     
     defaultLatestMove = {
