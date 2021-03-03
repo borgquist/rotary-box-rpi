@@ -53,7 +53,7 @@ stepper_outer_in4 = pinConfigToBeLoaded['stepper_outer_in4']
 chanListOuter = [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]
 
 led_pin = pinConfigToBeLoaded['led_pin']
-boxState.version = "1.0.23"
+boxState.version = "1.0.24"
 logging.info("version is " + boxState.version)
 
 def getserial():
