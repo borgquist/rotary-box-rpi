@@ -448,74 +448,6 @@ def thread_move(circle: BoxCircle):
 
     logging.info("thread_move" + circle.name + "    :   exiting")
 
-def thread_move_inner(name):
-    lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
-
-    while not exitapp:
-        try:
-            currentCachedValue = innerCircle.state.nextMove
-            nextMove = getNextMove(innerCircle.settings.schedule)
-            
-            if(str(nextMove) != str(currentCachedValue)):
-                firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), "innerCircle", "state")
-                innerCircle.state.nextMove = nextMove
-
-            if(nextMove != 0):
-                now = datetime.datetime.now()
-
-                secondsBetween = abs((now-nextMove).total_seconds())
-
-                if(abs((now-lastMove).total_seconds()) < 60):
-                    logging.info(
-                        "thread_move_inner    :  moved in the last minute, ignoring")
-                else:
-                    if(secondsBetween < 20):
-                        logging.info(
-                            "thread_move_inner    :  it's time to move!")
-                        lastMove = now
-                        move_stepper(innerCircle)
-        except Exception as err:
-            logging.error("exception " + traceback.format_exc())
-
-        time.sleep(5)
-
-    logging.info("thread_move_inner    :   exiting")
-
-
-def thread_move_outer(name):
-    lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
-
-    while not exitapp:
-        try:
-            currentCachedValue = outerCircle.state.nextMove
-            nextMove = getNextMove(outerCircle.settings.schedule)
-            
-            if(str(nextMove) != str(currentCachedValue)):
-                firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), "outerCircle", "state")
-                outerCircle.state.nextMove = nextMove
-            
-            if(nextMove != 0):
-                now = datetime.datetime.now()
-
-                secondsBetween = abs((now-nextMove).total_seconds())
-
-                if(abs((now-lastMove).total_seconds()) < 60):
-                    logging.info(
-                        "thread_move_outer    :  moved in the last minute, ignoring")
-                else:
-                    if(secondsBetween < 20):
-                        logging.info(
-                            "thread_move_outer    :  it's time to move!")
-                        lastMove = now
-                        move_stepper(outerCircle)
-        except Exception as err:
-            logging.error("exception " + traceback.format_exc())
-
-        time.sleep(5)
-
-    logging.info("thread_move_outer    :   exiting")
-
-
 def thread_button(name):
 
     timeButtonPressMostRecent = 0
@@ -624,10 +556,10 @@ if __name__ == '__main__':
 
         setupStreamToFirebase()
 
-        moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
+        moveThreadInner = threading.Thread(target=thread_move(innerCircle), args=(1,))
         moveThreadInner.start()
 
-        moveThreadOuter = threading.Thread(target=thread_move_outer, args=(1,))
+        moveThreadOuter = threading.Thread(target=thread_move(outerCircle), args=(1,))
         moveThreadOuter.start()
 
         releaseBothMotors()
