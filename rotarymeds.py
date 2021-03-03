@@ -215,7 +215,7 @@ def releaseBothMotors():
 irTriggered = False
 
 def move(circle: BoxCircle):
-    logging.info("move called for " + circle)
+    logging.info("move called for " + str(circle))
     global irTriggered
     global arr1  # enables the edit of arr1 var inside a function
     global arr2  # enables the edit of arr2 var inside a function
