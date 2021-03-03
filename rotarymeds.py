@@ -192,7 +192,7 @@ def move_stepper(circle: BoxCircle):
         logging.info(circle.name + " : waiting for other move to be done")
         time.sleep(1)
     moveIsBeingDone = True
-    move(circle.settings.stepper)
+    move(circle)
     circle.state.pocketsFull = max(circle.state.pocketsFull -1, 0)
     firebaseConnection.setFirebaseValue("pocketsFull", circle.state.pocketsFull, circle.name, "state")
     moveIsBeingDone = False
@@ -227,8 +227,7 @@ def move(circle: BoxCircle):
     global stepsDoneWhenIRtrigger
     stepsDoneWhenIRtrigger = 0
     irTriggered = False
-    minMove = circle.settings.stepper.minMove
-
+    
     def oneStep(stepsDone):
         global arr1
         global arr2
@@ -244,7 +243,7 @@ def move(circle: BoxCircle):
             stepsDoneWhenIRtrigger = stepsDone
         return stepsDone + 1
 
-    while stepsDone < minMove:
+    while stepsDone < circle.settings.stepper.minMove:
         stepsDone = oneStep(stepsDone)
 
     while stepsDone < stepsDoneWhenIRtrigger + circle.settings.stepper.afterTrigger and stepsDone < circle.settings.stepper.maxMove:
