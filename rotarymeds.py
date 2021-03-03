@@ -28,8 +28,7 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                     ])
 logging.info("Starting rotarymeds.py")
 
-innerCircle = BoxCircle("innerCircle")
-outerCircle = BoxCircle("outerCircle")
+
 boxState = BoxState()
 
 pinConfigFilePath = '/home/pi/pinlayout.json'
@@ -71,6 +70,9 @@ def getserial():
 
 boxState.cpuId = getserial()
 logging.info("CPU serial is [" + str(boxState.cpuId) + "]")
+
+innerCircle = BoxCircle("innerCircle", boxState.cpuId)
+outerCircle = BoxCircle("outerCircle", boxState.cpuId)
 
 googleHostForInternetCheck = "8.8.8.8"
 def haveInternet():
