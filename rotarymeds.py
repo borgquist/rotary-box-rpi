@@ -456,6 +456,8 @@ if __name__ == '__main__':
         GPIO.setwarnings(False)
 
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "state")
+        firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "innerCircle")
+        firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "outerCircle")
         firebaseConnection.setFirebaseValue("ipAddress", boxState.ipAddress, "state")
         firebaseConnection.setFirebaseValue("hostname", boxState.hostname, "state")
         firebaseConnection.setFirebaseValue("version", boxState.version, "state")
