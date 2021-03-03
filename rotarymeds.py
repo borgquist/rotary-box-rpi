@@ -564,7 +564,7 @@ if __name__ == '__main__':
 
         releaseBothMotors()
         setButtonLedOn(True)
-
+        logging.info("rortarymeds started")
         while (True):
             time.sleep(10)
 
