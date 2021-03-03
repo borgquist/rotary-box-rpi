@@ -16,7 +16,6 @@ from firebase import FirebaseConnection
 import json
 from datetimefunctions import DateTimeFunctions
 
-
 folderPath = '/home/pi/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
 logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
@@ -37,7 +36,6 @@ pinConfigFilePath = '/home/pi/pinlayout.json'
 with open(pinConfigFilePath, 'r') as f:
     pinConfigToBeLoaded = json.load(f)
 
-
 ir_pin = pinConfigToBeLoaded['ir_pin']
 button_led_pin = pinConfigToBeLoaded['button_led_pin']
 button_pushed_pin = pinConfigToBeLoaded['button_pushed_pin']
@@ -55,15 +53,10 @@ stepper_outer_in4 = pinConfigToBeLoaded['stepper_outer_in4']
 chanListOuter = [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]
 
 led_pin = pinConfigToBeLoaded['led_pin']
-
 boxState.version = "1.0.23"
 logging.info("version is " + boxState.version)
 
-googleHostForInternetCheck = "8.8.8.8"
-
-
 def getserial():
-    # Extract serial from cpuinfo file
     cpuserial = "123456789123456789"
     try:
         f = open('/proc/cpuinfo', 'r')
@@ -74,37 +67,30 @@ def getserial():
     except:
         cpuserial = "ERROR000000000"
         logging.error("cpuserial was not found")
-
     return cpuserial
 
-
 boxState.cpuId = getserial()
-
 logging.info("CPU serial is [" + str(boxState.cpuId) + "]")
 
-
-logging.info("checking internet connectivity")
-
+googleHostForInternetCheck = "8.8.8.8"
 def haveInternet():
     try:
         output = subprocess.check_output(
             "ping -c 1 {}".format(googleHostForInternetCheck), shell=True)
-
     except Exception:
         return False
-
     return True
 
+logging.info("checking internet connectivity")
 while(not haveInternet()):
     logging.info("internet is not available, sleeping 1 second")
     time.sleep(1)
+logging.info("have internet connectivity")
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect((googleHostForInternetCheck, 0))
 boxState.ipAddress = s.getsockname()[0]
 boxState.hostname = socket.gethostname()
-
-logging.info("have internet connectivity")
 
 logging.info("Creating FirebaseConnection")
 firebaseConnection = FirebaseConnection(str(boxState.cpuId))
@@ -125,25 +111,17 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     getStepper(innerCircle, defaultstepperInner)
     outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 3, "outerCircle", "settings")
     getStepper(outerCircle, defaultstepperOuter)
-
     innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "innerCircle", "state")
     innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "innerCircle", "state")
-
     outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "outerCircle", "state")
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "outerCircle", "state")
-    logging.info("firebase values loaded for innerCircle " + str(innerCircle))
-    logging.info("firebase values loaded for outerCircle " + str(outerCircle))
-
-
 
 def getStepper(circle: BoxCircle, defaultstepper):
-    logging.info("getting stepper for " + str(circle) + " defaultstepper " + str(defaultstepper))
     firebaseStepSettings = firebaseConnection.getFirebaseValue("stepper",  defaultstepper, circle.name, "settings")
     circle.settings.stepper.afterTrigger = firebaseStepSettings["afterTrigger"]
     circle.settings.stepper.maxMove = firebaseStepSettings["maxMove"]
     circle.settings.stepper.minMove = firebaseStepSettings["minMove"]
     circle.settings.stepper.chanList = firebaseStepSettings["chanList"]
-    
 
 def getSchedules():
     defaultSchedule =[{"day": "everyday", "hour":7, "minute":0}]
@@ -153,10 +131,8 @@ def getSchedules():
 getFirebaseValuesAndSetDefaultsIfNeeded()
 
 firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
-
 firebaseConnection.setFirebaseValue("moveNow", False, "innerCircle", "commands")
 firebaseConnection.setFirebaseValue("setPocketsFull", False, "innerCircle", "commands")
-
 firebaseConnection.setFirebaseValue("moveNow", False, "outerCircle", "commands")
 firebaseConnection.setFirebaseValue("setPocketsFull", False, "outerCircle", "commands")
 
@@ -168,8 +144,6 @@ GPIO.setup(led_pin, GPIO.OUT)
 GPIO.output(led_pin, GPIO.LOW)
 GPIO.setup(ir_pin, GPIO.IN)
 
-
-# initialize array for sequence shift
 arr1 = [1, 1, 0, 0]
 arr2 = [0, 1, 0, 0]
 arrOff = [0, 0, 0, 0]
@@ -182,8 +156,6 @@ for pin in outerCircle.settings.stepper.chanList:
 moveIsBeingDone = False
 def move_stepper(circle: BoxCircle):
     global moveIsBeingDone
-    logging.info("move_stepper called for " + circle.name + " with settings " + str(circle.settings.stepper))
-    
     while (moveIsBeingDone):
         logging.info(circle.name + " : waiting for other move to be done")
         time.sleep(1)
@@ -193,44 +165,29 @@ def move_stepper(circle: BoxCircle):
     firebaseConnection.setFirebaseValue("pocketsFull", circle.state.pocketsFull, circle.name, "state")
     moveIsBeingDone = False
 
-    
-
 def holdBothMotors():
-    global arr1  # enables the edit of arr1 var inside a function
-    arrOUT = arr1[1:]+arr1[:1]  # rotates array values of 1 digi
+    global arr1 
+    arrOUT = arr1[1:]+arr1[:1]
     GPIO.output(innerCircle.settings.stepper.chanList, arrOUT)
     GPIO.output(outerCircle.settings.stepper.chanList, arrOUT)
-
 
 def releaseBothMotors():
     global arrOff
     GPIO.output(innerCircle.settings.stepper.chanList, arrOff)
     GPIO.output(outerCircle.settings.stepper.chanList, arrOff)
 
-
 irTriggered = False
-
 def move(circle: BoxCircle):
     logging.info("move called for " + str(circle))
-    global irTriggered
-    global arr1  # enables the edit of arr1 var inside a function
-    global arr2  # enables the edit of arr2 var inside a function
-
+    global irTriggered, stepsDoneWhenIRtrigger, arr1, arr2
     stepsDone = 0
-
     holdBothMotors()
-
-    global stepsDoneWhenIRtrigger
     stepsDoneWhenIRtrigger = 0
     irTriggered = False
     
     def oneStep(stepsDone):
-        global arr1
-        global arr2
-        global irTriggered
-        global stepsDoneWhenIRtrigger
-        arrOUT = arr1[3:]+arr1[:3]  # rotates array values of 1 digi
-        # arrOUT = arr1[1:]+arr1[:1] # rotates array values of 1 digit counterclockwise
+        global irTriggered, stepsDoneWhenIRtrigger, arr1, arr2
+        arrOUT = arr1[3:]+arr1[:3]  #  arrOUT = arr1[1:]+arr1[:1] for counterclockwise
         arr1 = arr2
         arr2 = arrOUT
         GPIO.output(circle.settings.stepper.chanList, arrOUT)
@@ -247,25 +204,19 @@ def move(circle: BoxCircle):
 
     while irTriggered == False and stepsDone < circle.settings.stepper.maxMove:
         stepsDone = oneStep(stepsDone)
-
-    logMessage = circle.name + " totalSteps [" + str(stepsDone) + "] irTriggered [" + str(irTriggered) + "] stepsAfterTrigger [" + str(stepsDone - stepsDoneWhenIRtrigger) + "]"
-    logging.info("move    : " + logMessage)
-    now = datetime.datetime.now()
-
+ 
     latestMove = {
         "totalSteps": stepsDone,
         "irTriggered": irTriggered,
         "stepsAfterTrigger": stepsDone - stepsDoneWhenIRtrigger,
-        "timestamp": now.strftime('%Y-%m-%d %H:%M:%S'),
+        "timestamp": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
     }
-
+    logging.info("move complete    : " + circle.name + str(latestMove))
     circle.state.latestMove = latestMove
     firebaseConnection.setFirebaseValue("latestMove", latestMove, circle.name, "state")
-    
     GPIO.output(circle.settings.stepper.chanList, arrOff)
     setButtonLedOn(True)
     releaseBothMotors()
-
 
 boxState.buttonLedOn = True
 def setButtonLedOn(setToOn):
@@ -275,14 +226,12 @@ def setButtonLedOn(setToOn):
         GPIO.output(button_led_pin, GPIO.HIGH)
         GPIO.output(led_pin, GPIO.HIGH)
         firebaseConnection.setFirebaseValue("buttonLedOn", True, "state")
-
     else:
         logging.info("setButtonLedOn    : turning OFF the buttonLed")
         boxState.buttonLedOn = False
         GPIO.output(button_led_pin, GPIO.LOW)
         GPIO.output(led_pin, GPIO.LOW)
         firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
-
 
 def getNextMove(schedule):
     nextMove = 0
@@ -295,9 +244,7 @@ def getNextMove(schedule):
                 nextMove = candiate
             elif(nextMove > candiate):
                 nextMove = candiate
-    
     return nextMove
-
 
 def checkCommandSetButtonLed():
     newVal = firebaseConnection.getFirebaseValue("setButtonLed", False, "commands")
@@ -310,8 +257,6 @@ def checkCommandSetButtonLed():
     if(newVal == "off"):
         setButtonLedOn(False)
     firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
-
-
 
 def checkCommandMoveNow(circle: BoxCircle):
     newVal = firebaseConnection.getFirebaseValue("moveNow", False, circle.name, "commands")
@@ -328,7 +273,6 @@ def checkCommandsPockets(circle: BoxCircle):
         firebaseConnection.setFirebaseValue("pocketsFull", int(newVal), circle.name, "state")
         circle.state.pocketsFull = int(newVal)
         
-
 def checkCommandsNodes():
     logging.info("checkCommandsNodes called")
     checkCommandSetButtonLed()
@@ -337,8 +281,6 @@ def checkCommandsNodes():
     checkCommandsPockets(innerCircle)
     checkCommandsPockets(outerCircle)
     
-
-# TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
 def stream_handler(message):
     try:
         if message["path"].startswith("/settings/innerCircle/schedule"):
@@ -380,16 +322,13 @@ def stream_handler(message):
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
 
-
 def thread_time(name):
     lastTimeStampUpdate = 0
-
     while not exitapp:
         try:
             time.sleep(5)
             now = datetime.datetime.now()
             timestampNow = time.time()
-
             internetWasLost = False
             while(not haveInternet()):
                 internetWasLost = True
@@ -404,16 +343,12 @@ def thread_time(name):
             if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
                 firebaseConnection.setPing()
                 lastTimeStampUpdate = timestampNow
-
         except Exception as err:
             logging.error("exception " + traceback.format_exc())
-
     logging.info("thread_time    : exiting")
-
 
 def thread_move(circle: BoxCircle):
     lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
-
     while not exitapp:
         try:
             currentCachedValue = circle.state.nextMove
@@ -425,47 +360,35 @@ def thread_move(circle: BoxCircle):
 
             if(nextMove != 0):
                 now = datetime.datetime.now()
-
                 secondsBetween = abs((now-nextMove).total_seconds())
-
                 if(abs((now-lastMove).total_seconds()) < 60):
-                    logging.info(
-                        "thread_move" + circle.name + "    :  moved in the last minute, ignoring")
+                    logging.info("thread_move" + circle.name + "    :  moved in the last minute, ignoring")
                 else:
                     if(secondsBetween < 20):
-                        logging.info(
-                            "thread_move" + circle.name + "    :  it's time to move!")
+                        logging.info("thread_move" + circle.name + "    :  it's time to move!")
                         lastMove = now
                         move_stepper(circle)
         except Exception as err:
             logging.error("exception " + traceback.format_exc())
-
         time.sleep(5)
-
     logging.info("thread_move" + circle.name + "    :   exiting")
 
 def thread_move_inner(name):
     thread_move(innerCircle)
 
-
 def thread_move_outer(name):
     thread_move(outerCircle)
 
-
 def thread_button(name):
-
     timeButtonPressMostRecent = 0
     timeButtonNotPressed = 0
-
     while not exitapp:
         try:
             if GPIO.input(button_pushed_pin) == GPIO.HIGH:
                 timestampNow = time.time()
 
                 if(timeButtonNotPressed > timeButtonPressMostRecent):
-                    logging.info(
-                        "thread_button    : button_pushed_pin button was pushed!")
-
+                    logging.info("thread_button    : button_pushed_pin button was pushed!")
                     if(boxState.buttonLedOn):
                         setButtonLedOn(False)
                     else:
@@ -479,13 +402,10 @@ def thread_button(name):
 
     logging.info("thread_button    : exiting")
 
-
 def thread_ir_sensor(name):
     global irTriggered
-
     lastBlack = 0
     lastWhite = 0
-
     while not exitapp:
         try:
             if(irTriggered == False):
@@ -503,10 +423,7 @@ def thread_ir_sensor(name):
 
     logging.info("thread_ir_sensor    : exiting")
 
-
 my_stream = ""
-
-
 def setupStreamToFirebase():
     global my_stream
     try:
@@ -520,11 +437,7 @@ def setupStreamToFirebase():
     logging.info("done setting up the stream to firebase")
     checkCommandsNodes()
 
-
-
-
 if __name__ == '__main__':
-
     try:
         timestampNow = time.time()
         timeGreenButtonPushed = timestampNow + 5
@@ -551,10 +464,8 @@ if __name__ == '__main__':
 
         buttonThread = threading.Thread(target=thread_button, args=(1,))
         buttonThread.start()
-
         irThread = threading.Thread(target=thread_ir_sensor, args=(1,))
         irThread.start()
-
         timeThread = threading.Thread(target=thread_time, args=(1,))
         timeThread.start()
 
@@ -562,10 +473,8 @@ if __name__ == '__main__':
 
         moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
         moveThreadInner.start()
-
         moveThreadOuter = threading.Thread(target=thread_move_outer, args=(1,))
         moveThreadOuter.start()
-
         releaseBothMotors()
         setButtonLedOn(True)
 
@@ -574,10 +483,8 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt:  # If CTRL+C is pressed, exit cleanly:
         logging.info("Keyboard interrupt")
-
     except Exception:
         logging.error("exception " + traceback.format_exc())
-
     finally:
         logging.info("Main    : cleaning up the GPIO and exiting")
         setButtonLedOn(False)
@@ -588,5 +495,4 @@ if __name__ == '__main__':
         # give the threads time to shut down before removing GPIO
         time.sleep(1)
         logging.info("Main    : Shutdown complete")
-
     logging.info("Main    : Goodbye!")
