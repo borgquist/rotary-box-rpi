@@ -415,7 +415,7 @@ def thread_time(name):
     logging.info("thread_time    : exiting")
 
 
-def thread_move(name, circle: BoxCircle):
+def thread_move(circle: BoxCircle):
     lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
 
     while not exitapp:
@@ -447,6 +447,14 @@ def thread_move(name, circle: BoxCircle):
         time.sleep(5)
 
     logging.info("thread_move" + circle.name + "    :   exiting")
+
+def thread_move_inner(name):
+    thread_move(innerCircle)
+
+
+def thread_move_outer(name):
+    thread_move(outerCircle)
+
 
 def thread_button(name):
 
@@ -556,15 +564,15 @@ if __name__ == '__main__':
 
         setupStreamToFirebase()
 
-        moveThreadInner = threading.Thread(target=thread_move(innerCircle), args=(1,))
+        moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
         moveThreadInner.start()
 
-        moveThreadOuter = threading.Thread(target=thread_move(outerCircle), args=(1,))
+        moveThreadOuter = threading.Thread(target=thread_move_outer, args=(1,))
         moveThreadOuter.start()
 
         releaseBothMotors()
         setButtonLedOn(True)
-        logging.info("rortarymeds started")
+
         while (True):
             time.sleep(10)
 
