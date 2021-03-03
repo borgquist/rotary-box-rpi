@@ -320,7 +320,7 @@ def checkCommandSetButtonLed():
 def checkCommandMoveNow(circle: BoxCircle):
     newVal = firebaseConnection.getFirebaseValue("moveNow", False, circle.name, "commands")
     if(bool(newVal)):
-        logging.info(circle.name + " we should move now, setting moveNow to false before moving to avoid multiple triggers")
+        logging.info("moveNow true for " + str(circle))
         firebaseConnection.setFirebaseValue("moveNow", False, circle.name, "commands")
         move_stepper(circle)
 
