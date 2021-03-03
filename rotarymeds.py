@@ -110,34 +110,21 @@ logging.info("Creating FirebaseConnection")
 firebaseConnection = FirebaseConnection(str(boxState.cpuId))
 logging.info("Done creating FirebaseConnection")
 
-def getFirebaseValuesAndSetDefaultsIfNeeded():
-
-    getSchedules()
-
-    defaultstepperInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner} 
-    innerStepSettnigs = firebaseConnection.getFirebaseValue("stepper",  defaultstepperInner, "innerCircle", "settings")
-    innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 4, "innerCircle", "settings")
-    innerCircle.settings.stepper.name = "inner"
-    innerCircle.settings.stepper.afterTrigger = innerStepSettnigs["afterTrigger"]
-    innerCircle.settings.stepper.maxMove = innerStepSettnigs["maxMove"]
-    innerCircle.settings.stepper.minMove = innerStepSettnigs["minMove"]
-    innerCircle.settings.stepper.chanList = innerStepSettnigs["chanList"]  # GPIO ports to use
-    
-    defaultstepperOuter = {"name": "outer", "minMove": 2100, "maxMove": 2900, "afterTrigger": 1640, "chanList": chanListOuter} 
-    outerStepSettnigs = firebaseConnection.getFirebaseValue("stepper",  defaultstepperOuter, "outerCircle", "settings")
-    outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 3, "outerCircle", "settings")
-    outerCircle.settings.stepper.name = "outer"
-    outerCircle.settings.stepper.afterTrigger = outerStepSettnigs["afterTrigger"]
-    outerCircle.settings.stepper.maxMove = outerStepSettnigs["maxMove"]
-    outerCircle.settings.stepper.minMove = outerStepSettnigs["minMove"]
-    outerCircle.settings.stepper.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
-    
-    defaultLatestMove = {
-        "totalSteps": 0,
-        "irTriggered": False,
-        "stepsAfterTrigger": 0,
-        "timestamp": "1900-01-01 00:00:00",
+defaultstepperInner = {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner} 
+defaultstepperOuter = {"minMove": 2100, "maxMove": 2900, "afterTrigger": 1640, "chanList": chanListOuter} 
+defaultLatestMove = {
+    "totalSteps": 0,
+    "irTriggered": False,
+    "stepsAfterTrigger": 0,
+    "timestamp": "1900-01-01 00:00:00",
     }
+
+def getFirebaseValuesAndSetDefaultsIfNeeded():
+    getSchedules()
+    innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 4, "innerCircle", "settings")
+    getStepper(innerCircle, defaultstepperInner)
+    outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 3, "outerCircle", "settings")
+    getStepper(outerCircle, defaultstepperOuter)
 
     innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "innerCircle", "state")
     innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "innerCircle", "state")
@@ -146,7 +133,16 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "outerCircle", "state")
     logging.info("firebase values loaded for innerCircle " + str(innerCircle))
     logging.info("firebase values loaded for outerCircle " + str(outerCircle))
-    
+
+
+
+def getStepper(circle: BoxCircle, defaultstepper):
+    logging.info("getting stepper for " + str(circle) + " defaultstepper " + str(defaultstepper))
+    firebaseStepSettings = firebaseConnection.getFirebaseValue("stepper",  defaultstepper, circle.name, "settings")
+    circle.settings.stepper.afterTrigger = firebaseStepSettings["afterTrigger"]
+    circle.settings.stepper.maxMove = firebaseStepSettings["maxMove"]
+    circle.settings.stepper.minMove = firebaseStepSettings["minMove"]
+    circle.settings.stepper.chanList = firebaseStepSettings["chanList"]
     
 
 def getSchedules():
@@ -356,11 +352,11 @@ def stream_handler(message):
         if message["path"].startswith("/settings/innerCircle/stepper"):
             newVal = firebaseConnection.getFirebaseValue("stepper", None, "innerCircle", "settings")
             logging.info("firebase: stepper for innerCircle has new value: " + str(newVal))
-            getFirebaseValuesAndSetDefaultsIfNeeded()
+            getStepper(innerCircle, defaultstepperInner)
         if message["path"].startswith("/settings/outerCircle/stepper"):
             newVal = firebaseConnection.getFirebaseValue("stepper", None, "outerCircle", "settings")
             logging.info("firebase: stepper for outerCircle has new value: " + str(newVal))
-            getFirebaseValuesAndSetDefaultsIfNeeded()
+            getStepper(outerCircle, defaultstepperOuter)
         if message["path"] == "/commands/setButtonLed":
             newVal = firebaseConnection.getFirebaseValue("setButtonLed", None, "commands")
             logging.info("firebase: /commands/setButtonLed new value: " + str(newVal))
