@@ -415,7 +415,7 @@ def thread_time(name):
     logging.info("thread_time    : exiting")
 
 
-def thread_move(circle: BoxCircle):
+def thread_move(name, circle: BoxCircle):
     lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
 
     while not exitapp:
