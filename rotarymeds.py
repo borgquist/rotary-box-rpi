@@ -345,19 +345,19 @@ def checkCommandsNodes():
 # TODO there could be issues where these are set while the internet is down (as checked in thread_time), would miss an update if it is
 def stream_handler(message):
     try:
-        if message["path"].startswith("/commands/innerCircle/settings/schedule"):
+        if message["path"].startswith("/innerCircle/settings/schedule"):
             newVal = firebaseConnection.getFirebaseValue("schedule", None, "innerCircle", "settings")
             logging.info("firebase: schedule for innerCircle has new value: " + str(newVal))
             getSchedules()
-        if message["path"].startswith("/commands/outerCircle/settings/schedule"):
+        if message["path"].startswith("/outerCircle/settings/schedule"):
             newVal = firebaseConnection.getFirebaseValue("schedule", None, "outerCircle", "settings")
             logging.info("firebase: schedule for outerCircle has new value: " + str(newVal))
             getSchedules()
-        if message["path"].startswith("/commands/innerCircle/settings/stepper"):
+        if message["path"].startswith("/innerCircle/settings/stepper"):
             newVal = firebaseConnection.getFirebaseValue("stepper", None, "innerCircle", "settings")
             logging.info("firebase: stepper for innerCircle has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
-        if message["path"].startswith("/commands/outerCircle/settings/stepper"):
+        if message["path"].startswith("/outerCircle/settings/stepper"):
             newVal = firebaseConnection.getFirebaseValue("stepper", None, "outerCircle", "settings")
             logging.info("firebase: stepper for outerCircle has new value: " + str(newVal))
             getFirebaseValuesAndSetDefaultsIfNeeded()
