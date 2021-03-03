@@ -457,7 +457,9 @@ if __name__ == '__main__':
 
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "state")
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "innerCircle")
+        firebaseConnection.setFirebaseValue("name", innerCircle.name, innerCircle.name)
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "outerCircle")
+        firebaseConnection.setFirebaseValue("name", outerCircle.name, outerCircle.name)
         firebaseConnection.setFirebaseValue("ipAddress", boxState.ipAddress, "state")
         firebaseConnection.setFirebaseValue("hostname", boxState.hostname, "state")
         firebaseConnection.setFirebaseValue("version", boxState.version, "state")
