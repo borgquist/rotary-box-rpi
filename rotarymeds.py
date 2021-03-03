@@ -227,6 +227,7 @@ def move(circle: BoxCircle):
     global stepsDoneWhenIRtrigger
     stepsDoneWhenIRtrigger = 0
     irTriggered = False
+    minMove = circle.settings.stepper.minMove
 
     def oneStep(stepsDone):
         global arr1
@@ -243,7 +244,7 @@ def move(circle: BoxCircle):
             stepsDoneWhenIRtrigger = stepsDone
         return stepsDone + 1
 
-    while stepsDone < circle.settings.stepper.minMove:
+    while stepsDone < minMove:
         stepsDone = oneStep(stepsDone)
 
     while stepsDone < stepsDoneWhenIRtrigger + circle.settings.stepper.afterTrigger and stepsDone < circle.settings.stepper.maxMove:
