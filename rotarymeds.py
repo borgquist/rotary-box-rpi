@@ -215,6 +215,7 @@ def releaseBothMotors():
 irTriggered = False
 
 def move(circle: BoxCircle):
+    logging.info("move called for " + circle)
     global irTriggered
     global arr1  # enables the edit of arr1 var inside a function
     global arr2  # enables the edit of arr2 var inside a function
@@ -413,6 +414,39 @@ def thread_time(name):
 
     logging.info("thread_time    : exiting")
 
+
+def thread_move(circle: BoxCircle):
+    lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
+
+    while not exitapp:
+        try:
+            currentCachedValue = circle.state.nextMove
+            nextMove = getNextMove(circle.settings.schedule)
+            
+            if(str(nextMove) != str(currentCachedValue)):
+                firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), circle.name, "state")
+                circle.state.nextMove = nextMove
+
+            if(nextMove != 0):
+                now = datetime.datetime.now()
+
+                secondsBetween = abs((now-nextMove).total_seconds())
+
+                if(abs((now-lastMove).total_seconds()) < 60):
+                    logging.info(
+                        "thread_move" + circle.name + "    :  moved in the last minute, ignoring")
+                else:
+                    if(secondsBetween < 20):
+                        logging.info(
+                            "thread_move" + circle.name + "    :  it's time to move!")
+                        lastMove = now
+                        move_stepper(circle)
+        except Exception as err:
+            logging.error("exception " + traceback.format_exc())
+
+        time.sleep(5)
+
+    logging.info("thread_move" + circle.name + "    :   exiting")
 
 def thread_move_inner(name):
     lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
