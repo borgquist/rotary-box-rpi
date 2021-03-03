@@ -107,17 +107,17 @@ defaultLatestMove = {
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
     getSchedules()
-    innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "innerCircle", "settings")
+    innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "settings", innerCircle.name)
     getStepper(innerCircle, defaultstepperInner)
-    outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "outerCircle", "settings")
+    outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "settings", outerCircle.name)
     getStepper(outerCircle, defaultstepperOuter)
-    innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "innerCircle", "state")
-    innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "innerCircle", "state")
-    outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "outerCircle", "state")
-    outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "outerCircle", "state")
+    innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "state", innerCircle.name)
+    innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", innerCircle.name)
+    outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "state", outerCircle.name)
+    outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", outerCircle.name)
 
 def getStepper(circle: BoxCircle, defaultstepper):
-    firebaseStepSettings = firebaseConnection.getFirebaseValue("stepper",  defaultstepper, circle.name, "settings")
+    firebaseStepSettings = firebaseConnection.getFirebaseValue("stepper",  defaultstepper, "settings", circle.name)
     circle.settings.stepper.afterTrigger = firebaseStepSettings["afterTrigger"]
     circle.settings.stepper.maxMove = firebaseStepSettings["maxMove"]
     circle.settings.stepper.minMove = firebaseStepSettings["minMove"]
@@ -125,16 +125,16 @@ def getStepper(circle: BoxCircle, defaultstepper):
 
 def getSchedules():
     defaultSchedule =[{"day": "everyday", "hour":7, "minute":0}]
-    innerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "innerCircle", "settings")
-    outerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "outerCircle", "settings")
+    innerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "settings", innerCircle.name)
+    outerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "settings", outerCircle.name)
 
 getFirebaseValuesAndSetDefaultsIfNeeded()
 
 firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
-firebaseConnection.setFirebaseValue("moveNow", False, "innerCircle", "commands")
-firebaseConnection.setFirebaseValue("setPocketsFull", False, "innerCircle", "commands")
-firebaseConnection.setFirebaseValue("moveNow", False, "outerCircle", "commands")
-firebaseConnection.setFirebaseValue("setPocketsFull", False, "outerCircle", "commands")
+firebaseConnection.setFirebaseValue("moveNow", False, "commands", innerCircle.name)
+firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", innerCircle.name)
+firebaseConnection.setFirebaseValue("moveNow", False, "commands", outerCircle.name)
+firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", outerCircle.name)
 
 exitapp = False
 GPIO.setmode(GPIO.BCM)
@@ -162,7 +162,7 @@ def move_stepper(circle: BoxCircle):
     moveIsBeingDone = True
     move(circle)
     circle.state.pocketsFull = max(circle.state.pocketsFull -1, 0)
-    firebaseConnection.setFirebaseValue("pocketsFull", circle.state.pocketsFull, circle.name, "state")
+    firebaseConnection.setFirebaseValue("pocketsFull", circle.state.pocketsFull, "state", circle.name)
     moveIsBeingDone = False
 
 def holdBothMotors():
@@ -213,7 +213,7 @@ def move(circle: BoxCircle):
     }
     logging.info("move complete    : " + circle.name + str(latestMove))
     circle.state.latestMove = latestMove
-    firebaseConnection.setFirebaseValue("latestMove", latestMove, circle.name, "state")
+    firebaseConnection.setFirebaseValue("latestMove", latestMove, "state", circle.name)
     GPIO.output(circle.settings.stepper.chanList, arrOff)
     setButtonLedOn(True)
     releaseBothMotors()
@@ -259,18 +259,18 @@ def checkCommandSetButtonLed():
     firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
 
 def checkCommandMoveNow(circle: BoxCircle):
-    newVal = firebaseConnection.getFirebaseValue("moveNow", False, circle.name, "commands")
+    newVal = firebaseConnection.getFirebaseValue("moveNow", False, "commands", circle.name)
     if(bool(newVal)):
         logging.info("moveNow true for " + str(circle))
-        firebaseConnection.setFirebaseValue("moveNow", False, circle.name, "commands")
+        firebaseConnection.setFirebaseValue("moveNow", False, "commands", circle.name)
         move_stepper(circle)
 
 def checkCommandsPockets(circle: BoxCircle):
-    newVal = firebaseConnection.getFirebaseValue("setPocketsFull", False, circle.name, "commands")
+    newVal = firebaseConnection.getFirebaseValue("setPocketsFull", False, "commands", circle.name)
     if(newVal != False):
         logging.info(circle.name + " setPocketsFull called to be updated to " + str(int(newVal)))
-        firebaseConnection.setFirebaseValue("setPocketsFull", False, circle.name, "commands")
-        firebaseConnection.setFirebaseValue("pocketsFull", int(newVal), circle.name, "state")
+        firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", circle.name)
+        firebaseConnection.setFirebaseValue("pocketsFull", int(newVal), "state", circle.name)
         circle.state.pocketsFull = int(newVal)
         
 def checkCommandsNodes():
@@ -283,41 +283,50 @@ def checkCommandsNodes():
     
 def stream_handler(message):
     try:
-        if message["path"].startswith("/settings/innerCircle/schedule"):
-            newVal = firebaseConnection.getFirebaseValue("schedule", None, "innerCircle", "settings")
-            logging.info("firebase: schedule for innerCircle has new value: " + str(newVal))
+        path = "/innerCircle/settings/schedule"
+        if message["path"].startswith(path):
+            newVal = firebaseConnection.getFirebaseValue("schedule", None, "settings", innerCircle.name)
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
             getSchedules()
-        if message["path"].startswith("/settings/outerCircle/schedule"):
-            newVal = firebaseConnection.getFirebaseValue("schedule", None, "outerCircle", "settings")
-            logging.info("firebase: schedule for outerCircle has new value: " + str(newVal))
+        path = "/outerCircle/settings/schedule"
+        if message["path"].startswith(path):
+            newVal = firebaseConnection.getFirebaseValue("schedule", None, "settings", outerCircle.name)
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
             getSchedules()
-        if message["path"].startswith("/settings/innerCircle/stepper"):
-            newVal = firebaseConnection.getFirebaseValue("stepper", None, "innerCircle", "settings")
-            logging.info("firebase: stepper for innerCircle has new value: " + str(newVal))
+        path = "/innerCircle/settings/stepper"
+        if message["path"].startswith(path):
+            newVal = firebaseConnection.getFirebaseValue("stepper", None, "settings", innerCircle.name)
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
             getStepper(innerCircle, defaultstepperInner)
-        if message["path"].startswith("/settings/outerCircle/stepper"):
-            newVal = firebaseConnection.getFirebaseValue("stepper", None, "outerCircle", "settings")
-            logging.info("firebase: stepper for outerCircle has new value: " + str(newVal))
+        path = "/outerCircle/settings/stepper"
+        if message["path"].startswith(path):
+            newVal = firebaseConnection.getFirebaseValue("stepper", None, "settings", outerCircle.name)
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
             getStepper(outerCircle, defaultstepperOuter)
-        if message["path"] == "/commands/setButtonLed":
+        path = "/commands/setButtonLed"
+        if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue("setButtonLed", None, "commands")
-            logging.info("firebase: /commands/setButtonLed new value: " + str(newVal))
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
             checkCommandSetButtonLed()
-        if message["path"] == "/commands/innerCircle/moveNow":
-            newVal = firebaseConnection.getFirebaseValue("moveNow", None, "innerCircle", "commands")
-            logging.info("firebase: /commands/innerCircle/moveNow new value: " + str(newVal))
+        path = "/innerCircle/commands/moveNow"
+        if message["path"] == path:
+            newVal = firebaseConnection.getFirebaseValue("moveNow", None, "commands", innerCircle.name)
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
             checkCommandMoveNow(innerCircle)
-        if message["path"] == "/commands/outerCircle/moveNow":
-            newVal = firebaseConnection.getFirebaseValue("moveNow", None, "outerCircle", "commands")
-            logging.info("firebase: /commands/outerCircle/moveNow has new value: " + str(newVal))
+        path = "/outerCircle/commands/moveNow"
+        if message["path"] == path:
+            newVal = firebaseConnection.getFirebaseValue("moveNow", None, "commands", outerCircle.name)
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
             checkCommandMoveNow(outerCircle)
-        if message["path"] == "/commands/innerCircle/setPocketsFull":
-            newVal = firebaseConnection.getFirebaseValue("setPocketsFull", None, "innerCircle", "commands")
-            logging.info("firebase: /commands/innerCircle/setPocketsFull has new value: " + str(newVal))
+        path = "/innerCircle/commands/setPocketsFull"
+        if message["path"] == path:
+            newVal = firebaseConnection.getFirebaseValue("setPocketsFull", None, "commands", innerCircle.name)
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
             checkCommandsPockets(innerCircle)
-        if message["path"] == "/commands/outerCircle/setPocketsFull":
-            newVal = firebaseConnection.getFirebaseValue("setPocketsFull", None, "outerCircle", "commands")
-            logging.info("firebase: /commands/outerCircle/setPocketsFull has new value: " + str(newVal))
+        path = "/outerCircle/commands/setPocketsFull"
+        if message["path"] == path:
+            newVal = firebaseConnection.getFirebaseValue("setPocketsFull", None, "commands", outerCircle.name)
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
             checkCommandsPockets(outerCircle)
     except Exception:
         logging.error("exception in stream_handler " + traceback.format_exc())
@@ -355,7 +364,7 @@ def thread_move(circle: BoxCircle):
             nextMove = getNextMove(circle.settings.schedule)
             
             if(str(nextMove) != str(currentCachedValue)):
-                firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), circle.name, "state")
+                firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), "state", circle.name)
                 circle.state.nextMove = nextMove
 
             if(nextMove != 0):
