@@ -28,28 +28,34 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                     ])
 logging.info("Starting rotarymeds.py")
 
-innerCircle = BoxCircle()
-outerCircle = BoxCircle()
+innerCircle = BoxCircle("innerCircle")
+outerCircle = BoxCircle("outerCircle")
 boxState = BoxState()
 
 pinConfigFilePath = '/home/pi/pinlayout.json'
 with open(pinConfigFilePath, 'r') as f:
     pinConfigToBeLoaded = json.load(f)
 
+
 ir_pin = pinConfigToBeLoaded['ir_pin']
 button_led_pin = pinConfigToBeLoaded['button_led_pin']
 button_pushed_pin = pinConfigToBeLoaded['button_pushed_pin']
+
 stepper_inner_in1 = pinConfigToBeLoaded['stepper_inner_in1']
 stepper_inner_in2 = pinConfigToBeLoaded['stepper_inner_in2']
 stepper_inner_in3 = pinConfigToBeLoaded['stepper_inner_in3']
 stepper_inner_in4 = pinConfigToBeLoaded['stepper_inner_in4']
+chanListInner = [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]
+
 stepper_outer_in1 = pinConfigToBeLoaded['stepper_outer_in1']
 stepper_outer_in2 = pinConfigToBeLoaded['stepper_outer_in2']
 stepper_outer_in3 = pinConfigToBeLoaded['stepper_outer_in3']
 stepper_outer_in4 = pinConfigToBeLoaded['stepper_outer_in4']
+chanListOuter = [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]
+
 led_pin = pinConfigToBeLoaded['led_pin']
 
-boxState.version = "1.0.22"
+boxState.version = "1.0.23"
 logging.info("version is " + boxState.version)
 
 googleHostForInternetCheck = "8.8.8.8"
@@ -107,7 +113,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
 
     getSchedules()
 
-    defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]} 
+    defaultStepSettingsInner = {"name": "inner", "minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner} 
     innerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsInner, "innerCircle", "settings")
     innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 4, "innerCircle", "settings")
     innerCircle.settings.stepSettings.name = "inner"
@@ -115,9 +121,8 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     innerCircle.settings.stepSettings.maxMove = innerStepSettnigs["maxMove"]
     innerCircle.settings.stepSettings.minMove = innerStepSettnigs["minMove"]
     innerCircle.settings.stepSettings.chanList = innerStepSettnigs["chanList"]  # GPIO ports to use
-    logging.info("innerCircle " + str(innerCircle))
     
-    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2900, "afterTrigger": 1640, "chanList": [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]} 
+    defaultStepSettingsOuter = {"name": "outer", "minMove": 2100, "maxMove": 2900, "afterTrigger": 1640, "chanList": chanListOuter} 
     outerStepSettnigs = firebaseConnection.getFirebaseValue("stepSettings",  defaultStepSettingsOuter, "outerCircle", "settings")
     outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 3, "outerCircle", "settings")
     outerCircle.settings.stepSettings.name = "outer"
@@ -125,8 +130,6 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     outerCircle.settings.stepSettings.maxMove = outerStepSettnigs["maxMove"]
     outerCircle.settings.stepSettings.minMove = outerStepSettnigs["minMove"]
     outerCircle.settings.stepSettings.chanList = outerStepSettnigs["chanList"]  # GPIO ports to use
-    
-    logging.info("innerCircle " + str(innerCircle))
     
     defaultLatestMove = {
         "totalSteps": 0,
@@ -140,8 +143,9 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
 
     outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "outerCircle", "state")
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "outerCircle", "state")
+    logging.info("firebase values loaded for innerCircle " + str(innerCircle))
+    logging.info("firebase values loaded for outerCircle " + str(outerCircle))
     
-    logging.info("innerCircle " + str(innerCircle))
     
 
 def getSchedules():
@@ -149,11 +153,7 @@ def getSchedules():
     innerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "innerCircle", "settings")
     outerCircle.settings.schedule = firebaseConnection.getFirebaseValue('schedule', defaultSchedule, "outerCircle", "settings")
 
-
-
-
 getFirebaseValuesAndSetDefaultsIfNeeded()
-
 
 firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
 
@@ -163,23 +163,13 @@ firebaseConnection.setFirebaseValue("setPocketsFull", False, "innerCircle", "com
 firebaseConnection.setFirebaseValue("moveNow", False, "outerCircle", "commands")
 firebaseConnection.setFirebaseValue("setPocketsFull", False, "outerCircle", "commands")
 
-
-
-GPIO.setmode(GPIO.BCM)
-
 exitapp = False
-
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(button_led_pin, GPIO.OUT)
-
-
 GPIO.setup(button_pushed_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-
 GPIO.setup(led_pin, GPIO.OUT)
 GPIO.output(led_pin, GPIO.LOW)
-
-irSensorPin = 4
-GPIO.setup(irSensorPin, GPIO.IN)
+GPIO.setup(ir_pin, GPIO.IN)
 
 
 # initialize array for sequence shift
@@ -187,46 +177,33 @@ arr1 = [1, 1, 0, 0]
 arr2 = [0, 1, 0, 0]
 arrOff = [0, 0, 0, 0]
 
-
-
 for pin in innerCircle.settings.stepSettings.chanList:
     GPIO.setup(pin, GPIO.OUT)
 for pin in outerCircle.settings.stepSettings.chanList:
     GPIO.setup(pin, GPIO.OUT)
 
-
 moveIsBeingDone = False
+def move_stepper(circle: BoxCircle):
+    global moveIsBeingDone
+    logging.info("move_stepper called for " + circle.name + " with settings " + str(circle.settings.stepSettings))
+    
+    while (moveIsBeingDone):
+        logging.info(circle.name + " : waiting for other move to be done")
+        time.sleep(1)
+    moveIsBeingDone = True
+    move(circle.settings.stepSettings)
+    circle.state.pocketsFull = max(circle.state.pocketsFull -1, 0)
+    firebaseConnection.setFirebaseValue("pocketsFull", circle.state.pocketsFull, circle.name, "state")
+    moveIsBeingDone = False
 
 
 def move_stepper_inner():
-    global moveIsBeingDone
-    logging.info("move_stepper_inner called " + str(innerCircle.settings.stepSettings))
-    
-    while (moveIsBeingDone):
-        logging.info("inner: waiting for other move to be done")
-        time.sleep(1)
-    moveIsBeingDone = True
-    move(innerCircle.settings.stepSettings)
-    innerCircle.state.pocketsFull = max(innerCircle.state.pocketsFull -1, 0)
-    firebaseConnection.setFirebaseValue("pocketsFullInner", innerCircle.state.pocketsFull, "innerCircle", "state")
-    moveIsBeingDone = False
+    move_stepper(innerCircle)
 
-
+ 
 def move_stepper_outer():
-    global moveIsBeingDone
-    logging.info("move_stepper_outer called " + str(innerCircle.settings.stepSettings))
+    move_stepper(outerCircle)
     
-    while (moveIsBeingDone):
-        logging.info("outer: waiting for other move to be done",
-                     moveIsBeingDone)
-        time.sleep(1)
-    moveIsBeingDone = True
-    move(outerCircle.settings.stepSettings)
-    logging.info("move now called on " + str(outerCircle.settings.stepSettings))
-    outerCircle.state.pocketsFull = max(outerCircle.state.pocketsFull -1, 0)
-    firebaseConnection.setFirebaseValue("pocketsFull", outerCircle.state.pocketsFull,"outerCircle", "state")
-    moveIsBeingDone = False
-
 
 def holdBothMotors():
     global arr1  # enables the edit of arr1 var inside a function
@@ -580,7 +557,7 @@ def thread_ir_sensor(name):
     while not exitapp:
         try:
             if(irTriggered == False):
-                if GPIO.input(irSensorPin) == GPIO.LOW:
+                if GPIO.input(ir_pin) == GPIO.LOW:
                     lastWhite = time.time()
                 else:
                     lastBlack = time.time()
