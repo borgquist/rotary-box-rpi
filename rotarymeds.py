@@ -107,9 +107,9 @@ defaultLatestMove = {
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
     getSchedules()
-    innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 4, "innerCircle", "settings")
+    innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "innerCircle", "settings")
     getStepper(innerCircle, defaultstepperInner)
-    outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 3, "outerCircle", "settings")
+    outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "outerCircle", "settings")
     getStepper(outerCircle, defaultstepperOuter)
     innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "innerCircle", "state")
     innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "innerCircle", "state")
