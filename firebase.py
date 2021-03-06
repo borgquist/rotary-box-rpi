@@ -60,9 +60,7 @@ class FirebaseConnection:
             logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
     
     def setPing(self):
-        now = time.time()
-        #timestamp = now.strftime('%Y-%m-%d %H:%M:%S')
-        self.database.child("box").child("ping").child(self.cpuid).set(timestamp)
+        self.database.child("box").child("ping").child(self.cpuid).set(time.time())
         return
 
     def getPingSeconds(self):
