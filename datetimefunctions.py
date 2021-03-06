@@ -1,8 +1,24 @@
 import datetime
 from datetime import timedelta
-
+import pytz
 
 class DateTimeFunctions:
+
+    @staticmethod 
+    def getUtcNowIsoFormat():
+        utc_now = pytz.utc.localize(datetime.datetime.utcnow())
+        return utc_now.isoformat()
+
+    @staticmethod
+    def getNowLocalized(pytzTimezone):
+        return pytzTimezone.localize(datetime.datetime.now())
+
+    @staticmethod
+    def getNowLocalizedIsoFormat(pytzTimezone):
+        timezone = pytz.timezone(pytzTimezone)
+        return timezone.localize(datetime.datetime.now()).isoformat()
+        
+
 
     @staticmethod
     def getWeekday(datetime):

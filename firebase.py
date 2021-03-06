@@ -1,3 +1,4 @@
+from datetimefunctions import DateTimeFunctions
 import pyrebase
 import json
 import logging
@@ -60,7 +61,14 @@ class FirebaseConnection:
             logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
     
     def setPing(self):
-        self.database.child("box").child("ping").child(self.cpuid).set(time.time())
+        self.database.child("box").child("ping").child(self.cpuid).child("epoch").set(time.time())
+        utcTime = DateTimeFunctions.getUtcNowIsoFormat()
+        self.database.child("box").child("ping").child(self.cpuid).child("UTC").set(utcTime)
+        timezone = "America/Los_Angeles"
+        self.database.child("box").child("ping").child(self.cpuid).child("timezone").set(timezone)
+        localTime = DateTimeFunctions.getNowLocalizedIsoFormat(timezone)
+        self.database.child("box").child("ping").child(self.cpuid).child("localized").set(localTime)
+
         return
 
     def getPingSeconds(self):
