@@ -105,6 +105,7 @@ defaultLatestMove = {
     "irTriggered": False,
     "stepsAfterTrigger": 0,
     "timestamp": "1900-01-01 00:00:00",
+    "timestampEpoch": 0,
     }
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
@@ -212,6 +213,7 @@ def move(circle: BoxCircle):
         "irTriggered": irTriggered,
         "stepsAfterTrigger": stepsDone - stepsDoneWhenIRtrigger,
         "timestamp": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "timestampEpoch": time.time(),
     }
     logging.info("move complete    : " + circle.name + str(latestMove))
     circle.state.latestMove = latestMove

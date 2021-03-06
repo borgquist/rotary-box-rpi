@@ -1,7 +1,7 @@
 import pyrebase
 import json
 import logging
-import datetime
+import time
 
 class FirebaseConnection:
     cpuid = 0
@@ -59,10 +59,9 @@ class FirebaseConnection:
                     logMessasge = grandparent + "/" + logMessasge
             logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
     
-    # TODO at some point this should be only one call, is not optimal as is
     def setPing(self):
-        now = datetime.datetime.now()
-        timestamp = now.strftime('%Y-%m-%d %H:%M:%S')
+        now = time.time()
+        #timestamp = now.strftime('%Y-%m-%d %H:%M:%S')
         self.database.child("box").child("ping").child(self.cpuid).set(timestamp)
         return
 
