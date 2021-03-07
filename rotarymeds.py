@@ -360,6 +360,7 @@ def stream_handler(message):
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             getTimezone()
+            setLocalTime()
         path = "/innerCircle/settings/schedule"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
@@ -451,6 +452,7 @@ def thread_time(name):
                 lastTimeStampUpdate = timestampNow
 
             if(timestampNow - lastLocalTimeUpdate) > 60:
+                lastLocalTimeUpdate = timestampNow
                 setLocalTime()
 
 
