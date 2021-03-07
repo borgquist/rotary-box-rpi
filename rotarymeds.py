@@ -260,7 +260,7 @@ def move(circle: BoxCircle):
         "totalSteps": stepsDone,
         "irTriggered": irTriggered,
         "stepsAfterTrigger": stepsDone - stepsDoneWhenIRtrigger,
-        "timestamp": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "timestamp": DateTimeFunctions.getDateTimeNowNormalized.strftime(DateTimeFunctions.fmt),
         "timestampEpoch": time.time(),
     }
     logging.info("move complete    : " + circle.name + str(latestMove))
