@@ -1,3 +1,4 @@
+from boxsettings import BoxSettings
 from stepper import Stepper
 from boxstate import BoxState
 from boxcircle import BoxCircle
@@ -30,6 +31,7 @@ logging.info("Starting rotarymeds.py")
 
 
 boxState = BoxState()
+boxSettings = BoxSettings()
 
 pinConfigFilePath = '/home/pi/pinlayout.json'
 with open(pinConfigFilePath, 'r') as f:
@@ -114,10 +116,14 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     getStepper(innerCircle, defaultstepperInner)
     outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "settings", outerCircle.name)
     getStepper(outerCircle, defaultstepperOuter)
+    getTimezone()
     innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "state", innerCircle.name)
     innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", innerCircle.name)
     outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "state", outerCircle.name)
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", outerCircle.name)
+
+def getTimezone():
+    boxSettings.timezone = firebaseConnection.getFirebaseValue("timezone", "Europe/London", "settings")
 
 def getStepper(circle: BoxCircle, defaultstepper):
     firebaseStepSettings = firebaseConnection.getFirebaseValue("stepper",  defaultstepper, "settings", circle.name)
@@ -240,7 +246,7 @@ def setButtonLedOn(setToOn):
 def getNextMove(schedule):
     nextMove = 0
     for scheduledMove in schedule:
-        candiate = DateTimeFunctions.dateTimeFromSchedule(scheduledMove['day'], scheduledMove['hour'], scheduledMove['minute'])
+        candiate = DateTimeFunctions.getDateTimeFromScheduleWithTimezone(scheduledMove['day'], scheduledMove['hour'], scheduledMove['minute'], boxSettings.timezone)
         if(candiate is None):
             logging.warning("this is odd, candidate was None [" + str(scheduledMove) + "]")
         else:
@@ -287,6 +293,11 @@ def checkCommandsNodes():
     
 def stream_handler(message):
     try:
+        path = "/settings/timezone"
+        if message["path"] == path:
+            newVal = firebaseConnection.getFirebaseValue("timezone", None, "settings")
+            logging.info("firebase: " + path + " has new value: " + str(newVal))
+            getTimezone()
         path = "/innerCircle/settings/schedule"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue("schedule", None, "settings", innerCircle.name)
