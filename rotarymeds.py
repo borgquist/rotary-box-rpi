@@ -146,6 +146,10 @@ def setLocalTime():
 def getTimezone():
     boxSettings.timezone = firebaseConnection.getFirebaseValue(
         "timezone", "Europe/London", "settings")
+        
+def setTimezone():
+    boxSettings.timezone = firebaseConnection.setFirebaseValue(
+        "timezone", "Europe/London", "settings")
 
 
 def getStepper(circle: BoxCircle, defaultstepper):
@@ -359,7 +363,7 @@ def stream_handler(message):
                 "timezone", None, "settings")
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
-            getTimezone()
+            setTimezone()
             setLocalTime()
         path = "/innerCircle/settings/schedule"
         if message["path"].startswith(path):
