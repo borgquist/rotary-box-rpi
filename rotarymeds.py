@@ -450,7 +450,7 @@ def thread_time(name):
 
 
 def thread_move(circle: BoxCircle):
-    lastMove = datetime.datetime.now() + datetime.timedelta(days=-1)
+    lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone) - datetime.timedelta(days=-1)
     while not exitapp:
         try:
             currentCachedValue = circle.state.nextMove
@@ -462,7 +462,7 @@ def thread_move(circle: BoxCircle):
                 circle.state.nextMove = nextMove
 
             if(nextMove != 0):
-                now = datetime.datetime.now()
+                now = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                 secondsBetween = abs((now-nextMove).total_seconds())
                 if(abs((now-lastMove).total_seconds()) < 60):
                     logging.info("thread_move" + circle.name +
@@ -471,7 +471,7 @@ def thread_move(circle: BoxCircle):
                     if(secondsBetween < 20):
                         logging.info("thread_move" + circle.name +
                                      "    :  it's time to move!")
-                        lastMove = now
+                        lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                         move_stepper(circle)
         except Exception as err:
             logging.error("exception " + traceback.format_exc())

@@ -37,14 +37,17 @@ class DateTimeFunctions:
         return (datetime.datetime.utcnow() - datetime.datetime(1970,1,1)).days
 
     @staticmethod
-    def getMinutesFromNow(normalizedDateTime: datetime.datetime, timezone: str) -> float:
+    def getSecondsFromNow(normalizedDateTime: datetime.datetime, timezone: str) -> float:
         now = DateTimeFunctions.getDateTimeNowNormalized(timezone)
-        return(normalizedDateTime - now).total_seconds() / 60
+        return(normalizedDateTime - now).total_seconds()
+
+    @staticmethod
+    def getMinutesFromNow(normalizedDateTime: datetime.datetime, timezone: str) -> float:
+        return DateTimeFunctions.getSecondsFromNow(normalizedDateTime, timezone) / 60
 
     @staticmethod
     def getHoursFromNow(normalizedDateTime: datetime.datetime, timezone: str) -> float:
-        now = DateTimeFunctions.getDateTimeNowNormalized(timezone)
-        return(normalizedDateTime - now).total_seconds() / (60*60)
+        return DateTimeFunctions.getSecondsFromNow(normalizedDateTime, timezone) / (60*60)
 
     @staticmethod
     def getNormalizedDateTime(year: int, month: int, day: int, hour: int, minute: int, timezone: str) -> datetime.datetime:
