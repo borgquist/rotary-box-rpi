@@ -121,6 +121,8 @@ defaultLatestMove = {
 
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
+    getTimezone()
+    setLocalTime()
     getSchedules()
     innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue(
         "nrPockets", 7, "settings", innerCircle.name)
@@ -128,7 +130,6 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue(
         "nrPockets", 7, "settings", outerCircle.name)
     getStepper(outerCircle, defaultstepperOuter)
-    getTimezone()
     innerCircle.state.latestMove = firebaseConnection.getFirebaseValue(
         "latestMove", defaultLatestMove, "state", innerCircle.name)
     innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue(
@@ -138,6 +139,9 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue(
         "pocketsFull", 0, "state", outerCircle.name)
 
+def setLocalTime():
+    localTime = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
+    boxState.localTime = firebaseConnection.getFirebaseValue("localTime", localTime.strftime(DateTimeFunctions.fmt), "state")
 
 def getTimezone():
     boxSettings.timezone = firebaseConnection.getFirebaseValue(
@@ -425,6 +429,7 @@ def stream_handler(message):
 
 def thread_time(name):
     lastTimeStampUpdate = 0
+    lastLocalTimeUpdate = 0
     while not exitapp:
         try:
             time.sleep(5)
@@ -444,6 +449,11 @@ def thread_time(name):
             if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
                 firebaseConnection.setPing()
                 lastTimeStampUpdate = timestampNow
+
+            if(timestampNow - lastLocalTimeUpdate) > 60:
+                setLocalTime()
+
+
         except Exception as err:
             logging.error("exception " + traceback.format_exc())
     logging.info("thread_time    : exiting")
