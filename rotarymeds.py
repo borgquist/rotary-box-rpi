@@ -141,12 +141,12 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
 
 def setLocalTime():
     localTime = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
-    boxState.localTime = firebaseConnection.getFirebaseValue("localTime", localTime.strftime(DateTimeFunctions.fmt), "state")
+    boxState.localTime = firebaseConnection.setFirebaseValue("localTime", localTime.strftime(DateTimeFunctions.fmt), "state")
 
 def getTimezone():
     boxSettings.timezone = firebaseConnection.getFirebaseValue(
         "timezone", "Europe/London", "settings")
-        
+
 def setTimezone():
     boxSettings.timezone = firebaseConnection.setFirebaseValue(
         "timezone", "Europe/London", "settings")
