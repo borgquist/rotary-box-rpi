@@ -455,6 +455,12 @@ def thread_move(circle: BoxCircle):
         try:
             currentCachedValue = circle.state.nextMove
             nextMove = getNextMove(circle.settings.schedule)
+            minutesToNextMove = DateTimeFunctions.getMinutesFromNow(nextMove, boxSettings.timezone)
+            
+            if(minutesToNextMove != circle.state.minutesToNextMove):
+                firebaseConnection.setFirebaseValue(
+                    "minutesToNextMove", minutesToNextMove, "state", circle.name)
+                circle.state.minutesToNextMove = minutesToNextMove
 
             if(str(nextMove) != str(currentCachedValue)):
                 firebaseConnection.setFirebaseValue(
