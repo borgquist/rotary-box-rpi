@@ -66,7 +66,7 @@ class FirebaseConnection:
         self.database.child("box").child("ping").child(self.cpuid).child("UTC").set(utcTime)
         timezone = "America/Los_Angeles"
         self.database.child("box").child("ping").child(self.cpuid).child("timezone").set(timezone)
-        localTime = DateTimeFunctions.getNowLocalizedIsoFormat(timezone)
+        localTime = DateTimeFunctions.getDateTimeNowNormalized(timezone)
         self.database.child("box").child("ping").child(self.cpuid).child("localized").set(localTime)
 
         return

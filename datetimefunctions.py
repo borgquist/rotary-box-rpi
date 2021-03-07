@@ -7,6 +7,11 @@ class DateTimeFunctions:
     fmt = '%Y-%m-%d %H:%M:%S %Z%z'
     
     @staticmethod
+    def getUtcNowIsoFormat():
+        utc_now = pytz.utc.localize(datetime.datetime.utcnow())
+        return utc_now.isoformat()
+
+    @staticmethod
     def getDateTimeNowNormalized(timezone: str) -> datetime.datetime:
         pytzTimezone = pytz.timezone(timezone)
         return pytzTimezone.normalize(datetime.datetime.now().astimezone(pytzTimezone))
