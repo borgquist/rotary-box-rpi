@@ -161,9 +161,9 @@ def getStepper(circle: BoxCircle, defaultstepper):
 def getSchedules():
     defaultSchedule = [{"day": "everyday", "hour": 7, "minute": 0}]
     innerCircle.settings.schedule = firebaseConnection.getFirebaseValue(
-        'schedule', defaultSchedule, "settings", innerCircle.name)
+        'schedules', defaultSchedule, "settings", innerCircle.name)
     outerCircle.settings.schedule = firebaseConnection.getFirebaseValue(
-        'schedule', defaultSchedule, "settings", outerCircle.name)
+        'schedules', defaultSchedule, "settings", outerCircle.name)
 
 
 getFirebaseValuesAndSetDefaultsIfNeeded()
@@ -290,14 +290,14 @@ def setButtonLedOn(setToOn):
         firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
 
 
-def getNextMove(schedule):
+def getNextMove(schedules):
     nextMove = 0
-    for scheduledMove in schedule:
+    for schedule in schedules:
         candiate = DateTimeFunctions.getDateTimeFromScheduleWithTimezone(
-            scheduledMove['day'], scheduledMove['hour'], scheduledMove['minute'], boxSettings.timezone)
+            schedule['day'], schedule['hour'], schedule['minute'], boxSettings.timezone)
         if(candiate is None):
             logging.warning(
-                "this is odd, candidate was None [" + str(scheduledMove) + "]")
+                "this is odd, candidate was None [" + str(schedule) + "]")
         else:
             if(nextMove == 0):
                 nextMove = candiate
@@ -362,17 +362,17 @@ def stream_handler(message):
                          " has new value: " + str(newVal))
             boxSettings.timezone = newVal
             setLocalTime()
-        path = "/innerCircle/settings/schedule"
+        path = "/innerCircle/settings/schedules"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
-                "schedule", None, "settings", innerCircle.name)
+                "schedules", None, "settings", innerCircle.name)
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             getSchedules()
-        path = "/outerCircle/settings/schedule"
+        path = "/outerCircle/settings/schedules"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
-                "schedule", None, "settings", outerCircle.name)
+                "schedules", None, "settings", outerCircle.name)
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             getSchedules()
@@ -467,7 +467,7 @@ def thread_move(circle: BoxCircle):
     while not exitapp:
         try:
             currentCachedValue = circle.state.nextMove
-            nextMove = getNextMove(circle.settings.schedule)
+            nextMove = getNextMove(circle.settings.schedules)
             minutesToNextMove = DateTimeFunctions.getMinutesFromNow(nextMove, boxSettings.timezone)
             
             if(minutesToNextMove != circle.state.minutesToNextMove):
