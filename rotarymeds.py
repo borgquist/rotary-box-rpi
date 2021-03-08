@@ -362,6 +362,8 @@ def stream_handler(message):
                          " has new value: " + str(newVal))
             boxSettings.timezone = newVal
             setLocalTime()
+            getAndUpdateNextMoveFirebase(innerCircle)
+            getAndUpdateNextMoveFirebase(outerCircle)
         path = "/innerCircle/settings/schedules"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
@@ -369,6 +371,7 @@ def stream_handler(message):
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             getSchedules()
+            getAndUpdateNextMoveFirebase(innerCircle)
         path = "/outerCircle/settings/schedules"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
@@ -376,6 +379,7 @@ def stream_handler(message):
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             getSchedules()
+            getAndUpdateNextMoveFirebase(outerCircle)
         path = "/innerCircle/settings/stepper"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
