@@ -483,7 +483,7 @@ def thread_move(circle: BoxCircle):
     lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone) - datetime.timedelta(days=-1)
     while not exitapp:
         try:
-            nextMove = getAndUpdateNextMoveFirebase(circle.settings.schedules)
+            nextMove = getAndUpdateNextMoveFirebase(circle)
 
             if(nextMove != 0):
                 now = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
