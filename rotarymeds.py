@@ -468,8 +468,6 @@ def thread_move(circle: BoxCircle):
         try:
             currentCachedValue = circle.state.nextMove
             nextMove = getNextMove(circle.settings.schedules)
-            print('next move ' + str(nextMove))
-            print('next move circle ' + str(circle))
 
             minutesToNextMove = DateTimeFunctions.getMinutesFromNow(nextMove, boxSettings.timezone)
             
