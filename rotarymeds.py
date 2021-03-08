@@ -461,25 +461,25 @@ def thread_time(name):
             logging.error("exception " + traceback.format_exc())
     logging.info("thread_time    : exiting")
 
+def getAndUpdateNextMoveFirebase(circle: BoxCircle):
+    nextMove = getNextMove(circle.settings.schedules)
+    minutesToNextMove = DateTimeFunctions.getMinutesFromNow(nextMove, boxSettings.timezone)
+    if(minutesToNextMove != circle.state.minutesToNextMove):
+        firebaseConnection.setFirebaseValue(
+            "minutesToNextMove", minutesToNextMove, "state", circle.name)
+        circle.state.minutesToNextMove = minutesToNextMove
+
+    if(str(nextMove) != circle.state.nextMove):
+        firebaseConnection.setFirebaseValue(
+            "nextMove", str(nextMove).strip(), "state", circle.name)
+        circle.state.nextMove = nextMove
+    return nextMove
 
 def thread_move(circle: BoxCircle):
     lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone) - datetime.timedelta(days=-1)
     while not exitapp:
         try:
-            currentCachedValue = circle.state.nextMove
-            nextMove = getNextMove(circle.settings.schedules)
-
-            minutesToNextMove = DateTimeFunctions.getMinutesFromNow(nextMove, boxSettings.timezone)
-            
-            if(minutesToNextMove != circle.state.minutesToNextMove):
-                firebaseConnection.setFirebaseValue(
-                    "minutesToNextMove", minutesToNextMove, "state", circle.name)
-                circle.state.minutesToNextMove = minutesToNextMove
-
-            if(str(nextMove) != str(currentCachedValue)):
-                firebaseConnection.setFirebaseValue(
-                    "nextMove", str(nextMove).strip(), "state", circle.name)
-                circle.state.nextMove = nextMove
+            nextMove = getAndUpdateNextMoveFirebase(circle.settings.schedules)
 
             if(nextMove != 0):
                 now = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
