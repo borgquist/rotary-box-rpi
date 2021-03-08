@@ -160,9 +160,9 @@ def getStepper(circle: BoxCircle, defaultstepper):
 
 def getSchedules():
     defaultSchedule = [{"day": "everyday", "hour": 7, "minute": 0}]
-    innerCircle.settings.schedule = firebaseConnection.getFirebaseValue(
+    innerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
         'schedules', defaultSchedule, "settings", innerCircle.name)
-    outerCircle.settings.schedule = firebaseConnection.getFirebaseValue(
+    outerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
         'schedules', defaultSchedule, "settings", outerCircle.name)
 
 
