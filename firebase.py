@@ -3,6 +3,22 @@ import pyrebase
 import json
 import logging
 import time
+import subprocess
+
+
+googleHostForInternetCheck = "8.8.8.8"
+
+
+def haveInternet():
+    try:
+        output = subprocess.check_output(
+            "ping -c 1 {}".format(googleHostForInternetCheck), shell=True)
+    except Exception:
+        return False
+    return True
+
+
+
 
 class FirebaseConnection:
     cpuid = 0
@@ -32,6 +48,14 @@ class FirebaseConnection:
 
 
     def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None):
+        internetWasLost = False
+        while(not haveInternet()):
+            internetWasLost = True
+            logging.info("internet is not available, sleeping 1 second")
+            time.sleep(1)
+        if(internetWasLost):
+            logging.info("have internet connectivity")
+
         if(settingname == "timestamp"):
             self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
             return
@@ -43,22 +67,24 @@ class FirebaseConnection:
         else:
             currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
 
-        if(currentValue.val() != newValue):
-            
-            if(parent is None):
-                self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
-            elif(grandparent is None):
-                self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).set(newValue)
-            else:
-                self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).set(newValue)
+        if(currentValue.val() == newValue):
+            return # no need to update
 
             
-            logMessasge = settingname
-            if(parent is not None):
-                logMessasge = parent + "/" + logMessasge
-                if(grandparent is not None):
-                    logMessasge = grandparent + "/" + logMessasge
-            logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
+        if(parent is None):
+            self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
+        elif(grandparent is None):
+            self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).set(newValue)
+        else:
+            self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).set(newValue)
+
+        
+        logMessasge = settingname
+        if(parent is not None):
+            logMessasge = parent + "/" + logMessasge
+            if(grandparent is not None):
+                logMessasge = grandparent + "/" + logMessasge
+        logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
     
     def setPing(self):
         self.database.child("box").child("ping").child(self.cpuid).child("epoch").set(time.time())
