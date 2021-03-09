@@ -429,31 +429,38 @@ def stream_handler(message):
         logging.error("exception in stream_handler " + traceback.format_exc())
 
 
+def internetCheck(callingMethodName: str):
+    global settingUpFirebaseStream
+    internetWasLost = False
+    skipFirebaseStreamSetup = False
+    while(not haveInternet()):
+        internetWasLost = True
+        logging.info("internet is not available for [" + callingMethodName + "], sleeping 1 second")
+        time.sleep(1)
+    
+    if(settingUpFirebaseStream):
+        logging.info("other method is already doing setupStreamToFirebase so [" + callingMethodName + "], will return without calling it. Sleeping 1 sec for now")
+        skipFirebaseStreamSetup = True
+        time.sleep(1)
+
+    if(skipFirebaseStreamSetup):
+        return
+
+    if(internetWasLost):
+        logging.info(
+            "internet is back for [" + callingMethodName + "], resetting the stream to firebase")
+        setupStreamToFirebase()
+
 def thread_time(name):
     lastTimeStampUpdate = 0
     while not exitapp:
         try:
             time.sleep(5)
-            now = datetime.datetime.now()
+            internetCheck("thread_time")
             timestampNow = time.time()
-            internetWasLost = False
-            while(not haveInternet()):
-                internetWasLost = True
-                logging.info("internet is not available, sleeping 1 second")
-                time.sleep(1)
-
-            if(internetWasLost):
-                logging.info(
-                    "internet is back, resetting the stream to firebase")
-                setupStreamToFirebase()
-
             if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
                 firebaseConnection.setPing(boxSettings)
                 lastTimeStampUpdate = timestampNow
-
-
-
-
         except Exception as err:
             logging.error("exception " + traceback.format_exc())
     logging.info("thread_time    : exiting")
@@ -474,8 +481,14 @@ def getAndUpdateNextMoveFirebase(circle: BoxCircle):
 
 def thread_move(circle: BoxCircle):
     lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone) - datetime.timedelta(days=-1)
+    
     while not exitapp:
         try:
+
+            
+
+            internetCheck("thread_move_" + circle.name)
+            
             nextMove = getAndUpdateNextMoveFirebase(circle)
 
             if(nextMove != 0):
@@ -553,8 +566,10 @@ def thread_ir_sensor(name):
 
 my_stream = ""
 
-
+settingUpFirebaseStream = False
 def setupStreamToFirebase():
+    global settingUpFirebaseStream
+    settingUpFirebaseStream = True
     global my_stream
     try:
         if(my_stream != ""):
@@ -566,7 +581,9 @@ def setupStreamToFirebase():
     my_stream = firebaseConnection.database.child("box").child(
         "boxes").child(boxState.cpuId).stream(stream_handler)
     logging.info("done setting up the stream to firebase")
+    settingUpFirebaseStream = False
     checkCommandsNodes()
+    
 
 
 if __name__ == '__main__':
