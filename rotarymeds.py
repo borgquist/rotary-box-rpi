@@ -435,11 +435,11 @@ def internetCheck(callingMethodName: str):
     skipFirebaseStreamSetup = False
     while(not haveInternet()):
         internetWasLost = True
-        logging.info("internet is not available for [" + callingMethodName + "], sleeping 1 second")
+        logging.info("internet is not available for [" + callingMethodName + "], sleeping")
         time.sleep(1)
     
     if(settingUpFirebaseStream):
-        logging.info("other method is already doing setupStreamToFirebase so [" + callingMethodName + "], will return without calling it. Sleeping 1 sec for now")
+        logging.info("other method is already doing setupStreamToFirebase so [" + callingMethodName + "], will return without calling it. Sleeping for now")
         skipFirebaseStreamSetup = True
         time.sleep(1)
 
