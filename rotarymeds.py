@@ -357,6 +357,7 @@ def stream_handler(message):
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             boxSettings.timezone = newVal
+            firebaseConnection.setPing(boxSettings)
             getAndUpdateNextMoveFirebase(innerCircle)
             getAndUpdateNextMoveFirebase(outerCircle)
         path = "/innerCircle/settings/schedules"
