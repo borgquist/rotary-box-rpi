@@ -122,7 +122,6 @@ defaultLatestMove = {
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
     getTimezone()
-    setLocalTime()
     getSchedules()
     innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue(
         "nrPockets", 7, "settings", innerCircle.name)
@@ -139,9 +138,6 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue(
         "pocketsFull", 0, "state", outerCircle.name)
 
-def setLocalTime():
-    localTime = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
-    boxState.localTime = firebaseConnection.setFirebaseValue("localTime", localTime.strftime(DateTimeFunctions.fmt), "state")
 
 def getTimezone():
     boxSettings.timezone = firebaseConnection.getFirebaseValue(
@@ -361,7 +357,6 @@ def stream_handler(message):
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             boxSettings.timezone = newVal
-            setLocalTime()
             getAndUpdateNextMoveFirebase(innerCircle)
             getAndUpdateNextMoveFirebase(outerCircle)
         path = "/innerCircle/settings/schedules"
@@ -435,7 +430,6 @@ def stream_handler(message):
 
 def thread_time(name):
     lastTimeStampUpdate = 0
-    lastLocalTimeUpdate = 0
     while not exitapp:
         try:
             time.sleep(5)
@@ -456,9 +450,7 @@ def thread_time(name):
                 firebaseConnection.setPing()
                 lastTimeStampUpdate = timestampNow
 
-            if(timestampNow - lastLocalTimeUpdate) > 60:
-                lastLocalTimeUpdate = timestampNow
-                setLocalTime()
+
 
 
         except Exception as err:
