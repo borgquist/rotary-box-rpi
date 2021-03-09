@@ -4,7 +4,7 @@ import json
 import logging
 import time
 import subprocess
-
+from boxsettings import BoxSettings
 
 googleHostForInternetCheck = "8.8.8.8"
 
@@ -86,13 +86,10 @@ class FirebaseConnection:
                 logMessasge = grandparent + "/" + logMessasge
         logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
     
-    def setPing(self):
+    def setPing(self, boxSettings: BoxSettings):
         self.database.child("box").child("ping").child(self.cpuid).child("epoch").set(time.time())
-        utcTime = DateTimeFunctions.getUtcNowIsoFormat()
-        self.database.child("box").child("ping").child(self.cpuid).child("UTC").set(utcTime)
-        timezone = "America/Los_Angeles"
-        self.database.child("box").child("ping").child(self.cpuid).child("timezone").set(timezone)
-        localTime = DateTimeFunctions.getDateTimeNowNormalized(timezone)
+        self.database.child("box").child("ping").child(self.cpuid).child("timezone").set(boxSettings.timezone)
+        localTime = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
         self.database.child("box").child("ping").child(self.cpuid).child("localized").set(localTime.strftime(DateTimeFunctions.fmt))
 
         return
