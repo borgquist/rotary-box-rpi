@@ -447,7 +447,7 @@ def thread_time(name):
                 setupStreamToFirebase()
 
             if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
-                firebaseConnection.setPing()
+                firebaseConnection.setPing(boxSettings)
                 lastTimeStampUpdate = timestampNow
 
 
