@@ -4,7 +4,7 @@ import pytz
 
 class DateTimeFunctions:
 
-    fmt = '%Y-%m-%d %H:%M:%S %Z%z'
+    fmt = '%Y-%m-%d %H:%M:%S %Z'
     
     @staticmethod
     def getUtcNowIsoFormat():
