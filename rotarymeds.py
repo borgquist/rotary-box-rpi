@@ -427,8 +427,8 @@ def stream_handler(message):
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             checkCommandsPockets(outerCircle)
-    except Exception:
-        logging.error("exception in stream_handler " + traceback.format_exc())
+    except Exception as err:
+        logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
 
 
 def internetCheck(callingMethodName: str):
@@ -464,13 +464,10 @@ def thread_time(name):
                 firebaseConnection.setPing(boxSettings)
                 lastTimeStampUpdate = timestampNow
         except requests.exceptions.HTTPError as e:
-            logging.error("requests.exceptions.HTTPError: [" + str(e) +"]")
-            response = e.args[0].response
-            error = response.json()['error']
-            logging.error("more details: [" + str(response) + "] the error: [" + str(error) + "]")
-      
+           logging.error("HTTPError: [" + str(e) +"]")
+        
         except Exception as err:
-            logging.error("exception " + traceback.format_exc())
+            logging.error("exception " + str(err) + " trace :" + traceback.format_exc())
     logging.info("thread_time    : exiting")
 
 def getAndUpdateNextMoveFirebase(circle: BoxCircle):
@@ -512,13 +509,11 @@ def thread_move(circle: BoxCircle):
                         lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                         move_stepper(circle)
         except requests.exceptions.HTTPError as e:
-            logging.error("requests.exceptions.HTTPError: [" + str(e) +"]")
-            response = e.args[0].response
-            error = response.json()['error']
-            logging.error("more details: [" + str(response) + "] the error: [" + str(error) + "]")
+            logging.error("HTTPError: [" + str(e) +"]")
+            
                     
         except Exception as err:
-            logging.error("exception: [p]" + str(err) + "] the trace: [" + traceback.format_exc() + "]")
+            logging.error("exception: [" + str(err) + "] the trace: [" + traceback.format_exc() + "]")
         time.sleep(5)
     logging.info("thread_move" + circle.name + "    :   exiting")
 
@@ -551,7 +546,7 @@ def thread_button(name):
                 timeButtonNotPressed = time.time()
             time.sleep(0.1)
         except Exception as err:
-            logging.error("exception " + traceback.format_exc())
+            logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
 
     logging.info("thread_button    : exiting")
 
@@ -573,7 +568,7 @@ def thread_ir_sensor(name):
                     logging.info("thread_ir_sensor    : irTriggered")
             time.sleep(0.05)
         except Exception as err:
-            logging.error("exception " + traceback.format_exc())
+            logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
 
     logging.info("thread_ir_sensor    : exiting")
 
@@ -589,7 +584,7 @@ def setupStreamToFirebase():
         if(my_stream != ""):
             my_stream.close()
     except Exception as err:
-        logging.info("tried to close the stream but failed")
+        logging.info("tried to close the stream but failed" + str(err) + " trace: " + traceback.format_exc())
 
     logging.info("setting up the stream to firebase")
     my_stream = firebaseConnection.database.child("box").child(
@@ -657,8 +652,8 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt:  # If CTRL+C is pressed, exit cleanly:
         logging.info("Keyboard interrupt")
-    except Exception:
-        logging.error("exception " + traceback.format_exc())
+    except Exception as err:
+        logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
     finally:
         logging.info("Main    : cleaning up the GPIO and exiting")
         setButtonLedOn(False)
