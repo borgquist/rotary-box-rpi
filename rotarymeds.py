@@ -205,7 +205,7 @@ def move_stepper(circle: BoxCircle):
     move(circle)
     circle.state.pocketsFull = max(circle.state.pocketsFull - 1, 0)
     firebaseConnection.setFirebaseValue(
-        "pocketsFull", circle.state.pocketsFull, "state", circle.name)
+        "pocketsFull", circle.state.pocketsFull, "state", circle.name, "circles")
     moveIsBeingDone = False
 
 
@@ -264,7 +264,7 @@ def move(circle: BoxCircle):
     logging.info("move complete    : " + circle.name + str(latestMove))
     circle.state.latestMove = latestMove
     firebaseConnection.setFirebaseValue(
-        "latestMove", latestMove, "state", circle.name)
+        "latestMove", latestMove, "state", circle.name, "circles")
     GPIO.output(circle.settings.stepper.chanList, arrOff)
     setButtonLedOn(True)
     releaseBothMotors()
