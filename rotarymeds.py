@@ -464,7 +464,7 @@ def thread_time(name):
                 firebaseConnection.setPing(boxSettings)
                 lastTimeStampUpdate = timestampNow
         except requests.exceptions.HTTPError as e:
-           logging.error("HTTPError: [" + str(e) +"]")
+           logging.error("HTTPError: [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
         
         except Exception as err:
             logging.error("exception " + str(err) + " trace :" + traceback.format_exc())
@@ -509,7 +509,7 @@ def thread_move(circle: BoxCircle):
                         lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                         move_stepper(circle)
         except requests.exceptions.HTTPError as e:
-            logging.error("HTTPError: [" + str(e) +"]")
+            logging.error("HTTPError: [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
             
                     
         except Exception as err:
