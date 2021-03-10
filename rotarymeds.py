@@ -365,7 +365,7 @@ def stream_handler(message):
         path = "/circles/innerCircle/settings/schedules"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
-                "schedules", None, "settings", innerCircle.name)
+                "schedules", None, "settings", innerCircle.name,"circles")
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             getSchedules()
@@ -373,7 +373,7 @@ def stream_handler(message):
         path = "/circles/outerCircle/settings/schedules"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
-                "schedules", None, "settings", outerCircle.name)
+                "schedules", None, "settings", outerCircle.name,"circles")
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             getSchedules()
@@ -381,14 +381,14 @@ def stream_handler(message):
         path = "/circles/innerCircle/settings/stepper"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
-                "stepper", None, "settings", innerCircle.name)
+                "stepper", None, "settings", innerCircle.name,"circles")
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             getStepper(innerCircle, defaultstepperInner)
         path = "/circles/outerCircle/settings/stepper"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
-                "stepper", None, "settings", outerCircle.name)
+                "stepper", None, "settings", outerCircle.name,"circles")
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             getStepper(outerCircle, defaultstepperOuter)
@@ -402,28 +402,28 @@ def stream_handler(message):
         path = "/circles/innerCircle/commands/moveNow"
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
-                "moveNow", None, "commands", innerCircle.name)
+                "moveNow", None, "commands", innerCircle.name,"circles")
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             checkCommandMoveNow(innerCircle)
         path = "/circles/outerCircle/commands/moveNow"
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
-                "moveNow", None, "commands", outerCircle.name)
+                "moveNow", None, "commands", outerCircle.name,"circles")
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             checkCommandMoveNow(outerCircle)
         path = "/circles/innerCircle/commands/setPocketsFull"
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
-                "setPocketsFull", None, "commands", innerCircle.name)
+                "setPocketsFull", None, "commands", innerCircle.name,"circles")
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             checkCommandsPockets(innerCircle)
         path = "/circles/outerCircle/commands/setPocketsFull"
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
-                "setPocketsFull", None, "commands", outerCircle.name)
+                "setPocketsFull", None, "commands", outerCircle.name,"circles")
             logging.info("firebase: " + path +
                          " has new value: " + str(newVal))
             checkCommandsPockets(outerCircle)
