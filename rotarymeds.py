@@ -356,8 +356,6 @@ def stream_handler(message):
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
                 "timezone", None, "settings")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             boxSettings.timezone = newVal
             firebaseConnection.setPing(boxSettings)
             getAndUpdateNextMoveFirebase(innerCircle)
@@ -366,66 +364,48 @@ def stream_handler(message):
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
                 "schedules", None, "settings", innerCircle.name,"circles")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             getSchedules()
             getAndUpdateNextMoveFirebase(innerCircle)
         path = "/circles/outerCircle/settings/schedules"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
                 "schedules", None, "settings", outerCircle.name,"circles")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             getSchedules()
             getAndUpdateNextMoveFirebase(outerCircle)
         path = "/circles/innerCircle/settings/stepper"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
                 "stepper", None, "settings", innerCircle.name,"circles")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             getStepper(innerCircle, defaultstepperInner)
         path = "/circles/outerCircle/settings/stepper"
         if message["path"].startswith(path):
             newVal = firebaseConnection.getFirebaseValue(
                 "stepper", None, "settings", outerCircle.name,"circles")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             getStepper(outerCircle, defaultstepperOuter)
         path = "/commands/setButtonLed"
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
                 "setButtonLed", None, "commands")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             checkCommandSetButtonLed()
         path = "/circles/innerCircle/commands/moveNow"
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
                 "moveNow", None, "commands", innerCircle.name,"circles")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             checkCommandMoveNow(innerCircle)
         path = "/circles/outerCircle/commands/moveNow"
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
                 "moveNow", None, "commands", outerCircle.name,"circles")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             checkCommandMoveNow(outerCircle)
         path = "/circles/innerCircle/commands/setPocketsFull"
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
                 "setPocketsFull", None, "commands", innerCircle.name,"circles")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             checkCommandsPockets(innerCircle)
         path = "/circles/outerCircle/commands/setPocketsFull"
         if message["path"] == path:
             newVal = firebaseConnection.getFirebaseValue(
                 "setPocketsFull", None, "commands", outerCircle.name,"circles")
-            logging.info("firebase: " + path +
-                         " has new value: " + str(newVal))
             checkCommandsPockets(outerCircle)
     except Exception as err:
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())

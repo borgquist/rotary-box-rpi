@@ -132,7 +132,15 @@ class FirebaseConnection:
         else:
             returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get().val()
         
-        logging.info("firebase setting [" + settingname + "] has value [" + str(returnVal) + "]")
+        logMessasge = settingname
+        if(parent is not None):
+            logMessasge = parent + "/" + logMessasge
+            if(grandparent is not None):
+                logMessasge = grandparent + "/" + logMessasge
+                if(greatgrandparent is not None):
+                    logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
+
+        logging.info("firebase setting [" + logMessasge + "] has value [" + str(returnVal) + "]")
         return returnVal
 
 
