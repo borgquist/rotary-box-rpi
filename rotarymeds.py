@@ -149,7 +149,7 @@ def getTimezone():
 
 def getStepper(circle: BoxCircle, defaultstepper):
     firebaseStepSettings = firebaseConnection.getFirebaseValue(
-        "stepper",  defaultstepper, "settings", circle.name)
+        "stepper",  defaultstepper, "settings", circle.name, "circles")
     circle.settings.stepper.afterTrigger = firebaseStepSettings["afterTrigger"]
     circle.settings.stepper.maxMove = firebaseStepSettings["maxMove"]
     circle.settings.stepper.minMove = firebaseStepSettings["minMove"]
