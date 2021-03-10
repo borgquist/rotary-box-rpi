@@ -320,24 +320,24 @@ def checkCommandSetButtonLed():
 
 def checkCommandMoveNow(circle: BoxCircle):
     newVal = firebaseConnection.getFirebaseValue(
-        "moveNow", False, "commands", circle.name)
+        "moveNow", False, "commands", circle.name, "circles")
     if(bool(newVal)):
         logging.info("moveNow true for " + str(circle))
         firebaseConnection.setFirebaseValue(
-            "moveNow", False, "commands", circle.name)
+            "moveNow", False, "commands", circle.name, "circles")
         move_stepper(circle)
 
 
 def checkCommandsPockets(circle: BoxCircle):
     newVal = firebaseConnection.getFirebaseValue(
-        "setPocketsFull", False, "commands", circle.name)
+        "setPocketsFull", False, "commands", circle.name, "circles")
     if(newVal != False):
         logging.info(
             circle.name + " setPocketsFull called to be updated to " + str(int(newVal)))
         firebaseConnection.setFirebaseValue(
-            "setPocketsFull", False, "commands", circle.name)
+            "setPocketsFull", False, "commands", circle.name, "circles")
         firebaseConnection.setFirebaseValue(
-            "pocketsFull", int(newVal), "state", circle.name)
+            "pocketsFull", int(newVal), "state", circle.name, "circles")
         circle.state.pocketsFull = int(newVal)
 
 
@@ -475,12 +475,12 @@ def getAndUpdateNextMoveFirebase(circle: BoxCircle):
     minutesToNextMove = DateTimeFunctions.getMinutesFromNow(nextMove, boxSettings.timezone)
     if(minutesToNextMove != circle.state.minutesToNextMove):
         firebaseConnection.setFirebaseValue(
-            "minutesToNextMove", minutesToNextMove, "state", circle.name)
+            "minutesToNextMove", minutesToNextMove, "state", circle.name, "circles")
         circle.state.minutesToNextMove = minutesToNextMove
 
     if(str(nextMove) != circle.state.nextMove):
         firebaseConnection.setFirebaseValue(
-            "nextMove", str(nextMove).strip(), "state", circle.name)
+            "nextMove", str(nextMove).strip(), "state", circle.name, "circles")
         circle.state.nextMove = nextMove
     return nextMove
 
