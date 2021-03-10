@@ -47,7 +47,7 @@ class FirebaseConnection:
     database = firebase.database()
 
 
-    def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None):
+    def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None, greatgrandparent = None):
         internetWasLost = False
         while(not haveInternet()):
             internetWasLost = True
@@ -64,8 +64,10 @@ class FirebaseConnection:
             currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
         elif(grandparent is None):
             currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
-        else:
+        elif(greatgrandparent is None):
             currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
+        else:
+            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).get()
 
         if(currentValue.val() == newValue):
             return # no need to update
@@ -75,8 +77,10 @@ class FirebaseConnection:
             self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
         elif(grandparent is None):
             self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).set(newValue)
-        else:
+        elif(greatgrandparent is None):
             self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).set(newValue)
+        else:
+            self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).set(newValue)
 
         
         logMessasge = settingname
@@ -84,6 +88,8 @@ class FirebaseConnection:
             logMessasge = parent + "/" + logMessasge
             if(grandparent is not None):
                 logMessasge = grandparent + "/" + logMessasge
+                if(greatgrandparent is not None):
+                    logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
         logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
     
     def setPing(self, boxSettings: BoxSettings):
@@ -101,21 +107,25 @@ class FirebaseConnection:
         logging.info("ping_seconds is: " + str(pingSeconds.val()))
         return str(pingSeconds.val())
 
-    def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None):
+    def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None, greatgrandparent = None):
         if(parent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
         elif(grandparent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
-        else:
+        elif(greatgrandparent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
+        else:
+            settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).get()
         
         if settingValue.val() is None:
             if defaultValue is None:
                 logging.warning("getFirebaseValue for [" + settingname + "] has no default value and no current value")
                 return None
-            self.setFirebaseValue(settingname, defaultValue, parent, grandparent)
+            self.setFirebaseValue(settingname, defaultValue, parent, grandparent, greatgrandparent)
         
-        if(grandparent is not None):
+        if(greatgrandparent is not None):
+            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).get().val()
+        elif(grandparent is not None):
             returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get().val()
         elif(parent is not None):
             returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get().val()
