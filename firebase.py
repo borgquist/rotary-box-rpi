@@ -57,26 +57,26 @@ class FirebaseConnection:
             logging.info("have internet connectivity")
 
         if(settingname == "timestamp"):
-            self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
+            self.database.child("boxes").child("box").child(self.cpuid).child(settingname).set(newValue)
             return
 
         if(parent is None):
-            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
+            currentValue = self.database.child("boxes").child("box").child(self.cpuid).child(settingname).get()
         elif(grandparent is None):
-            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
+            currentValue = self.database.child("boxes").child("box").child(self.cpuid).child(parent).child(settingname).get()
         else:
-            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
+            currentValue = self.database.child("boxes").child("box").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
 
         if(currentValue.val() == newValue):
             return # no need to update
 
             
         if(parent is None):
-            self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
+            self.database.child("boxes").child("box").child(self.cpuid).child(settingname).set(newValue)
         elif(grandparent is None):
-            self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).set(newValue)
+            self.database.child("boxes").child("box").child(self.cpuid).child(parent).child(settingname).set(newValue)
         else:
-            self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).set(newValue)
+            self.database.child("boxes").child("box").child(self.cpuid).child(grandparent).child(parent).child(settingname).set(newValue)
 
         
         logMessasge = settingname
@@ -103,11 +103,11 @@ class FirebaseConnection:
 
     def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None):
         if(parent is None):
-            settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
+            settingValue = self.database.child("boxes").child("box").child(self.cpuid).child(settingname).get()
         elif(grandparent is None):
-            settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
+            settingValue = self.database.child("boxes").child("box").child(self.cpuid).child(parent).child(settingname).get()
         else:
-            settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
+            settingValue = self.database.child("boxes").child("box").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
         
         if settingValue.val() is None:
             if defaultValue is None:
@@ -116,11 +116,11 @@ class FirebaseConnection:
             self.setFirebaseValue(settingname, defaultValue, parent, grandparent)
         
         if(grandparent is not None):
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get().val()
+            returnVal = self.database.child("boxes").child("box").child(self.cpuid).child(grandparent).child(parent).child(settingname).get().val()
         elif(parent is not None):
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get().val()
+            returnVal = self.database.child("boxes").child("box").child(self.cpuid).child(parent).child(settingname).get().val()
         else:
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get().val()
+            returnVal = self.database.child("boxes").child("box").child(self.cpuid).child(settingname).get().val()
         
         logging.info("firebase setting [" + settingname + "] has value [" + str(returnVal) + "]")
         return returnVal
