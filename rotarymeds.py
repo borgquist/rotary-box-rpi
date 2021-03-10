@@ -505,12 +505,13 @@ def thread_move(circle: BoxCircle):
                         lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                         move_stepper(circle)
         except requests.exceptions.HTTPError as e:
+            logging.error("requests.exceptions.HTTPError: [" + str(e) +"]")
             response = e.args[0].response
             error = response.json()['error']
-            logging.error("HTTPError: " + str(response) + "error: " + str(error))
+            logging.error("more details: [" + str(response) + "] the error: [" + str(error) + "]")
                     
         except Exception as err:
-            logging.error("exception: " + str(err) + "trace: " + traceback.format_exc())
+            logging.error("exception: [p]" + str(err) + "] the trace: [" + traceback.format_exc() + "]")
         time.sleep(5)
     logging.info("thread_move" + circle.name + "    :   exiting")
 
