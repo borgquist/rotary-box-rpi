@@ -311,9 +311,9 @@ def checkCommandSetButtonLed():
         return
     logging.info(
         "firebase: setButtonLed has new value: " + str(newVal))
-    if(newVal == "on"):
+    if(newVal[:2] == "on"):
         setButtonLedOn(True)
-    if(newVal == "off"):
+    if(newVal[:3] == "off"):
         setButtonLedOn(False)
     firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
 
@@ -584,7 +584,7 @@ def setupStreamToFirebase():
         if(my_stream != ""):
             my_stream.close()
     except Exception as err:
-        logging.info("tried to close the stream but failed" + str(err) + " trace: " + traceback.format_exc())
+        logging.info("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
 
     logging.info("setting up the stream to firebase")
     my_stream = firebaseConnection.database.child("box").child(
