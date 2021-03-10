@@ -462,6 +462,12 @@ def thread_time(name):
             if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
                 firebaseConnection.setPing(boxSettings)
                 lastTimeStampUpdate = timestampNow
+        except requests.exceptions.HTTPError as e:
+            logging.error("requests.exceptions.HTTPError: [" + str(e) +"]")
+            response = e.args[0].response
+            error = response.json()['error']
+            logging.error("more details: [" + str(response) + "] the error: [" + str(error) + "]")
+      
         except Exception as err:
             logging.error("exception " + traceback.format_exc())
     logging.info("thread_time    : exiting")
