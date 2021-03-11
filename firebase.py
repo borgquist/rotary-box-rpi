@@ -1,5 +1,5 @@
 from datetimefunctions import DateTimeFunctions
-import pyrebase
+import pyrebase as pyrebase
 import json
 import logging
 import time
@@ -42,7 +42,7 @@ class FirebaseConnection:
         "storageBucket": storageBucket
     }
 
-
+    logging.info("pyrebase version is " + str(pyrebase.__version__))
     firebase = pyrebase.initialize_app(config)
     database = firebase.database()
 
@@ -55,6 +55,8 @@ class FirebaseConnection:
             time.sleep(1)
         if(internetWasLost):
             logging.info("have internet connectivity")
+
+    
 
         if(settingname == "timestamp"):
             self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
@@ -72,7 +74,15 @@ class FirebaseConnection:
         if(currentValue.val() == newValue):
             return # no need to update
 
-            
+        logMessasge = settingname
+        if(parent is not None):
+            logMessasge = parent + "/" + logMessasge
+            if(grandparent is not None):
+                logMessasge = grandparent + "/" + logMessasge
+                if(greatgrandparent is not None):
+                    logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
+        logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
+
         if(parent is None):
             self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
         elif(grandparent is None):
@@ -83,14 +93,7 @@ class FirebaseConnection:
             self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).set(newValue)
 
         
-        logMessasge = settingname
-        if(parent is not None):
-            logMessasge = parent + "/" + logMessasge
-            if(grandparent is not None):
-                logMessasge = grandparent + "/" + logMessasge
-                if(greatgrandparent is not None):
-                    logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
-        logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
+        
     
     def setPing(self, boxSettings: BoxSettings):
         self.database.child("box").child("timestamp").child(self.cpuid).child("epoch").set(time.time())
