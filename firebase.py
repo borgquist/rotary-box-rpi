@@ -1,5 +1,5 @@
 from datetimefunctions import DateTimeFunctions
-import pyrebase as pyrebase
+import pyrebase
 import json
 import logging
 import time
@@ -42,7 +42,7 @@ class FirebaseConnection:
         "storageBucket": storageBucket
     }
 
-    logging.info("pyrebase version is " + str(pyrebase.__version__))
+    
     firebase = pyrebase.initialize_app(config)
     database = firebase.database()
 
