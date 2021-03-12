@@ -112,7 +112,7 @@ logging.info("Done creating FirebaseConnection")
 defaultstepperInner = {"minMove": 2000, "maxMove": 2500,
                        "afterTrigger": 1360, "chanList": chanListInner}
 defaultstepperOuter = {"minMove": 2100, "maxMove": 2900,
-                       "afterTrigger": 1640, "chanList": chanListOuter}
+                       "afterTrigger": 1460, "chanList": chanListOuter}
 defaultLatestMove = {
     "totalSteps": 0,
     "irTriggered": False,
