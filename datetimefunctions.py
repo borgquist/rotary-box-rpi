@@ -55,6 +55,11 @@ class DateTimeFunctions:
         return comparisonDateTime
 
     @staticmethod
+    def getEpochFromDateTimePytz(datetoconvert: datetime):
+        utc_dt = datetime.utcfromtimestamp(datetoconvert).replace(tzinfo=pytz.utc)
+        return utc_dt.timestamp()
+
+    @staticmethod
     def getTodayNormalizedDateTime(hour: int, minute: int, timezone: str) -> datetime.datetime:
         todaysDateNormalized = DateTimeFunctions.getDateTimeNowNormalized(timezone)
         
