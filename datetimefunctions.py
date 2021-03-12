@@ -56,7 +56,7 @@ class DateTimeFunctions:
 
     @staticmethod
     def getEpochFromDateTimePytz(datetoconvert: datetime):
-        utc_dt = datetime.datetime.utcfromtimestamp(datetoconvert).replace(tzinfo=pytz.utc)
+        utc_dt = datetoconvert.replace(tzinfo=pytz.utc)
         return utc_dt.timestamp()
 
     @staticmethod
