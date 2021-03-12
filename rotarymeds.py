@@ -452,18 +452,21 @@ def thread_time(name):
 
 def getAndUpdateNextMoveFirebase(circle: BoxCircle):
     nextMove = getNextMove(circle.settings.schedules)
-    #nextMoveInEpoch = DateTimeFunctions.getEpochFromDateTimePytz(nextMove)
-    logging.info("epoch nextMove is " + str(nextMove.timestamp())) 
-    minutesToNextMove = DateTimeFunctions.getMinutesFromNow(nextMove, boxSettings.timezone)
-    if(minutesToNextMove != circle.state.minutesToNextMove):
-        firebaseConnection.setFirebaseValue(
-            "minutesToNextMove", minutesToNextMove, "state", circle.name, "circles")
-        circle.state.minutesToNextMove = minutesToNextMove
+    nextMoveInEpoch = DateTimeFunctions.getEpochFromDateTimePytz(nextMove)
+    logging.info("epoch nextMove is " + str(nextMoveInEpoch)) 
+    # minutesToNextMove = DateTimeFunctions.getMinutesFromNow(nextMove, boxSettings.timezone)
+    # if(minutesToNextMove != circle.state.minutesToNextMove):
+    #     firebaseConnection.setFirebaseValue(
+    #         "minutesToNextMove", minutesToNextMove, "state", circle.name, "circles")
+    #     circle.state.minutesToNextMove = minutesToNextMove
 
     if(str(nextMove) != circle.state.nextMove):
         firebaseConnection.setFirebaseValue(
             "nextMove", str(nextMove).strip(), "state", circle.name, "circles")
-        circle.state.nextMove = nextMove
+    if(str(nextMoveInEpoch) != circle.state.nextMoveInEpoch):
+        firebaseConnection.setFirebaseValue(
+            "nextMoveInEpoch", str(nextMoveInEpoch).strip(), "state", circle.name, "circles")
+        circle.state.nextMoveInEpoch = nextMoveInEpoch
     return nextMove
 
 def thread_move(circle: BoxCircle):
