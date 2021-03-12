@@ -458,9 +458,9 @@ def getAndUpdateNextMoveFirebase(circle: BoxCircle):
     if(str(nextMove) != circle.state.nextMove):
         firebaseConnection.setFirebaseValue(
             "nextMove", str(nextMove).strip(), "state", circle.name, "circles")
-    if(str(nextMoveInEpoch) != circle.state.nextMoveInEpoch):
+    if(str(nextMoveInEpoch) != str(circle.state.nextMoveInEpoch)):
         firebaseConnection.setFirebaseValue(
-            "nextMoveInEpoch", nextMoveInEpoch, "state", circle.name, "circles")
+            "nextMoveInEpoch", float(nextMoveInEpoch), "state", circle.name, "circles")
         circle.state.nextMoveInEpoch = nextMoveInEpoch
     return nextMove
 
