@@ -452,20 +452,15 @@ def thread_time(name):
 
 def getAndUpdateNextMoveFirebase(circle: BoxCircle):
     nextMove = getNextMove(circle.settings.schedules)
-    nextMoveInEpoch = DateTimeFunctions.getEpochFromDateTimePytz(nextMove)
+    nextMoveInEpoch = nextMove.timestamp()
     logging.info("epoch nextMove is " + str(nextMoveInEpoch)) 
-    # minutesToNextMove = DateTimeFunctions.getMinutesFromNow(nextMove, boxSettings.timezone)
-    # if(minutesToNextMove != circle.state.minutesToNextMove):
-    #     firebaseConnection.setFirebaseValue(
-    #         "minutesToNextMove", minutesToNextMove, "state", circle.name, "circles")
-    #     circle.state.minutesToNextMove = minutesToNextMove
 
     if(str(nextMove) != circle.state.nextMove):
         firebaseConnection.setFirebaseValue(
             "nextMove", str(nextMove).strip(), "state", circle.name, "circles")
     if(str(nextMoveInEpoch) != circle.state.nextMoveInEpoch):
         firebaseConnection.setFirebaseValue(
-            "nextMoveInEpoch", str(nextMoveInEpoch).strip(), "state", circle.name, "circles")
+            "nextMoveInEpoch", nextMoveInEpoch, "state", circle.name, "circles")
         circle.state.nextMoveInEpoch = nextMoveInEpoch
     return nextMove
 
@@ -474,9 +469,6 @@ def thread_move(circle: BoxCircle):
     
     while not exitapp:
         try:
-
-            
-            
             internetCheck("thread_move_" + circle.name)
             
             nextMove = getAndUpdateNextMoveFirebase(circle)
