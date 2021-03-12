@@ -111,6 +111,15 @@ class FirebaseConnection:
         return str(pingSeconds.val())
 
     def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None, greatgrandparent = None):
+        logMessasge = settingname
+        if(parent is not None):
+            logMessasge = parent + "/" + logMessasge
+            if(grandparent is not None):
+                logMessasge = grandparent + "/" + logMessasge
+                if(greatgrandparent is not None):
+                    logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
+        logging.info("firebase getting value for [" + logMessasge + "]")
+        
         if(parent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
         elif(grandparent is None):
