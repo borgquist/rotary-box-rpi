@@ -32,10 +32,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 file_handler = logging.FileHandler(folderPath + "logs/podq.log")
 file_handler.setLevel(logging.INFO)
+
+fmt = '%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s'
+date_fmt = '%a %d %b %Y %H:%M:%S'
+formatter = logging.Formatter(fmt, date_fmt)
+
+file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 logger.info("Starting podq with rotarymeds.py")
-logger.warning("Starting podq with rotarymeds.py")
 
 boxState = BoxState()
 boxSettings = BoxSettings()
