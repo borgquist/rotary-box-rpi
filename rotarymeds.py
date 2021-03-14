@@ -24,13 +24,8 @@ os.makedirs(folderPath + "logs/", exist_ok=True)
 
 logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
                     datefmt='%Y-%m-%d:%H:%M:%S',
-                    level=logging.INFO,
-                    handlers=[
-                        logging.FileHandler(
-                            folderPath + "logs/rotarymeds.log"),
-                        logging.StreamHandler()
-                    ])
-logging.info("Starting rotarymeds.py")
+                    level=logging.INFO
+                    )
 
 requests_logger = logging.getLogger('urllib3')
 requests_logger.setLevel(logging.ERROR)
@@ -41,13 +36,10 @@ handler.setLevel(logging.INFO)
 file_handler = logging.FileHandler(folderPath + "logs/rotarymeds.log")
 file_handler.setLevel(logging.INFO)
 
-# formater = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# handler.setFormatter('%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
-# file_handler.setFormatter('%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
-
 logger.addHandler(handler)
 logger.addHandler(file_handler)
 
+logging.info("Starting rotarymeds.py")
 logger.info("fred test")
 
 boxState = BoxState()
