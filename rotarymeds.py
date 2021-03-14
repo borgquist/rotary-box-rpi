@@ -42,6 +42,7 @@ logger.addHandler(handler)
 logger.addHandler(file_handler)
 
 logger.info("Starting podq with rotarymeds.py")
+logger.warning("Starting podq with rotarymeds.py")
 
 boxState = BoxState()
 boxSettings = BoxSettings()
