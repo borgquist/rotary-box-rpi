@@ -22,7 +22,7 @@ from requests_toolbelt.adapters import appengine
 import python_jwt as jwt
 from Crypto.PublicKey import RSA
 import datetime
-
+import logging
 
 def initialize_app(config):
     return Firebase(config)
@@ -527,7 +527,11 @@ class ClosableSSEClient(SSEClient):
         self.should_connect = False
         self.retry = 0
         self.resp.raw._fp.fp.raw._sock.shutdown(socket.SHUT_RDWR)
-        self.resp.raw._fp.fp.raw._sock.close()
+        try:
+            self.resp.raw._fp.fp.raw._sock.close()
+        except Exception as err:
+            podqlogger = logging.getLogger('podq')
+            podqlogger.warning("tried to close the stream but failed " + str(err))
 
 
 class Stream:
