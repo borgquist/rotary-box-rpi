@@ -573,7 +573,7 @@ def setupStreamToFirebase():
         if(my_stream != ""):
             my_stream.close()
     except Exception as err:
-        logger.info("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
+        logger.warning("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
 
     logger.info("setting up the stream to firebase")
     my_stream = firebaseConnection.database.child("box").child(

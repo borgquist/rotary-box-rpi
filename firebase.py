@@ -122,7 +122,6 @@ class FirebaseConnection:
                 logMessasge = grandparent + "/" + logMessasge
                 if(greatgrandparent is not None):
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
-        logger.info("firebase getting value for [" + logMessasge + "]")
         
         if(parent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
@@ -137,27 +136,12 @@ class FirebaseConnection:
             if defaultValue is None:
                 logger.warning("getFirebaseValue for [" + settingname + "] has no default value and no current value")
                 return None
+            logger.info("firebase value was none, updating it to defaultValue [" + str(defaultValue) + "] for [" + logMessasge + "]")
             self.setFirebaseValue(settingname, defaultValue, parent, grandparent, greatgrandparent)
-        
-        if(greatgrandparent is not None):
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).get().val()
-        elif(grandparent is not None):
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get().val()
-        elif(parent is not None):
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get().val()
-        else:
-            returnVal = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get().val()
-        
-        logMessasge = settingname
-        if(parent is not None):
-            logMessasge = parent + "/" + logMessasge
-            if(grandparent is not None):
-                logMessasge = grandparent + "/" + logMessasge
-                if(greatgrandparent is not None):
-                    logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
+            return defaultValue
 
-        logger.info("firebase setting [" + logMessasge + "] has value [" + str(returnVal) + "]")
-        return returnVal
+        logger.info("firebase setting [" + logMessasge + "] has value [" + str(settingValue) + "]")
+        return settingValue
 
 
     def getBoxLatestVersion(self):
