@@ -365,6 +365,7 @@ def checkCommandsNodes():
 
 
 def stream_handler(message):
+    logger.info("stream_handler called with message " + str(message))
     try:
         path = "/settings/timezone"
         if message["path"] == path:
