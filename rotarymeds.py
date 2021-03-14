@@ -24,10 +24,8 @@ os.makedirs(folderPath + "logs/", exist_ok=True)
 
 logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
                     datefmt='%Y-%m-%d:%H:%M:%S',
-                    level=logging.INFO
+                    level=logging.WARNING
                     )
-
-
 
 
 logger = logging.getLogger(__name__)
@@ -38,9 +36,6 @@ file_handler.setLevel(logging.INFO)
 
 logger.addHandler(handler)
 logger.addHandler(file_handler)
-
-base_logger = logging.getLogger()
-base_logger.setLevel(logging.WARNING)
 
 logger.info("Starting podq with rotarymeds.py")
 logger.warning("Starting podq with rotarymeds.py")
