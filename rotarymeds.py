@@ -28,8 +28,6 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
                     )
 
 
-base_logger = logging.getLogger()
-base_logger.setLevel(logging.WARNING)
 
 
 logger = logging.getLogger(__name__)
@@ -40,6 +38,9 @@ file_handler.setLevel(logging.INFO)
 
 logger.addHandler(handler)
 logger.addHandler(file_handler)
+
+base_logger = logging.getLogger()
+base_logger.setLevel(logging.WARNING)
 
 logger.info("Starting podq with rotarymeds.py")
 logger.warning("Starting podq with rotarymeds.py")
