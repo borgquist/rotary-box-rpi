@@ -32,9 +32,9 @@ requests_logger.setLevel(logging.ERROR)
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
-handler.setLevel(logger.info)
+handler.setLevel(logging.INFO)
 file_handler = logging.FileHandler(folderPath + "logs/podq.log")
-file_handler.setLevel(logger.info)
+file_handler.setLevel(logging.INFO)
 
 logger.addHandler(handler)
 logger.addHandler(file_handler)
