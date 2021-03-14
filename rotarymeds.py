@@ -24,15 +24,13 @@ os.makedirs(folderPath + "logs/", exist_ok=True)
 
 logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
                     datefmt='%Y-%m-%d:%H:%M:%S',
-                    level=logging.WARNING
+                    level=logging.INFO
                     )
 
-requests_logger = logging.getLogger('urllib3')
-requests_logger.setLevel(logging.ERROR)
-requests_logger = logging.getLogger('connectionpool')
-requests_logger.setLevel(logging.ERROR)
-requests_logger = logging.getLogger('connectionpool.py')
-requests_logger.setLevel(logging.ERROR)
+
+base_logger = logging.getLogger()
+base_logger.setLevel(logging.WARNING)
+
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
