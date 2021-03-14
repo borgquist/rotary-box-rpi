@@ -140,8 +140,8 @@ class FirebaseConnection:
             self.setFirebaseValue(settingname, defaultValue, parent, grandparent, greatgrandparent)
             return defaultValue
 
-        logger.info("firebase setting [" + logMessasge + "] has value [" + str(settingValue) + "]")
-        return settingValue
+        logger.info("firebase setting [" + logMessasge + "] has value [" + str(settingValue.val()) + "]")
+        return settingValue.val()
 
 
     def getBoxLatestVersion(self):
