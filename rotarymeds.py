@@ -1,3 +1,4 @@
+from pyrebase import Stream
 from boxsettings import BoxSettings
 from stepper import Stepper
 from boxstate import BoxState
@@ -564,7 +565,7 @@ def thread_ir_sensor(name):
     logger.info("thread_ir_sensor    : exiting")
 
 
-my_stream = ""
+my_stream: Stream 
 
 settingUpFirebaseStream = False
 def setupStreamToFirebase():
@@ -572,7 +573,7 @@ def setupStreamToFirebase():
     settingUpFirebaseStream = True
     global my_stream
     try:
-        if(my_stream != ""):
+        if(my_stream is not None):
             my_stream.close()
     except Exception as err:
         logger.warning("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
@@ -650,7 +651,6 @@ if __name__ == '__main__':
         setButtonLedOn(False)
         exitapp = True
         GPIO.cleanup()
-        logging
         my_stream.close()
         # give the threads time to shut down before removing GPIO
         time.sleep(1)
