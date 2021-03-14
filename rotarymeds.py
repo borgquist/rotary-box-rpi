@@ -24,7 +24,7 @@ os.makedirs(folderPath + "logs/", exist_ok=True)
 
 logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
                     datefmt='%Y-%m-%d:%H:%M:%S',
-                    level=logging.INFO
+                    level=logger.info
                     )
 
 requests_logger = logging.getLogger('urllib3')
@@ -32,15 +32,14 @@ requests_logger.setLevel(logging.ERROR)
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
-handler.setLevel(logging.INFO)
-file_handler = logging.FileHandler(folderPath + "logs/rotarymeds.log")
-file_handler.setLevel(logging.INFO)
+handler.setLevel(logger.info)
+file_handler = logging.FileHandler(folderPath + "logs/podq.log")
+file_handler.setLevel(logger.info)
 
 logger.addHandler(handler)
 logger.addHandler(file_handler)
 
-logging.info("Starting rotarymeds.py")
-logger.info("fred test")
+logger.info("Starting podq with rotarymeds.py")
 
 boxState = BoxState()
 boxSettings = BoxSettings()
@@ -69,7 +68,7 @@ chanListOuter = [stepper_outer_in1, stepper_outer_in2,
 
 led_pin = pinConfigToBeLoaded['led_pin']
 boxState.version = "1.0.24"
-logging.info("version is " + boxState.version)
+logger.info("podq version is " + boxState.version)
 
 
 def getserial():
@@ -87,7 +86,7 @@ def getserial():
 
 
 boxState.cpuId = getserial()
-logging.info("CPU serial is [" + str(boxState.cpuId) + "]")
+logger.info("CPU serial is [" + str(boxState.cpuId) + "]")
 
 innerCircle = BoxCircle("innerCircle", boxState.cpuId)
 outerCircle = BoxCircle("outerCircle", boxState.cpuId)
@@ -104,20 +103,20 @@ def haveInternet():
     return True
 
 
-logging.info("checking internet connectivity")
+logger.info("checking internet connectivity")
 while(not haveInternet()):
-    logging.info("internet is not available, sleeping 1 second")
+    logger.info("internet is not available, sleeping 1 second")
     time.sleep(1)
-logging.info("have internet connectivity")
+logger.info("have internet connectivity")
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect((googleHostForInternetCheck, 0))
 boxState.ipAddress = s.getsockname()[0]
 boxState.hostname = socket.gethostname()
 
-logging.info("Creating FirebaseConnection")
+logger.info("Creating FirebaseConnection")
 firebaseConnection = FirebaseConnection(str(boxState.cpuId))
-logging.info("Done creating FirebaseConnection")
+logger.info("Done creating FirebaseConnection")
 
 defaultstepperInner = {"minMove": 2000, "maxMove": 2500,
                        "afterTrigger": 1360, "chanList": chanListInner}
@@ -209,7 +208,7 @@ moveIsBeingDone = False
 def move_stepper(circle: BoxCircle):
     global moveIsBeingDone
     while (moveIsBeingDone):
-        logging.info(circle.name + " : waiting for other move to be done")
+        logger.info(circle.name + " : waiting for other move to be done")
         time.sleep(1)
     moveIsBeingDone = True
     move(circle)
@@ -236,7 +235,7 @@ irTriggered = False
 
 
 def move(circle: BoxCircle):
-    logging.info("move called for " + str(circle))
+    logger.info("move called for " + str(circle))
     global irTriggered, stepsDoneWhenIRtrigger, arr1, arr2
     stepsDone = 0
     holdBothMotors()
@@ -271,7 +270,7 @@ def move(circle: BoxCircle):
         "timestamp": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt),
         "timestampEpoch": time.time(),
     }
-    logging.info("move complete    : " + circle.name + str(latestMove))
+    logger.info("move complete    : " + circle.name + str(latestMove))
     circle.state.latestMove = latestMove
     firebaseConnection.setFirebaseValue(
         "latestMove", latestMove, "state", circle.name, "circles")
@@ -285,13 +284,13 @@ boxState.buttonLedOn = True
 
 def setButtonLedOn(setToOn):
     if(setToOn):
-        logging.info("setButtonLedOn    : turning ON the buttonLed")
+        logger.info("setButtonLedOn    : turning ON the buttonLed")
         boxState.buttonLedOn = True
         GPIO.output(button_led_pin, GPIO.HIGH)
         GPIO.output(led_pin, GPIO.HIGH)
         firebaseConnection.setFirebaseValue("buttonLedOn", True, "state")
     else:
-        logging.info("setButtonLedOn    : turning OFF the buttonLed")
+        logger.info("setButtonLedOn    : turning OFF the buttonLed")
         boxState.buttonLedOn = False
         GPIO.output(button_led_pin, GPIO.LOW)
         GPIO.output(led_pin, GPIO.LOW)
@@ -319,7 +318,7 @@ def checkCommandSetButtonLed():
         "setButtonLed", False, "commands")
     if(bool(newVal) is False):
         return
-    logging.info(
+    logger.info(
         "firebase: setButtonLed has new value: " + str(newVal))
     if(newVal[:2] == "on"):
         setButtonLedOn(True)
@@ -332,7 +331,7 @@ def checkCommandMoveNow(circle: BoxCircle):
     newVal = firebaseConnection.getFirebaseValue(
         "moveNow", False, "commands", circle.name, "circles")
     if(bool(newVal)):
-        logging.info("moveNow true for " + str(circle))
+        logger.info("moveNow true for " + str(circle))
         firebaseConnection.setFirebaseValue(
             "moveNow", False, "commands", circle.name, "circles")
         move_stepper(circle)
@@ -342,7 +341,7 @@ def checkCommandsPockets(circle: BoxCircle):
     newVal = firebaseConnection.getFirebaseValue(
         "setPocketsFull", False, "commands", circle.name, "circles")
     if(newVal != False):
-        logging.info(
+        logger.info(
             circle.name + " setPocketsFull called to be updated to " + str(int(newVal)))
         firebaseConnection.setFirebaseValue(
             "setPocketsFull", False, "commands", circle.name, "circles")
@@ -352,7 +351,7 @@ def checkCommandsPockets(circle: BoxCircle):
 
 
 def checkCommandsNodes():
-    logging.info("checkCommandsNodes called")
+    logger.info("checkCommandsNodes called")
     checkCommandSetButtonLed()
     checkCommandMoveNow(innerCircle)
     checkCommandMoveNow(outerCircle)
@@ -427,11 +426,11 @@ def internetCheck(callingMethodName: str):
     skipFirebaseStreamSetup = False
     while(not haveInternet()):
         internetWasLost = True
-        logging.info("internet is not available for [" + callingMethodName + "], sleeping")
+        logger.info("internet is not available for [" + callingMethodName + "], sleeping")
         time.sleep(1)
     
     if(settingUpFirebaseStream):
-        logging.info("other method is already doing setupStreamToFirebase so [" + callingMethodName + "], will return without calling it. Sleeping for now")
+        logger.info("other method is already doing setupStreamToFirebase so [" + callingMethodName + "], will return without calling it. Sleeping for now")
         skipFirebaseStreamSetup = True
         time.sleep(1)
 
@@ -439,7 +438,7 @@ def internetCheck(callingMethodName: str):
         return
 
     if(internetWasLost):
-        logging.info(
+        logger.info(
             "internet is back for [" + callingMethodName + "], resetting the stream to firebase")
         setupStreamToFirebase()
 
@@ -458,7 +457,7 @@ def thread_time(name):
         
         except Exception as err:
             logging.error("exception " + str(err) + " trace :" + traceback.format_exc())
-    logging.info("thread_time    : exiting")
+    logger.info("thread_time    : exiting")
 
 def getAndUpdateNextMoveFirebase(circle: BoxCircle):
     nextMove = getNextMove(circle.settings.schedules)
@@ -485,11 +484,11 @@ def thread_move(circle: BoxCircle):
                 now = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                 secondsBetween = abs((now-nextMove).total_seconds())
                 if(abs((now-lastMove).total_seconds()) < 60):
-                    logging.info("thread_move" + circle.name +
+                    logger.info("thread_move" + circle.name +
                                  "    :  moved in the last minute, ignoring")
                 else:
                     if(secondsBetween < 20):
-                        logging.info("thread_move" + circle.name +
+                        logger.info("thread_move" + circle.name +
                                      "    :  it's time to move!")
                         lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                         move_stepper(circle)
@@ -500,7 +499,7 @@ def thread_move(circle: BoxCircle):
         except Exception as err:
             logging.error("exception: [" + str(err) + "] the trace: [" + traceback.format_exc() + "]")
         time.sleep(5)
-    logging.info("thread_move" + circle.name + "    :   exiting")
+    logger.info("thread_move" + circle.name + "    :   exiting")
 
 
 def thread_move_inner(name):
@@ -520,7 +519,7 @@ def thread_button(name):
                 timestampNow = time.time()
 
                 if(timeButtonNotPressed > timeButtonPressMostRecent):
-                    logging.info(
+                    logger.info(
                         "thread_button    : button_pushed_pin button was pushed!")
                     if(boxState.buttonLedOn):
                         setButtonLedOn(False)
@@ -533,7 +532,7 @@ def thread_button(name):
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
 
-    logging.info("thread_button    : exiting")
+    logger.info("thread_button    : exiting")
 
 
 def thread_ir_sensor(name):
@@ -550,12 +549,12 @@ def thread_ir_sensor(name):
 
                 if(lastWhite > lastBlack):  # just turned white
                     irTriggered = True
-                    logging.info("thread_ir_sensor    : irTriggered")
+                    logger.info("thread_ir_sensor    : irTriggered")
             time.sleep(0.05)
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
 
-    logging.info("thread_ir_sensor    : exiting")
+    logger.info("thread_ir_sensor    : exiting")
 
 
 my_stream = ""
@@ -569,12 +568,12 @@ def setupStreamToFirebase():
         if(my_stream != ""):
             my_stream.close()
     except Exception as err:
-        logging.info("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
+        logger.info("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
 
-    logging.info("setting up the stream to firebase")
+    logger.info("setting up the stream to firebase")
     my_stream = firebaseConnection.database.child("box").child(
         "boxes").child(boxState.cpuId).stream(stream_handler)
-    logging.info("done setting up the stream to firebase")
+    logger.info("done setting up the stream to firebase")
     settingUpFirebaseStream = False
     checkCommandsNodes()
     
@@ -613,7 +612,7 @@ if __name__ == '__main__':
                 logging.warning(
                     "our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
         else:
-            logging.info(
+            logger.info(
                 "OK our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
 
         buttonThread = threading.Thread(target=thread_button, args=(1,))
@@ -636,11 +635,11 @@ if __name__ == '__main__':
             time.sleep(10)
 
     except KeyboardInterrupt:  # If CTRL+C is pressed, exit cleanly:
-        logging.info("Keyboard interrupt")
+        logger.info("Keyboard interrupt")
     except Exception as err:
         logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
     finally:
-        logging.info("Main    : cleaning up the GPIO and exiting")
+        logger.info("Main    : cleaning up the GPIO and exiting")
         setButtonLedOn(False)
         exitapp = True
         GPIO.cleanup()
@@ -648,5 +647,5 @@ if __name__ == '__main__':
         my_stream.close()
         # give the threads time to shut down before removing GPIO
         time.sleep(1)
-        logging.info("Main    : Shutdown complete")
-    logging.info("Main    : Goodbye!")
+        logger.info("Main    : Shutdown complete")
+    logger.info("Main    : Goodbye!")
