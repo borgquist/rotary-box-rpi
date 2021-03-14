@@ -6,6 +6,15 @@ import time
 import subprocess
 from boxsettings import BoxSettings
 
+
+folderPath = '/home/pi/'
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler(folderPath + "logs/podq.log")
+file_handler.setLevel(logging.INFO)
+logger.addHandler(file_handler)
+
+
 googleHostForInternetCheck = "8.8.8.8"
 
 
@@ -51,10 +60,10 @@ class FirebaseConnection:
         internetWasLost = False
         while(not haveInternet()):
             internetWasLost = True
-            logging.info("internet is not available, sleeping 1 second")
+            logger.info("internet is not available, sleeping 1 second")
             time.sleep(1)
         if(internetWasLost):
-            logging.info("have internet connectivity")
+            logger.info("have internet connectivity")
 
     
 
@@ -81,7 +90,7 @@ class FirebaseConnection:
                 logMessasge = grandparent + "/" + logMessasge
                 if(greatgrandparent is not None):
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
-        logging.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
+        logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
 
         if(parent is None):
             self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
@@ -107,7 +116,7 @@ class FirebaseConnection:
         if pingSeconds.val() is None:
             logging.warning("couldn't get ping_seconds")
             return 600
-        logging.info("ping_seconds is: " + str(pingSeconds.val()))
+        logger.info("ping_seconds is: " + str(pingSeconds.val()))
         return str(pingSeconds.val())
 
     def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None, greatgrandparent = None):
@@ -118,7 +127,7 @@ class FirebaseConnection:
                 logMessasge = grandparent + "/" + logMessasge
                 if(greatgrandparent is not None):
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
-        logging.info("firebase getting value for [" + logMessasge + "]")
+        logger.info("firebase getting value for [" + logMessasge + "]")
         
         if(parent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
@@ -131,7 +140,7 @@ class FirebaseConnection:
         
         if settingValue.val() is None:
             if defaultValue is None:
-                logging.warning("getFirebaseValue for [" + settingname + "] has no default value and no current value")
+                logger.warning("getFirebaseValue for [" + settingname + "] has no default value and no current value")
                 return None
             self.setFirebaseValue(settingname, defaultValue, parent, grandparent, greatgrandparent)
         
@@ -152,15 +161,15 @@ class FirebaseConnection:
                 if(greatgrandparent is not None):
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
 
-        logging.info("firebase setting [" + logMessasge + "] has value [" + str(returnVal) + "]")
+        logger.info("firebase setting [" + logMessasge + "] has value [" + str(returnVal) + "]")
         return returnVal
 
 
     def getBoxLatestVersion(self):
         latestVersion = self.database.child("box").child("latest_version").get()
         if latestVersion.val() is None:
-            logging.warning("couldn't get latest_version")
+            logger.warning("couldn't get latest_version")
             return "unknown"
 
-        logging.info("latest_version is: " + str(latestVersion.val()))
+        logger.info("latest_version is: " + str(latestVersion.val()))
         return str(latestVersion.val())

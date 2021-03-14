@@ -30,12 +30,8 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = logging.StreamHandler()
-handler.setLevel(logging.INFO)
 file_handler = logging.FileHandler(folderPath + "logs/podq.log")
 file_handler.setLevel(logging.INFO)
-
-logger.addHandler(handler)
 logger.addHandler(file_handler)
 
 logger.info("Starting podq with rotarymeds.py")
@@ -70,6 +66,8 @@ led_pin = pinConfigToBeLoaded['led_pin']
 boxState.version = "1.0.24"
 logger.info("podq version is " + boxState.version)
 
+loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+logger.info("loggers are " + str(loggers))
 
 def getserial():
     cpuserial = "123456789123456789"
