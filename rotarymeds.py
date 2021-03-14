@@ -30,7 +30,7 @@ logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:
 connectionpool_logger = logging.getLogger("requests.packages.urllib3.connectionpool")
 connectionpool_logger.setLevel(logging.WARNING)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('podq')
 logger.setLevel(logging.INFO)
 file_handler = logging.FileHandler(folderPath + "logs/podq.log")
 file_handler.setLevel(logging.INFO)

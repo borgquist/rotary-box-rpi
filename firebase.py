@@ -7,12 +7,7 @@ import subprocess
 from boxsettings import BoxSettings
 
 
-folderPath = '/home/pi/'
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-file_handler = logging.FileHandler(folderPath + "logs/podq.log")
-file_handler.setLevel(logging.INFO)
-logger.addHandler(file_handler)
+logger = logging.getLogger('podq')
 
 
 googleHostForInternetCheck = "8.8.8.8"
