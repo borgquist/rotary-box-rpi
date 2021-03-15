@@ -80,7 +80,7 @@ class FirebaseConnection:
         
         currentValue2 = self.getFirebaseValue(settingname, None, parent, grandparent, greatgrandparent)
         if(currentValue != currentValue2):
-            logger.warning("it doesn't seem to work currentValue [" + currentValue + "] currentValue2 [" + currentValue2 +"]")
+            logger.warning("it doesn't seem to work currentValue [" + str(currentValue) + "] currentValue2 [" + str(currentValue2) +"]")
 
         if(currentValue.val() == newValue):
             logger.info("setting did not need udpating but we have done a get [" + logMessasge + "]")
