@@ -308,26 +308,17 @@ def stream_handler(message):
 
 
 def internetCheck(callingMethodName: str):
-    global settingUpFirebaseStream
+    global doFirebaseStreamReset
     internetWasLost = False
-    skipFirebaseStreamSetup = False
+    
     while(not UtilityFunctions.haveInternet()):
         internetWasLost = True
         logger.info("internet is not available for [" + callingMethodName + "], sleeping")
         time.sleep(1)
-    
-    if(settingUpFirebaseStream):
-        logger.info("other method is already doing setupStreamToFirebase so [" + callingMethodName + "], will return without calling it. Sleeping for now")
-        skipFirebaseStreamSetup = True
-        time.sleep(1)
-
-    if(skipFirebaseStreamSetup):
-        return
-
     if(internetWasLost):
-        logger.info(
-            "internet is back for [" + callingMethodName + "], resetting the stream to firebase")
-        setupStreamToFirebase()
+        logger.info("internet is back for [" + callingMethodName + "], setting doFirebaseStreamReset to true")
+        doFirebaseStreamReset = True
+
 
 def thread_time(name):
     lastTimeStampUpdate = 0
@@ -452,22 +443,53 @@ def thread_ir_sensor(name):
 
     logger.info("exiting")
 
-def setupStreamToFirebase():
-    global settingUpFirebaseStream
-    settingUpFirebaseStream = True
-    global my_stream
-    try:
-        if(my_stream != ""):
-            my_stream.close()
-    except Exception as err:
-        logger.warning("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
 
-    logger.info("setting up the stream to firebase")
-    my_stream = firebaseConnection.database.child("box").child(
-        "boxes").child(boxState.cpuId).stream(stream_handler)
-    logger.info("done setting up the stream to firebase")
-    settingUpFirebaseStream = False
-    checkCommandsNodes()
+def firebase_callback_thread(name):
+    global doFirebaseStreamReset
+    global my_stream
+
+    while not exitapp:
+        try:
+            if(doFirebaseStreamReset):
+                logger.info("doFirebaseStreamReset was True, resetting the stream")
+                try:
+                    if(my_stream != ""):
+                        my_stream.close()
+                        logger.info("stream closed successfully")
+                except Exception as err:
+                    logger.warning("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
+
+                logger.info("setting up the stream to firebase")
+                my_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
+                logger.info("done setting up the stream to firebase")
+                doFirebaseStreamReset = False
+                checkCommandsNodes()
+
+            time.sleep(1)
+        except Exception as err:
+            logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
+
+    logger.info("exiting")
+
+# def setupStreamToFirebase():
+#     global settingUpFirebaseStream
+#     if(settingUpFirebaseStream):
+#         logger.info("other thread is already doing a reset")
+#         return 
+#     settingUpFirebaseStream = True
+#     global my_stream
+#     try:
+#         if(my_stream != ""):
+#             my_stream.close()
+#     except Exception as err:
+#         logger.warning("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
+
+#     logger.info("setting up the stream to firebase")
+#     my_stream = firebaseConnection.database.child("box").child(
+#         "boxes").child(boxState.cpuId).stream(stream_handler)
+#     logger.info("done setting up the stream to firebase")
+#     settingUpFirebaseStream = False
+#     checkCommandsNodes()
     
 
 
@@ -551,8 +573,10 @@ if __name__ == '__main__':
         firebaseConnection = FirebaseConnection(str(boxState.cpuId))
         logger.info("Done creating FirebaseConnection")
         my_stream = ""
-        settingUpFirebaseStream = False
-        setupStreamToFirebase()
+        doFirebaseStreamReset = True # first time should set it up
+        
+        firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
+        firebaseCallbackThread.start()
 
         defaultstepperInner = {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner}
         defaultstepperOuter = {"minMove": 2100, "maxMove": 2900, "afterTrigger": 1460, "chanList": chanListOuter}
