@@ -388,25 +388,25 @@ def stream_handler(message):
             getAndUpdateNextMoveFirebase(outerCircle)
             foundPath = True
 
-        if message["path"].startswith('/circles/innerCircle/settings/schedules'):
+        if str(message["path"]).startswith('/circles/innerCircle/settings/schedules'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
             getAndUpdateNextMoveFirebase(innerCircle)
             foundPath = True
 
-        if message["path"].startswith('/circles/outerCircle/settings/schedules'):
+        if str(message["path"]).startswith('/circles/outerCircle/settings/schedules'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
             getAndUpdateNextMoveFirebase(outerCircle)
             foundPath = True
 
-        if message["path"].startswith('/circles/innerCircle/settings/stepper'):
+        if str(message["path"]).startswith('/circles/innerCircle/settings/stepper'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getStepper(innerCircle, defaultstepperInner)
             foundPath = True
 
         
-        if message["path"].startswith('/circles/outerCircle/settings/stepper'):
+        if str(message["path"]).startswith('/circles/outerCircle/settings/stepper'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getStepper(outerCircle, defaultstepperOuter)
             foundPath = True
@@ -414,6 +414,10 @@ def stream_handler(message):
         if message["path"] == '/commands/setButtonLed':
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             checkCommandSetButtonLed()
+            foundPath = True
+        
+        if message["path"] == '/state/buttonLedOn':
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "] no action is needed")
             foundPath = True
 
         if message["path"] == '/circles/innerCircle/commands/moveNow':
