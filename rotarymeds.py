@@ -591,10 +591,7 @@ if __name__ == '__main__':
         arr2 = [0, 1, 0, 0]
         arrOff = [0, 0, 0, 0]
 
-        for pin in innerCircle.settings.stepper.chanList:
-            GPIO.setup(pin, GPIO.OUT)
-        for pin in outerCircle.settings.stepper.chanList:
-            GPIO.setup(pin, GPIO.OUT)
+        
 
         moveIsBeingDone = False
         irTriggered = False
@@ -608,6 +605,12 @@ if __name__ == '__main__':
 
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
+        
+        # this has to be done after getting the stepper chanlist
+        for pin in innerCircle.settings.stepper.chanList:
+            GPIO.setup(pin, GPIO.OUT)
+        for pin in outerCircle.settings.stepper.chanList:
+            GPIO.setup(pin, GPIO.OUT)
 
         firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
         firebaseConnection.setFirebaseValue("moveNow", False, "commands", innerCircle.name,"circles")
@@ -625,6 +628,7 @@ if __name__ == '__main__':
 
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         pingSeconds = int(firebaseConnection.getPingSeconds())
+
 
         if(boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
