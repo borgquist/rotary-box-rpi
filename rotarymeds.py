@@ -1,3 +1,4 @@
+from utilityfunctions import UtilityFunctions
 from pyrebase import Stream
 from boxsettings import BoxSettings
 from stepper import Stepper
@@ -20,121 +21,6 @@ from datetimefunctions import DateTimeFunctions
 import requests
 
 
-folderPath = '/home/pi/'
-os.makedirs(folderPath + "logs/", exist_ok=True)
-logFormat = '%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] [%(funcName)s] %(message)s'
-date_fmt = '%a %d %b %Y %H:%M:%S'
-logging.basicConfig(format=logFormat,
-                    datefmt=date_fmt,
-                    level=logging.INFO
-                    )
-
-connectionpool_logger = logging.getLogger("requests.packages.urllib3.connectionpool")
-connectionpool_logger.setLevel(logging.WARNING)
-
-logger = logging.getLogger('podq')
-logger.setLevel(logging.INFO)
-file_handler = logging.FileHandler(folderPath + "logs/podq.log")
-file_handler.setLevel(logging.INFO)
-
-
-formatter = logging.Formatter(logFormat, date_fmt)
-
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-
-logger.info("Starting podq with rotarymeds.py")
-
-boxState = BoxState()
-boxSettings = BoxSettings()
-
-pinConfigFilePath = '/home/pi/pinlayout.json'
-with open(pinConfigFilePath, 'r') as f:
-    pinConfigToBeLoaded = json.load(f)
-
-ir_pin = pinConfigToBeLoaded['ir_pin']
-button_led_pin = pinConfigToBeLoaded['button_led_pin']
-button_pushed_pin = pinConfigToBeLoaded['button_pushed_pin']
-
-stepper_inner_in1 = pinConfigToBeLoaded['stepper_inner_in1']
-stepper_inner_in2 = pinConfigToBeLoaded['stepper_inner_in2']
-stepper_inner_in3 = pinConfigToBeLoaded['stepper_inner_in3']
-stepper_inner_in4 = pinConfigToBeLoaded['stepper_inner_in4']
-chanListInner = [stepper_inner_in1, stepper_inner_in2,
-                 stepper_inner_in3, stepper_inner_in4]
-
-stepper_outer_in1 = pinConfigToBeLoaded['stepper_outer_in1']
-stepper_outer_in2 = pinConfigToBeLoaded['stepper_outer_in2']
-stepper_outer_in3 = pinConfigToBeLoaded['stepper_outer_in3']
-stepper_outer_in4 = pinConfigToBeLoaded['stepper_outer_in4']
-chanListOuter = [stepper_outer_in1, stepper_outer_in2,
-                 stepper_outer_in3, stepper_outer_in4]
-
-led_pin = pinConfigToBeLoaded['led_pin']
-boxState.version = "1.0.24"
-logger.info("podq version is " + boxState.version)
-
-loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-logger.info("loggers are " + str(loggers))
-
-def getserial():
-    cpuserial = "123456789123456789"
-    try:
-        f = open('/proc/cpuinfo', 'r')
-        for line in f:
-            if line[0:6] == 'Serial':
-                cpuserial = line[10:26].replace('0', '')
-        f.close()
-    except:
-        cpuserial = "ERROR000000000"
-        logging.error("cpuserial was not found")
-    return cpuserial
-
-
-boxState.cpuId = getserial()
-logger.info("CPU serial is [" + str(boxState.cpuId) + "]")
-
-innerCircle = BoxCircle("innerCircle", boxState.cpuId)
-outerCircle = BoxCircle("outerCircle", boxState.cpuId)
-
-googleHostForInternetCheck = "8.8.8.8"
-
-
-def haveInternet():
-    try:
-        output = subprocess.check_output(
-            "ping -c 1 {}".format(googleHostForInternetCheck), shell=True)
-    except Exception:
-        return False
-    return True
-
-
-logger.info("checking internet connectivity")
-while(not haveInternet()):
-    logger.info("internet is not available, sleeping 1 second")
-    time.sleep(1)
-logger.info("have internet connectivity")
-
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect((googleHostForInternetCheck, 0))
-boxState.ipAddress = s.getsockname()[0]
-boxState.hostname = socket.gethostname()
-
-logger.info("Creating FirebaseConnection")
-firebaseConnection = FirebaseConnection(str(boxState.cpuId))
-logger.info("Done creating FirebaseConnection")
-
-defaultstepperInner = {"minMove": 2000, "maxMove": 2500,
-                       "afterTrigger": 1360, "chanList": chanListInner}
-defaultstepperOuter = {"minMove": 2100, "maxMove": 2900,
-                       "afterTrigger": 1460, "chanList": chanListOuter}
-defaultLatestMove = {
-    "totalSteps": 0,
-    "irTriggered": False,
-    "stepsAfterTrigger": 0,
-    "timestamp": "1900-01-01 00:00:00",
-    "timestampEpoch": 0,
-}
 
 
 def getFirebaseValuesAndSetDefaultsIfNeeded():
@@ -178,39 +64,6 @@ def getSchedules():
     outerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
         'schedules', defaultSchedule, "settings", outerCircle.name,"circles")
 
-
-getFirebaseValuesAndSetDefaultsIfNeeded()
-
-firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
-firebaseConnection.setFirebaseValue(
-    "moveNow", False, "commands", innerCircle.name,"circles")
-firebaseConnection.setFirebaseValue(
-    "setPocketsFull", False, "commands", innerCircle.name,"circles")
-firebaseConnection.setFirebaseValue(
-    "moveNow", False, "commands", outerCircle.name,"circles")
-firebaseConnection.setFirebaseValue(
-    "setPocketsFull", False, "commands", outerCircle.name,"circles")
-
-exitapp = False
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(button_led_pin, GPIO.OUT)
-GPIO.setup(button_pushed_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(led_pin, GPIO.OUT)
-GPIO.output(led_pin, GPIO.LOW)
-GPIO.setup(ir_pin, GPIO.IN)
-
-arr1 = [1, 1, 0, 0]
-arr2 = [0, 1, 0, 0]
-arrOff = [0, 0, 0, 0]
-
-for pin in innerCircle.settings.stepper.chanList:
-    GPIO.setup(pin, GPIO.OUT)
-for pin in outerCircle.settings.stepper.chanList:
-    GPIO.setup(pin, GPIO.OUT)
-
-moveIsBeingDone = False
-
-
 def move_stepper(circle: BoxCircle):
     global moveIsBeingDone
     while (moveIsBeingDone):
@@ -237,7 +90,6 @@ def releaseBothMotors():
     GPIO.output(outerCircle.settings.stepper.chanList, arrOff)
 
 
-irTriggered = False
 
 
 def move(circle: BoxCircle):
@@ -283,9 +135,6 @@ def move(circle: BoxCircle):
     GPIO.output(circle.settings.stepper.chanList, arrOff)
     setButtonLed(True)
     releaseBothMotors()
-
-
-boxState.buttonLedOn = True
 
 
 def getNextMove(schedules):
@@ -462,7 +311,7 @@ def internetCheck(callingMethodName: str):
     global settingUpFirebaseStream
     internetWasLost = False
     skipFirebaseStreamSetup = False
-    while(not haveInternet()):
+    while(not UtilityFunctions.haveInternet()):
         internetWasLost = True
         logger.info("internet is not available for [" + callingMethodName + "], sleeping")
         time.sleep(1)
@@ -603,10 +452,6 @@ def thread_ir_sensor(name):
 
     logger.info("exiting")
 
-
-my_stream: Stream = ""
-
-settingUpFirebaseStream = False
 def setupStreamToFirebase():
     global settingUpFirebaseStream
     settingUpFirebaseStream = True
@@ -628,10 +473,124 @@ def setupStreamToFirebase():
 
 if __name__ == '__main__':
     try:
-        timestampNow = time.time()
-        timeGreenButtonPushed = timestampNow + 5
+        
+        folderPath = '/home/pi/'
+        os.makedirs(folderPath + "logs/", exist_ok=True)
+        logFormat = '%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] [%(funcName)s] %(message)s'
+        date_fmt = '%a %d %b %Y %H:%M:%S'
+        logging.basicConfig(format=logFormat,
+                            datefmt=date_fmt,
+                            level=logging.INFO
+                            )
+
+        connectionpool_logger = logging.getLogger("requests.packages.urllib3.connectionpool")
+        connectionpool_logger.setLevel(logging.WARNING)
+
+        logger = logging.getLogger('podq')
+        logger.setLevel(logging.INFO)
+        file_handler = logging.FileHandler(folderPath + "logs/podq.log")
+        file_handler.setLevel(logging.INFO)
+
+
+        formatter = logging.Formatter(logFormat, date_fmt)
+
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+        boxState = BoxState()
+        boxSettings = BoxSettings()
+
+        pinConfigFilePath = '/home/pi/pinlayout.json'
+        with open(pinConfigFilePath, 'r') as f:
+            pinConfigToBeLoaded = json.load(f)
+
+        ir_pin = pinConfigToBeLoaded['ir_pin']
+        button_led_pin = pinConfigToBeLoaded['button_led_pin']
+        button_pushed_pin = pinConfigToBeLoaded['button_pushed_pin']
+
+        stepper_inner_in1 = pinConfigToBeLoaded['stepper_inner_in1']
+        stepper_inner_in2 = pinConfigToBeLoaded['stepper_inner_in2']
+        stepper_inner_in3 = pinConfigToBeLoaded['stepper_inner_in3']
+        stepper_inner_in4 = pinConfigToBeLoaded['stepper_inner_in4']
+        chanListInner = [stepper_inner_in1, stepper_inner_in2,
+                        stepper_inner_in3, stepper_inner_in4]
+
+        stepper_outer_in1 = pinConfigToBeLoaded['stepper_outer_in1']
+        stepper_outer_in2 = pinConfigToBeLoaded['stepper_outer_in2']
+        stepper_outer_in3 = pinConfigToBeLoaded['stepper_outer_in3']
+        stepper_outer_in4 = pinConfigToBeLoaded['stepper_outer_in4']
+        chanListOuter = [stepper_outer_in1, stepper_outer_in2,
+                        stepper_outer_in3, stepper_outer_in4]
+
+        led_pin = pinConfigToBeLoaded['led_pin']
+        boxState.version = "1.0.25"
+        logger.info("podq version is " + boxState.version)
+
+        loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+        logger.info("loggers are " + str(loggers))
+
+        boxState.cpuId = UtilityFunctions.getserial()
+        logger.info("CPU serial is [" + str(boxState.cpuId) + "]")
+
+        innerCircle = BoxCircle("innerCircle", boxState.cpuId)
+        outerCircle = BoxCircle("outerCircle", boxState.cpuId)
+
+        logger.info("checking internet connectivity")
+        while(not UtilityFunctions.haveInternet()):
+            logger.info("internet is not available, sleeping 1 second")
+            time.sleep(1)
+        logger.info("have internet connectivity")
+
+        googleHostForInternetCheck = "8.8.8.8"
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect((googleHostForInternetCheck, 0))
+        boxState.ipAddress = s.getsockname()[0]
+        boxState.hostname = socket.gethostname()
+
+        logger.info("Creating FirebaseConnection")
+        firebaseConnection = FirebaseConnection(str(boxState.cpuId))
+        logger.info("Done creating FirebaseConnection")
+
+        defaultstepperInner = {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner}
+        defaultstepperOuter = {"minMove": 2100, "maxMove": 2900, "afterTrigger": 1460, "chanList": chanListOuter}
+        defaultLatestMove = {
+            "totalSteps": 0,
+            "irTriggered": False,
+            "stepsAfterTrigger": 0,
+            "timestamp": "1900-01-01 00:00:00",
+            "timestampEpoch": 0,
+        }
+
+        getFirebaseValuesAndSetDefaultsIfNeeded()
+
+        firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
+        firebaseConnection.setFirebaseValue("moveNow", False, "commands", innerCircle.name,"circles")
+        firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", innerCircle.name,"circles")
+        firebaseConnection.setFirebaseValue("moveNow", False, "commands", outerCircle.name,"circles")
+        firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", outerCircle.name,"circles")
+
+        exitapp = False
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
+        GPIO.setup(button_led_pin, GPIO.OUT)
+        GPIO.setup(button_pushed_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(led_pin, GPIO.OUT)
+        GPIO.output(led_pin, GPIO.LOW)
+        GPIO.setup(ir_pin, GPIO.IN)
+
+        arr1 = [1, 1, 0, 0]
+        arr2 = [0, 1, 0, 0]
+        arrOff = [0, 0, 0, 0]
+
+        for pin in innerCircle.settings.stepper.chanList:
+            GPIO.setup(pin, GPIO.OUT)
+        for pin in outerCircle.settings.stepper.chanList:
+            GPIO.setup(pin, GPIO.OUT)
+
+        moveIsBeingDone = False
+        irTriggered = False
+        my_stream: Stream = ""
+        settingUpFirebaseStream = False
 
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "state")
         firebaseConnection.setFirebaseValue(
