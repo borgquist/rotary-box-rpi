@@ -79,8 +79,8 @@ class FirebaseConnection:
             currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).get()
         
         currentValue2 = self.getFirebaseValue(settingname, None, parent, grandparent, greatgrandparent)
-        if(currentValue != currentValue2):
-            logger.warning("it doesn't seem to work currentValue [" + str(currentValue) + "] currentValue2 [" + str(currentValue2) +"]")
+        if(currentValue.val() != currentValue2):
+            logger.warning("it doesn't seem to work for [" + settingname + "] currentValue [" + str(currentValue) + "] currentValue2 [" + str(currentValue2) +"]")
 
         if(currentValue.val() == newValue):
             logger.info("setting did not need udpating but we have done a get [" + logMessasge + "]")
