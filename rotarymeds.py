@@ -318,6 +318,8 @@ def internetCheck(callingMethodName: str):
     if(internetWasLost):
         logger.info("internet is back for [" + callingMethodName + "], setting doFirebaseStreamReset to true")
         doFirebaseStreamReset = True
+    
+    return internetWasLost
 
 
 def thread_time(name):
@@ -325,7 +327,11 @@ def thread_time(name):
     while not exitapp:
         try:
             time.sleep(5)
-            internetCheck("thread_time")
+            wasLost = internetCheck("thread_time")
+            if(wasLost):
+                time.sleep(5)
+                checkCommandsNodes() # bit crude but wait five seconds and then make sure that we've not missed any commands
+
             timestampNow = time.time()
             if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
                 firebaseConnection.setPing(boxSettings)
@@ -463,7 +469,7 @@ def firebase_callback_thread(name):
                 my_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                 logger.info("done setting up the stream to firebase")
                 doFirebaseStreamReset = False
-                checkCommandsNodes()
+                
 
             time.sleep(1)
         except Exception as err:
