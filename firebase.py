@@ -55,10 +55,10 @@ class FirebaseConnection:
         internetWasLost = False
         while(not haveInternet()):
             internetWasLost = True
-            logger.info("setFirebaseValue internet is not available, sleeping 1 second")
+            logger.info("internet is not available, sleeping 1 second")
             time.sleep(1)
         if(internetWasLost):
-            logger.info("setFirebaseValue have internet connectivity")
+            logger.info("have internet connectivity")
 
         logMessasge = settingname
         if(parent is not None):
@@ -80,13 +80,13 @@ class FirebaseConnection:
         
         currentValue2 = self.getFirebaseValue(settingname, None, parent, grandparent, greatgrandparent)
         if(currentValue.val() != currentValue2):
-            logger.warning("setFirebaseValue it doesn't seem to work for [" + settingname + "] currentValue [" + str(currentValue) + "] currentValue2 [" + str(currentValue2) +"]")
+            logger.warning("it doesn't seem to work for [" + settingname + "] currentValue [" + str(currentValue) + "] currentValue2 [" + str(currentValue2) +"]")
 
         if(currentValue.val() == newValue):
-            logger.info("setFirebaseValue setting did not need udpating but we have done a get [" + logMessasge + "]")
+            logger.info("setting did not need udpating but we have done a get [" + logMessasge + "]")
             return # no need to update
 
-        logger.info("setFirebaseValue setting [" + logMessasge + "] to [" + str(newValue) + "]")
+        logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
 
         if(parent is None):
             self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
@@ -117,20 +117,20 @@ class FirebaseConnection:
         
         if settingValue.val() is None:
             if defaultValue is None:
-                logger.warning("getFirebaseValue for [" + settingname + "] has no default value and no current value")
+                logger.warning("[" + settingname + "] has no default value and no current value")
                 return None
-            logger.info("getFirebaseValue [" + settingname + "] value was none, updating it to defaultValue [" + str(defaultValue) + "] for [" + logMessasge + "]")
+            logger.info("[" + settingname + "] value was none, updating it to defaultValue [" + str(defaultValue) + "] for [" + logMessasge + "]")
             self.setFirebaseValue(settingname, defaultValue, parent, grandparent, greatgrandparent)
             return defaultValue
 
-        logger.info("getFirebaseValue firebase setting [" + logMessasge + "] has value [" + str(settingValue.val()) + "]")
+        logger.info("firebase setting [" + logMessasge + "] has value [" + str(settingValue.val()) + "]")
         return settingValue.val()
 
     def setPing(self, boxSettings: BoxSettings):
         self.database.child("box").child("timestamp").child(self.cpuid).child("epoch").set(time.time())
         localTime = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
         self.database.child("box").child("timestamp").child(self.cpuid).child("local").set(localTime.strftime(DateTimeFunctions.fmt))
-        logger.info("setPing called: " + localTime.strftime(DateTimeFunctions.fmt))
+        logger.info("updating timestamp to: " + localTime.strftime(DateTimeFunctions.fmt))
         return
 
     def getPingSeconds(self):
