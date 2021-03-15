@@ -75,7 +75,8 @@ class FirebaseConnection:
         #     logger.info("setting [" + settingname + "] value [" + str(currentValue) + "] did not need udpating but we have done a get [" + logMessasge + "]")
         #     return # no need to update
 
-        logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "] old value [" + str(currentValue) + "]")
+        # logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "] old value [" + str(currentValue) + "]")
+        logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
 
         if(parent is None):
             self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
