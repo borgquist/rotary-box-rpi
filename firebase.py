@@ -68,19 +68,7 @@ class FirebaseConnection:
                 if(greatgrandparent is not None):
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
 
-        # TODO it's not great to do this here and not via the getFirebaseValue method
-        if(parent is None):
-            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
-        elif(grandparent is None):
-            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
-        elif(greatgrandparent is None):
-            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
-        else:
-            currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).get()
-        
-        currentValue2 = self.getFirebaseValue(settingname, None, parent, grandparent, greatgrandparent)
-        if(currentValue.val() != currentValue2):
-            logger.warning("it doesn't seem to work for [" + settingname + "] currentValue [" + str(currentValue) + "] currentValue2 [" + str(currentValue2) +"]")
+        currentValue = self.getFirebaseValue(settingname, None, parent, grandparent, greatgrandparent)
 
         if(currentValue.val() == newValue):
             logger.info("setting did not need udpating but we have done a get [" + logMessasge + "]")
