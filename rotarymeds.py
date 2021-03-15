@@ -330,7 +330,8 @@ def thread_time(name):
             wasLost = internetCheck("thread_time")
             if(wasLost):
                 time.sleep(5)
-                checkCommandsNodes() # bit crude but wait five seconds and then make sure that we've not missed any commands
+                logging.info("now is when we would have checked the commandnodes with the 5 second delay")
+                # checkCommandsNodes() # bit crude but wait five seconds and then make sure that we've not missed any commands
 
             timestampNow = time.time()
             if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
@@ -469,7 +470,7 @@ def firebase_callback_thread(name):
                 my_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                 logger.info("done setting up the stream to firebase")
                 doFirebaseStreamReset = False
-                
+                checkCommandsNodes()
 
             time.sleep(1)
         except Exception as err:
