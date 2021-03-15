@@ -343,7 +343,7 @@ def checkCommandMoveNow(circle: BoxCircle, callbackValue: bool = False):
         moveNow = firebaseConnection.getFirebaseValue("moveNow", False, "commands", circle.name, "circles")
 
     if(bool(moveNow)):
-        logger.info("moveNow true for " + str(circle))
+        logger.info("moveNow true for " + str(circle.name))
         firebaseConnection.setFirebaseValue(
             "moveNow", False, "commands", circle.name, "circles")
         move_stepper(circle)
