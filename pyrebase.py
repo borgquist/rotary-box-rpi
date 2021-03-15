@@ -31,9 +31,6 @@ def initialize_app(config):
 class Firebase:
     """ Firebase Interface """
     def __init__(self, config):
-        podqlogger = logging.getLogger('podq')
-        podqlogger.info("initialising Firebase connection with pyrebase, podq version")
-
         self.api_key = config["apiKey"]
         self.auth_domain = config["authDomain"]
         self.database_url = config["databaseURL"]
@@ -321,6 +318,9 @@ class Database:
         return request_object.json()
 
     def stream(self, stream_handler, token=None, stream_id=None):
+        podqlogger = logging.getLogger('podq')
+        podqlogger.info("initialising stream from pyrebase, podq version")
+
         request_ref = self.build_request_url(token)
         return Stream(request_ref, stream_handler, self.build_headers, stream_id)
 
