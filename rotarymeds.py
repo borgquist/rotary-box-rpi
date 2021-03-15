@@ -418,10 +418,11 @@ def stream_handler(message):
             foundPath = True
 
         if message["path"] == '/commands/setButtonLed':
-            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
-            ledOn = parseButtonLedStringReturnLedOn(str(data))
-            setButtonLed(ledOn, True)
             foundPath = True
+            if(data != False):
+                logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
+                ledOn = parseButtonLedStringReturnLedOn(str(data))
+                setButtonLed(ledOn, True)
         
         if message["path"] == '/circles/innerCircle/commands/moveNow':
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
