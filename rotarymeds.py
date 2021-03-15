@@ -534,23 +534,27 @@ if __name__ == '__main__':
         stepper_inner_in2 = pinConfigToBeLoaded['stepper_inner_in2']
         stepper_inner_in3 = pinConfigToBeLoaded['stepper_inner_in3']
         stepper_inner_in4 = pinConfigToBeLoaded['stepper_inner_in4']
-        chanListInner = [stepper_inner_in1, stepper_inner_in2,
-                        stepper_inner_in3, stepper_inner_in4]
+        chanListInner = [stepper_inner_in1, stepper_inner_in2, stepper_inner_in3, stepper_inner_in4]
 
         stepper_outer_in1 = pinConfigToBeLoaded['stepper_outer_in1']
         stepper_outer_in2 = pinConfigToBeLoaded['stepper_outer_in2']
         stepper_outer_in3 = pinConfigToBeLoaded['stepper_outer_in3']
         stepper_outer_in4 = pinConfigToBeLoaded['stepper_outer_in4']
-        chanListOuter = [stepper_outer_in1, stepper_outer_in2,
-                        stepper_outer_in3, stepper_outer_in4]
+        chanListOuter = [stepper_outer_in1, stepper_outer_in2, stepper_outer_in3, stepper_outer_in4]
+
+        defaultstepperInner = {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner}
+        defaultstepperOuter = {"minMove": 2100, "maxMove": 2900, "afterTrigger": 1460, "chanList": chanListOuter}
+        defaultLatestMove = {
+            "totalSteps": 0,
+            "irTriggered": False,
+            "stepsAfterTrigger": 0,
+            "timestamp": "1900-01-01 00:00:00",
+            "timestampEpoch": 0,
+        }
 
         led_pin = pinConfigToBeLoaded['led_pin']
         boxState.version = "1.0.25"
         logger.info("podq version is " + boxState.version)
-
-        loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-        logger.info("loggers are " + str(loggers))
-
         boxState.cpuId = UtilityFunctions.getserial()
         logger.info("CPU serial is [" + str(boxState.cpuId) + "]")
 
@@ -568,35 +572,7 @@ if __name__ == '__main__':
         s.connect((googleHostForInternetCheck, 0))
         boxState.ipAddress = s.getsockname()[0]
         boxState.hostname = socket.gethostname()
-
-        logger.info("Creating FirebaseConnection")
-        firebaseConnection = FirebaseConnection(str(boxState.cpuId))
-        logger.info("Done creating FirebaseConnection")
-        my_stream = ""
-        doFirebaseStreamReset = True # first time should set it up
-        
-        firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
-        firebaseCallbackThread.start()
-
-        defaultstepperInner = {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner}
-        defaultstepperOuter = {"minMove": 2100, "maxMove": 2900, "afterTrigger": 1460, "chanList": chanListOuter}
-        defaultLatestMove = {
-            "totalSteps": 0,
-            "irTriggered": False,
-            "stepsAfterTrigger": 0,
-            "timestamp": "1900-01-01 00:00:00",
-            "timestampEpoch": 0,
-        }
-
-        getFirebaseValuesAndSetDefaultsIfNeeded()
-
-        firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
-        firebaseConnection.setFirebaseValue("moveNow", False, "commands", innerCircle.name,"circles")
-        firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", innerCircle.name,"circles")
-        firebaseConnection.setFirebaseValue("moveNow", False, "commands", outerCircle.name,"circles")
-        firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", outerCircle.name,"circles")
-
-        
+       
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(button_led_pin, GPIO.OUT)
@@ -617,22 +593,31 @@ if __name__ == '__main__':
         moveIsBeingDone = False
         irTriggered = False
         
+        logger.info("Creating FirebaseConnection")
+        firebaseConnection = FirebaseConnection(str(boxState.cpuId))
+        logger.info("Done creating FirebaseConnection")
+        my_stream = ""
+        doFirebaseStreamReset = True # first time should set it up
+        
+        firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
+        firebaseCallbackThread.start()
 
+
+        getFirebaseValuesAndSetDefaultsIfNeeded()
+
+        firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
+        firebaseConnection.setFirebaseValue("moveNow", False, "commands", innerCircle.name,"circles")
+        firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", innerCircle.name,"circles")
+        firebaseConnection.setFirebaseValue("moveNow", False, "commands", outerCircle.name,"circles")
+        firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", outerCircle.name,"circles")
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "state")
-        firebaseConnection.setFirebaseValue(
-            "cpuId", boxState.cpuId, "innerCircle","circles")
-        firebaseConnection.setFirebaseValue(
-            "name", innerCircle.name, innerCircle.name,"circles")
-        firebaseConnection.setFirebaseValue(
-            "cpuId", boxState.cpuId, "outerCircle","circles")
-        firebaseConnection.setFirebaseValue(
-            "name", outerCircle.name, outerCircle.name,"circles")
-        firebaseConnection.setFirebaseValue(
-            "ipAddress", boxState.ipAddress, "state")
-        firebaseConnection.setFirebaseValue(
-            "hostname", boxState.hostname, "state")
-        firebaseConnection.setFirebaseValue(
-            "version", boxState.version, "state")
+        firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "innerCircle","circles")
+        firebaseConnection.setFirebaseValue("name", innerCircle.name, innerCircle.name,"circles")
+        firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "outerCircle","circles")
+        firebaseConnection.setFirebaseValue("name", outerCircle.name, outerCircle.name,"circles")
+        firebaseConnection.setFirebaseValue("ipAddress", boxState.ipAddress, "state")
+        firebaseConnection.setFirebaseValue("hostname", boxState.hostname, "state")
+        firebaseConnection.setFirebaseValue("version", boxState.version, "state")
 
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         pingSeconds = int(firebaseConnection.getPingSeconds())
