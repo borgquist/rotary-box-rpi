@@ -31,6 +31,9 @@ def initialize_app(config):
 class Firebase:
     """ Firebase Interface """
     def __init__(self, config):
+        podqlogger = logging.getLogger('podq')
+        podqlogger.info("initialising Firebase connection with pyrebase, podq version")
+
         self.api_key = config["apiKey"]
         self.auth_domain = config["authDomain"]
         self.database_url = config["databaseURL"]
