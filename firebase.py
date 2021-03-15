@@ -69,11 +69,11 @@ class FirebaseConnection:
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
 
 
-        # TODO this is a bit unnecessary, we're doing an extra get and it should not be needed
-        currentValue = self.getFirebaseValue(settingname, None, parent, grandparent, greatgrandparent)
-        if(currentValue == newValue):
-            logger.info("setting [" + settingname + "] value [" + str(currentValue) + "] did not need udpating but we have done a get [" + logMessasge + "]")
-            return # no need to update
+        # # TODO this is a bit unnecessary, we're doing an extra get and it should not be needed
+        # currentValue = self.getFirebaseValue(settingname, None, parent, grandparent, greatgrandparent)
+        # if(currentValue == newValue):
+        #     logger.info("setting [" + settingname + "] value [" + str(currentValue) + "] did not need udpating but we have done a get [" + logMessasge + "]")
+        #     return # no need to update
 
         logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "] old value [" + str(currentValue) + "]")
 
