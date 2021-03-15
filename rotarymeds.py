@@ -281,26 +281,11 @@ def move(circle: BoxCircle):
     firebaseConnection.setFirebaseValue(
         "latestMove", latestMove, "state", circle.name, "circles")
     GPIO.output(circle.settings.stepper.chanList, arrOff)
-    setButtonLedOn(True)
+    setButtonLed(True)
     releaseBothMotors()
 
 
 boxState.buttonLedOn = True
-
-
-def setButtonLedOn(setToOn):
-    if(setToOn):
-        logger.info("turning ON the buttonLed")
-        boxState.buttonLedOn = True
-        GPIO.output(button_led_pin, GPIO.HIGH)
-        GPIO.output(led_pin, GPIO.HIGH)
-        firebaseConnection.setFirebaseValue("buttonLedOn", True, "state")
-    else:
-        logger.info("turning OFF the buttonLed")
-        boxState.buttonLedOn = False
-        GPIO.output(button_led_pin, GPIO.LOW)
-        GPIO.output(led_pin, GPIO.LOW)
-        firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
 
 
 def getNextMove(schedules):
@@ -327,11 +312,28 @@ def checkCommandSetButtonLed():
     logger.info(
         "setButtonLed has new value: " + str(newVal))
     if(newVal[:2] == "on"):
-        setButtonLedOn(True)
+        setButtonLed(True, True)
     if(newVal[:3] == "off"):
-        setButtonLedOn(False)
-    firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
+        setButtonLed(False, True)
+    
 
+def setButtonLed(ledOn: bool):
+    setButtonLed(ledOn, False)
+
+def setButtonLed(ledOn: bool, clearCommands: bool):
+    if(ledOn):
+        boxState.buttonLedOn = True
+        GPIO.output(button_led_pin, GPIO.HIGH)
+        GPIO.output(led_pin, GPIO.HIGH)
+        firebaseConnection.setFirebaseValue("buttonLedOn", True, "state")
+    else:
+        boxState.buttonLedOn = False
+        GPIO.output(button_led_pin, GPIO.LOW)
+        GPIO.output(led_pin, GPIO.LOW)
+        firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
+
+    if(clearCommands):
+        firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
 
 def checkCommandMoveNow(circle: BoxCircle):
     newVal = firebaseConnection.getFirebaseValue(
@@ -527,6 +529,9 @@ def thread_move(circle: BoxCircle):
                         move_stepper(circle)
         except requests.exceptions.HTTPError as e:
             logging.error("HTTPError [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
+            # TODO we need to retry when this fails
+            # 2021-03-15:11:18:40.402 ERROR    [rotarymeds.py:529] [thread_move] HTTPError [[Errno 401 Client Error: Unauthorized for url: https://medicine-box-da3f1-default-rtdb.firebaseio.com/circles/innerCircle/state/nextMove.json] {   "error" : "Permission denied" } ]
+
             
                     
         except Exception as err:
@@ -555,9 +560,9 @@ def thread_button(name):
                     logger.info(
                         "button_pushed_pin button was pushed!")
                     if(boxState.buttonLedOn):
-                        setButtonLedOn(False)
+                        setButtonLed(False)
                     else:
-                        setButtonLedOn(True)
+                        setButtonLed(True)
                     timeButtonPressMostRecent = timestampNow
             else:
                 timeButtonNotPressed = time.time()
@@ -662,7 +667,7 @@ if __name__ == '__main__':
         moveThreadOuter = threading.Thread(target=thread_move_outer, args=(1,))
         moveThreadOuter.start()
         releaseBothMotors()
-        setButtonLedOn(True)
+        setButtonLed(True)
 
         while (True):
             time.sleep(10)
@@ -673,7 +678,7 @@ if __name__ == '__main__':
         logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
     finally:
         logger.info("cleaning up the GPIO and exiting")
-        setButtonLedOn(False)
+        setButtonLed(False)
         exitapp = True
         GPIO.cleanup()
         my_stream.close()
