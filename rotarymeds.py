@@ -443,7 +443,7 @@ def stream_handler(message):
         path = "/circles/outerCircle/commands/setPocketsFull"
         if message["path"] == path:
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
-            setPocketsFull(innerCircle, int(data), True)
+            setPocketsFull(outerCircle, int(data), True)
             foundPath = True
 
         if(foundPath == False):
