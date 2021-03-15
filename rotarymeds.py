@@ -573,7 +573,7 @@ def thread_ir_sensor(name):
     logger.info("thread_ir_sensor    : exiting")
 
 
-my_stream: Stream 
+my_stream: Stream = ""
 
 settingUpFirebaseStream = False
 def setupStreamToFirebase():
@@ -581,7 +581,7 @@ def setupStreamToFirebase():
     settingUpFirebaseStream = True
     global my_stream
     try:
-        if(my_stream is not None):
+        if(my_stream != ""):
             my_stream.close()
     except Exception as err:
         logger.warning("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
