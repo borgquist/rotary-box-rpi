@@ -416,10 +416,6 @@ def stream_handler(message):
             checkCommandSetButtonLed()
             foundPath = True
         
-        if message["path"] == '/state/buttonLedOn':
-            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "] no action is needed")
-            foundPath = True
-
         if message["path"] == '/circles/innerCircle/commands/moveNow':
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             checkCommandMoveNow(innerCircle)
@@ -441,7 +437,7 @@ def stream_handler(message):
             setPocketsFull(outerCircle, int(data), True)
 
         if(foundPath == False):
-            logger.warning("unknown path  [" + message["path"] + "] received with data [" + str(data) + "]")
+            logger.info("we're ignoring the callback for  [" + message["path"] + "] received with data [" + str(data) + "]")
             
     except Exception as err:
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
