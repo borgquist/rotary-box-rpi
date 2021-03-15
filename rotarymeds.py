@@ -550,6 +550,7 @@ if __name__ == '__main__':
         logger.info("Creating FirebaseConnection")
         firebaseConnection = FirebaseConnection(str(boxState.cpuId))
         logger.info("Done creating FirebaseConnection")
+        setupStreamToFirebase()
 
         defaultstepperInner = {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner}
         defaultstepperOuter = {"minMove": 2100, "maxMove": 2900, "afterTrigger": 1460, "chanList": chanListOuter}
@@ -628,7 +629,7 @@ if __name__ == '__main__':
         timeThread = threading.Thread(target=thread_time, args=(1,))
         timeThread.start()
 
-        setupStreamToFirebase()
+        
 
         moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
         moveThreadInner.start()
