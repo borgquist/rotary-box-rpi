@@ -346,6 +346,7 @@ def checkCommandMoveNow(circle: BoxCircle):
 def checkCommandsPockets(circle: BoxCircle):
     newVal = firebaseConnection.getFirebaseValue(
         "setPocketsFull", False, "commands", circle.name, "circles")
+    logger.info("called value is [" +str(newVal) + "] for [" + circle.name + "]")
     if(newVal != False):
         logger.info(circle.name + " command setPocketsFull called to be updated to " + str(int(newVal)))
         setPocketsFull(circle, int(newVal), True)
