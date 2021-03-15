@@ -377,77 +377,67 @@ def stream_handler(message):
     try:
         data = message["data"]
 
-        path = "/settings/timezone"
-        if message["path"] == path:
+        if message["path"] == '/settings/timezone':
             newVal = firebaseConnection.getFirebaseValue(
                 "timezone", None, "settings")
-            logger.info("path  [" + path + "] received with new value [" + str(newVal) + "] TODO change this to data below")
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
+            logger.info("path  [" + message["path"] + "] received with new value [" + str(newVal) + "] TODO change this to data below")
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             boxSettings.timezone = newVal
             firebaseConnection.setPing(boxSettings)
             getAndUpdateNextMoveFirebase(innerCircle)
             getAndUpdateNextMoveFirebase(outerCircle)
             foundPath = True
 
-        path = "/circles/innerCircle/settings/schedules"
-        if message["path"].startswith(path):
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
+        if message["path"].startswith('/circles/innerCircle/settings/schedules'):
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
             getAndUpdateNextMoveFirebase(innerCircle)
             foundPath = True
 
-        path = "/circles/outerCircle/settings/schedules"
-        if message["path"].startswith(path):
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
+        if message["path"].startswith('/circles/outerCircle/settings/schedules'):
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
             getAndUpdateNextMoveFirebase(outerCircle)
             foundPath = True
 
-        path = "/circles/innerCircle/settings/stepper"
-        if message["path"].startswith(path):
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
+        if message["path"].startswith('/circles/innerCircle/settings/stepper'):
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getStepper(innerCircle, defaultstepperInner)
             foundPath = True
 
-        path = "/circles/outerCircle/settings/stepper"
-        if message["path"].startswith(path):
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
+        
+        if message["path"].startswith('/circles/outerCircle/settings/stepper'):
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getStepper(outerCircle, defaultstepperOuter)
             foundPath = True
 
-        path = "/commands/setButtonLed"
-        if message["path"] == path:
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
+        if message["path"] == '/commands/setButtonLed':
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             checkCommandSetButtonLed()
             foundPath = True
 
-        path = "/circles/innerCircle/commands/moveNow"
-        if message["path"] == path:
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
+        if message["path"] == '/circles/innerCircle/commands/moveNow':
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             checkCommandMoveNow(innerCircle)
             foundPath = True
 
-        path = "/circles/outerCircle/commands/moveNow"
-        if message["path"] == path:
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
+        if message["path"] == '/circles/outerCircle/commands/moveNow':
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             checkCommandMoveNow(outerCircle)
             foundPath = True
 
-        path = "/circles/innerCircle/commands/setPocketsFull"
-        if message["path"] == path:
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
+        if message["path"] == '/circles/innerCircle/commands/setPocketsFull':
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             setPocketsFull(innerCircle, int(data), True)
             foundPath = True
-            
 
-        path = "/circles/outerCircle/commands/setPocketsFull"
-        if message["path"] == path:
-            logger.info("path  [" + path + "] received with data [" + str(data) + "]")
-            setPocketsFull(outerCircle, int(data), True)
+        if message["path"] == '/circles/outerCircle/commands/setPocketsFull':
             foundPath = True
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
+            setPocketsFull(outerCircle, int(data), True)
 
         if(foundPath == False):
-            logger.warning("unknown path  [" + path + "] received with data [" + str(data) + "]")
+            logger.warning("unknown path  [" + message["path"] + "] received with data [" + str(data) + "]")
             
     except Exception as err:
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
