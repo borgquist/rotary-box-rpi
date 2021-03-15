@@ -343,17 +343,25 @@ def checkCommandMoveNow(circle: BoxCircle):
         move_stepper(circle)
 
 
-def checkCommandsPockets(circle: BoxCircle):
-    newVal = firebaseConnection.getFirebaseValue(
-        "setPocketsFull", False, "commands", circle.name, "circles")
-    if(newVal != False):
-        logger.info(circle.name + " setPocketsFull called to be updated to " + str(int(newVal)))
+# def checkCommandsPockets(circle: BoxCircle):
+#     newVal = firebaseConnection.getFirebaseValue(
+#         "setPocketsFull", False, "commands", circle.name, "circles")
+#     if(newVal != False):
+#         logger.info(circle.name + " setPocketsFull called to be updated to " + str(int(newVal)))
+#         firebaseConnection.setFirebaseValue(
+#             "setPocketsFull", False, "commands", circle.name, "circles")
+#         firebaseConnection.setFirebaseValue(
+#             "pocketsFull", int(newVal), "state", circle.name, "circles")
+#         circle.state.pocketsFull = int(newVal)
+
+def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
+    if(clearCommands):
         firebaseConnection.setFirebaseValue(
             "setPocketsFull", False, "commands", circle.name, "circles")
-        firebaseConnection.setFirebaseValue(
-            "pocketsFull", int(newVal), "state", circle.name, "circles")
-        circle.state.pocketsFull = int(newVal)
 
+    firebaseConnection.setFirebaseValue(
+            "pocketsFull", pocketsFull, "state", circle.name, "circles")
+        
 
 def checkCommandsNodes():
     logger.info("checkCommandsNodes called")
@@ -423,12 +431,13 @@ def stream_handler(message):
         path = "/circles/innerCircle/commands/setPocketsFull"
         if message["path"] == path:
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
-            checkCommandsPockets(innerCircle)
+            setPocketsFull(innerCircle, int(data), True)
+            
 
         path = "/circles/outerCircle/commands/setPocketsFull"
         if message["path"] == path:
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
-            checkCommandsPockets(outerCircle)
+            setPocketsFull(innerCircle, int(data), True)
     except Exception as err:
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
 
