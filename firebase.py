@@ -60,12 +60,15 @@ class FirebaseConnection:
         if(internetWasLost):
             logger.info("have internet connectivity")
 
-    
+        logMessasge = settingname
+        if(parent is not None):
+            logMessasge = parent + "/" + logMessasge
+            if(grandparent is not None):
+                logMessasge = grandparent + "/" + logMessasge
+                if(greatgrandparent is not None):
+                    logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
 
-        if(settingname == "timestamp"):
-            self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
-            return
-
+        # TODO it's not great to do this here and not via the getFirebaseValue method
         if(parent is None):
             currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
         elif(grandparent is None):
@@ -76,15 +79,9 @@ class FirebaseConnection:
             currentValue = self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).get()
 
         if(currentValue.val() == newValue):
+            logger.info("setting did not need udpating but we have done a get [" + logMessasge + "]")
             return # no need to update
 
-        logMessasge = settingname
-        if(parent is not None):
-            logMessasge = parent + "/" + logMessasge
-            if(grandparent is not None):
-                logMessasge = grandparent + "/" + logMessasge
-                if(greatgrandparent is not None):
-                    logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
         logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
 
         if(parent is None):
@@ -95,24 +92,6 @@ class FirebaseConnection:
             self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).set(newValue)
         else:
             self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).set(newValue)
-
-        
-        
-    
-    def setPing(self, boxSettings: BoxSettings):
-        self.database.child("box").child("timestamp").child(self.cpuid).child("epoch").set(time.time())
-        localTime = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
-        self.database.child("box").child("timestamp").child(self.cpuid).child("local").set(localTime.strftime(DateTimeFunctions.fmt))
-
-        return
-
-    def getPingSeconds(self):
-        pingSeconds = self.database.child("box").child("ping_seconds").get()
-        if pingSeconds.val() is None:
-            logging.warning("couldn't get ping_seconds")
-            return 600
-        logger.info("ping_seconds is: " + str(pingSeconds.val()))
-        return str(pingSeconds.val())
 
     def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None, greatgrandparent = None):
         logMessasge = settingname
@@ -143,6 +122,20 @@ class FirebaseConnection:
         logger.info("firebase setting [" + logMessasge + "] has value [" + str(settingValue.val()) + "]")
         return settingValue.val()
 
+    def setPing(self, boxSettings: BoxSettings):
+        self.database.child("box").child("timestamp").child(self.cpuid).child("epoch").set(time.time())
+        localTime = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
+        self.database.child("box").child("timestamp").child(self.cpuid).child("local").set(localTime.strftime(DateTimeFunctions.fmt))
+        logger.info("setPing called: " + localTime.strftime(DateTimeFunctions.fmt))
+        return
+
+    def getPingSeconds(self):
+        pingSeconds = self.database.child("box").child("ping_seconds").get()
+        if pingSeconds.val() is None:
+            logging.warning("couldn't get ping_seconds")
+            return 600
+        logger.info("ping_seconds is: " + str(pingSeconds.val()))
+        return str(pingSeconds.val())
 
     def getBoxLatestVersion(self):
         latestVersion = self.database.child("box").child("latest_version").get()
