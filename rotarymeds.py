@@ -337,10 +337,12 @@ def setButtonLed(ledOn: bool, clearCommands: bool = False):
     if(clearCommands):
         firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
 
-def checkCommandMoveNow(circle: BoxCircle):
-    newVal = firebaseConnection.getFirebaseValue(
-        "moveNow", False, "commands", circle.name, "circles")
-    if(bool(newVal)):
+def checkCommandMoveNow(circle: BoxCircle, callbackValue: bool = False):
+    moveNow = callbackValue
+    if(callbackValue == False):
+        moveNow = firebaseConnection.getFirebaseValue("moveNow", False, "commands", circle.name, "circles")
+
+    if(bool(moveNow)):
         logger.info("moveNow true for " + str(circle))
         firebaseConnection.setFirebaseValue(
             "moveNow", False, "commands", circle.name, "circles")
@@ -425,14 +427,17 @@ def stream_handler(message):
                 setButtonLed(ledOn, True)
         
         if message["path"] == '/circles/innerCircle/commands/moveNow':
-            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
-            checkCommandMoveNow(innerCircle)
             foundPath = True
+            if(data != False):
+                logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
+                checkCommandMoveNow(innerCircle, bool(data))
 
         if message["path"] == '/circles/outerCircle/commands/moveNow':
-            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
-            checkCommandMoveNow(outerCircle)
             foundPath = True
+            if(data != False):
+                logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
+                checkCommandMoveNow(outerCircle, bool(data))
+            
 
         if message["path"] == '/circles/innerCircle/commands/setPocketsFull':
             foundPath = True
