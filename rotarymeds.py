@@ -495,7 +495,7 @@ def firebase_callback_thread(name):
 
 if __name__ == '__main__':
     try:
-        
+        exitapp = False
         folderPath = '/home/pi/'
         os.makedirs(folderPath + "logs/", exist_ok=True)
         logFormat = '%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] [%(funcName)s] %(message)s'
@@ -596,7 +596,7 @@ if __name__ == '__main__':
         firebaseConnection.setFirebaseValue("moveNow", False, "commands", outerCircle.name,"circles")
         firebaseConnection.setFirebaseValue("setPocketsFull", False, "commands", outerCircle.name,"circles")
 
-        exitapp = False
+        
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
         GPIO.setup(button_led_pin, GPIO.OUT)
