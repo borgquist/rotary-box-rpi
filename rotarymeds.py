@@ -304,6 +304,13 @@ def getNextMove(schedules):
     return nextMove
 
 
+def parseButtonLedStringReturnLedOn(buttonStr):
+    if(buttonStr[:2] == "on"):
+        return True
+    if(buttonStr[:3] == "off"):
+        return False
+    return False
+
 def checkCommandSetButtonLed():
     newVal = firebaseConnection.getFirebaseValue(
         "setButtonLed", False, "commands")
@@ -311,10 +318,8 @@ def checkCommandSetButtonLed():
         return
     logger.info(
         "setButtonLed has new value: " + str(newVal))
-    if(newVal[:2] == "on"):
-        setButtonLed(True, True)
-    if(newVal[:3] == "off"):
-        setButtonLed(False, True)
+    ledOn = parseButtonLedStringReturnLedOn(str(newVal))
+    setButtonLed(ledOn, True)
     
 
 def setButtonLed(ledOn: bool):
@@ -417,7 +422,8 @@ def stream_handler(message):
 
         if message["path"] == '/commands/setButtonLed':
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
-            checkCommandSetButtonLed()
+            ledOn = parseButtonLedStringReturnLedOn(str(data))
+            setButtonLed(ledOn, True)
             foundPath = True
         
         if message["path"] == '/circles/innerCircle/commands/moveNow':
