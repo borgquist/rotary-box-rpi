@@ -589,6 +589,7 @@ if __name__ == '__main__':
 
         moveIsBeingDone = False
         irTriggered = False
+        global my_stream
         my_stream: Stream = ""
         settingUpFirebaseStream = False
 
