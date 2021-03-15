@@ -357,9 +357,9 @@ def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
         firebaseConnection.setFirebaseValue(
             "setPocketsFull", False, "commands", circle.name, "circles")
 
-    # firebaseConnection.setFirebaseValue(
-    #         "pocketsFull", pocketsFull, "state", circle.name, "circles")
-    # circle.state.pocketsFull = pocketsFull
+    firebaseConnection.setFirebaseValue(
+            "pocketsFull", pocketsFull, "state", circle.name, "circles")
+    circle.state.pocketsFull = pocketsFull
         
 
 def checkCommandsNodes():
