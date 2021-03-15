@@ -599,8 +599,6 @@ if __name__ == '__main__':
         my_stream = ""
         doFirebaseStreamReset = True # first time should set it up
         
-        firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
-        firebaseCallbackThread.start()
 
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
@@ -631,6 +629,9 @@ if __name__ == '__main__':
         else:
             logger.info(
                 "OK our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
+
+        firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
+        firebaseCallbackThread.start()
 
         buttonThread = threading.Thread(target=thread_button, args=(1,))
         buttonThread.start()
