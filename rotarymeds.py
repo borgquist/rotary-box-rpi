@@ -352,7 +352,7 @@ def checkCommandsPockets(circle: BoxCircle):
         setPocketsFull(circle, int(newVal), True)
 
 def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
-    logger.info("called with pocketsFull [" +str(pocketsFull) + "] clearCommands [" + str(clearCommands) + "]")
+    logger.info("called with pocketsFull [" +str(pocketsFull) + "] clearCommands [" + str(clearCommands) + "] trace: " + traceback.format_exc())
     if(clearCommands):
         firebaseConnection.setFirebaseValue(
             "setPocketsFull", False, "commands", circle.name, "circles")
