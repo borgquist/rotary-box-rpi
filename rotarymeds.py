@@ -22,9 +22,10 @@ import requests
 
 folderPath = '/home/pi/'
 os.makedirs(folderPath + "logs/", exist_ok=True)
-
-logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] [%(funcName)s] %(message)s',
-                    datefmt='%Y-%m-%d:%H:%M:%S',
+logFormat = '%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] [%(funcName)s] %(message)s'
+date_fmt = '%a %d %b %Y %H:%M:%S'
+logging.basicConfig(format=logFormat,
+                    datefmt=date_fmt,
                     level=logging.INFO
                     )
 
@@ -36,9 +37,8 @@ logger.setLevel(logging.INFO)
 file_handler = logging.FileHandler(folderPath + "logs/podq.log")
 file_handler.setLevel(logging.INFO)
 
-fmt = '%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s'
-date_fmt = '%a %d %b %Y %H:%M:%S'
-formatter = logging.Formatter(fmt, date_fmt)
+
+formatter = logging.Formatter(logFormat, date_fmt)
 
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
