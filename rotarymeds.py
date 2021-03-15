@@ -322,10 +322,7 @@ def checkCommandSetButtonLed():
     setButtonLed(ledOn, True)
     
 
-def setButtonLed(ledOn: bool):
-    setButtonLed(ledOn, False)
-
-def setButtonLed(ledOn: bool, clearCommands: bool):
+def setButtonLed(ledOn: bool, clearCommands: bool = False):
     if(ledOn):
         boxState.buttonLedOn = True
         GPIO.output(button_led_pin, GPIO.HIGH)
