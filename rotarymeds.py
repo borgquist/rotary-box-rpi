@@ -370,10 +370,10 @@ def checkCommandsNodes():
 
 
 def stream_handler(message):
+    foundPath = False    
     if message["path"] == '/':
         logger.info("called with root path, ignoring it")
-    else:
-        logger.info("called with message " + str(message))
+        foundPath = True
     try:
         data = message["data"]
 
@@ -387,54 +387,68 @@ def stream_handler(message):
             firebaseConnection.setPing(boxSettings)
             getAndUpdateNextMoveFirebase(innerCircle)
             getAndUpdateNextMoveFirebase(outerCircle)
+            foundPath = True
 
         path = "/circles/innerCircle/settings/schedules"
         if message["path"].startswith(path):
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
             getSchedules()
             getAndUpdateNextMoveFirebase(innerCircle)
+            foundPath = True
 
         path = "/circles/outerCircle/settings/schedules"
         if message["path"].startswith(path):
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
             getSchedules()
             getAndUpdateNextMoveFirebase(outerCircle)
+            foundPath = True
 
         path = "/circles/innerCircle/settings/stepper"
         if message["path"].startswith(path):
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
             getStepper(innerCircle, defaultstepperInner)
+            foundPath = True
 
         path = "/circles/outerCircle/settings/stepper"
         if message["path"].startswith(path):
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
             getStepper(outerCircle, defaultstepperOuter)
+            foundPath = True
 
         path = "/commands/setButtonLed"
         if message["path"] == path:
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
             checkCommandSetButtonLed()
+            foundPath = True
 
         path = "/circles/innerCircle/commands/moveNow"
         if message["path"] == path:
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
             checkCommandMoveNow(innerCircle)
+            foundPath = True
 
         path = "/circles/outerCircle/commands/moveNow"
         if message["path"] == path:
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
             checkCommandMoveNow(outerCircle)
+            foundPath = True
 
         path = "/circles/innerCircle/commands/setPocketsFull"
         if message["path"] == path:
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
             setPocketsFull(innerCircle, int(data), True)
+            foundPath = True
             
 
         path = "/circles/outerCircle/commands/setPocketsFull"
         if message["path"] == path:
             logger.info("path  [" + path + "] received with data [" + str(data) + "]")
             setPocketsFull(innerCircle, int(data), True)
+            foundPath = True
+
+        if(foundPath == False):
+            logger.warning("unknown path  [" + path + "] received with data [" + str(data) + "]")
+            
     except Exception as err:
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
 
