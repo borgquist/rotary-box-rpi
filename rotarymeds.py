@@ -378,7 +378,7 @@ def stream_handler(message):
             newVal = firebaseConnection.getFirebaseValue(
                 "timezone", None, "settings")
             logger.info("callback for path [" + path + "] received with new value [" + str(newVal) + "] TODO change this to data below")
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             boxSettings.timezone = newVal
             firebaseConnection.setPing(boxSettings)
             getAndUpdateNextMoveFirebase(innerCircle)
@@ -386,49 +386,49 @@ def stream_handler(message):
 
         path = "/circles/innerCircle/settings/schedules"
         if message["path"].startswith(path):
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             getSchedules()
             getAndUpdateNextMoveFirebase(innerCircle)
 
         path = "/circles/outerCircle/settings/schedules"
         if message["path"].startswith(path):
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             getSchedules()
             getAndUpdateNextMoveFirebase(outerCircle)
 
         path = "/circles/innerCircle/settings/stepper"
         if message["path"].startswith(path):
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             getStepper(innerCircle, defaultstepperInner)
 
         path = "/circles/outerCircle/settings/stepper"
         if message["path"].startswith(path):
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             getStepper(outerCircle, defaultstepperOuter)
 
         path = "/commands/setButtonLed"
         if message["path"] == path:
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             checkCommandSetButtonLed()
 
         path = "/circles/innerCircle/commands/moveNow"
         if message["path"] == path:
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             checkCommandMoveNow(innerCircle)
 
         path = "/circles/outerCircle/commands/moveNow"
         if message["path"] == path:
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             checkCommandMoveNow(outerCircle)
 
         path = "/circles/innerCircle/commands/setPocketsFull"
         if message["path"] == path:
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             checkCommandsPockets(innerCircle)
 
         path = "/circles/outerCircle/commands/setPocketsFull"
         if message["path"] == path:
-            logger.info("callback for path [" + path + "] received with data [" + data + "]")
+            logger.info("callback for path [" + path + "] received with data [" + str(data) + "]")
             checkCommandsPockets(outerCircle)
     except Exception as err:
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
