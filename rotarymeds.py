@@ -550,6 +550,8 @@ if __name__ == '__main__':
         logger.info("Creating FirebaseConnection")
         firebaseConnection = FirebaseConnection(str(boxState.cpuId))
         logger.info("Done creating FirebaseConnection")
+        my_stream = ""
+        settingUpFirebaseStream = False
         setupStreamToFirebase()
 
         defaultstepperInner = {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner}
@@ -590,8 +592,7 @@ if __name__ == '__main__':
 
         moveIsBeingDone = False
         irTriggered = False
-        my_stream = ""
-        settingUpFirebaseStream = False
+        
 
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "state")
         firebaseConnection.setFirebaseValue(
