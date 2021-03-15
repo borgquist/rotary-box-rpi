@@ -308,16 +308,20 @@ def stream_handler(message):
 
 
 def internetCheck(callingMethodName: str):
-    global doFirebaseStreamReset
+    global doFirebaseStreamResetTimestamp
     internetWasLost = False
-    
+    timestampInternetCheck = time.time()
+
     while(not UtilityFunctions.haveInternet()):
         internetWasLost = True
         logger.info("internet is not available for [" + callingMethodName + "], sleeping")
         time.sleep(1)
     if(internetWasLost):
-        logger.info("internet is back for [" + callingMethodName + "], setting doFirebaseStreamReset to true")
-        doFirebaseStreamReset = True
+        if(timestampInternetCheck > doFirebaseStreamResetTimestamp):
+            doFirebaseStreamResetTimestamp = time.time()
+            logger.info("internet is back for [" + callingMethodName + "] setting firebase stream reset")
+        else:
+            logger.info("internet is back for [" + callingMethodName + "] not setting firebase stream reset since that's already done by another thread ")
     
     return internetWasLost
 
@@ -385,11 +389,6 @@ def thread_move(circle: BoxCircle):
                         move_stepper(circle)
         except requests.exceptions.HTTPError as e:
             logging.error("HTTPError [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
-            # TODO we need to retry when this fails
-            # 2021-03-15:11:18:40.402 ERROR    [rotarymeds.py:529] [thread_move] HTTPError [[Errno 401 Client Error: Unauthorized for url: https://medicine-box-da3f1-default-rtdb.firebaseio.com/circles/innerCircle/state/nextMove.json] {   "error" : "Permission denied" } ]
-
-            
-                    
         except Exception as err:
             logging.error("exception: [" + str(err) + "] the trace: [" + traceback.format_exc() + "]")
         time.sleep(5)
@@ -452,13 +451,14 @@ def thread_ir_sensor(name):
 
 
 def firebase_callback_thread(name):
-    global doFirebaseStreamReset
+    global doFirebaseStreamResetTimestamp
+    global lastFirebaseStreamResetTimestamp
     global my_stream
 
     while not exitapp:
         try:
-            if(doFirebaseStreamReset):
-                logger.info("doFirebaseStreamReset was True, resetting the stream")
+            if(doFirebaseStreamResetTimestamp > lastFirebaseStreamResetTimestamp):
+                logger.info("doFirebaseStreamReset was later than last reset, resetting the stream")
                 try:
                     if(my_stream != ""):
                         my_stream.close()
@@ -469,7 +469,7 @@ def firebase_callback_thread(name):
                 logger.info("setting up the stream to firebase")
                 my_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                 logger.info("done setting up the stream to firebase")
-                doFirebaseStreamReset = False
+                lastFirebaseStreamResetTimestamp = time.time()
                 checkCommandsNodes()
 
             time.sleep(1)
@@ -601,8 +601,8 @@ if __name__ == '__main__':
         firebaseConnection = FirebaseConnection(str(boxState.cpuId))
         logger.info("Done creating FirebaseConnection")
         my_stream = ""
-        doFirebaseStreamReset = True # first time should set it up
-        
+        doFirebaseStreamResetTimestamp = time.time() # first time should set it up
+        lastFirebaseStreamResetTimestamp = 0
 
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
