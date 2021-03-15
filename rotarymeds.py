@@ -343,16 +343,12 @@ def checkCommandMoveNow(circle: BoxCircle):
         move_stepper(circle)
 
 
-# def checkCommandsPockets(circle: BoxCircle):
-#     newVal = firebaseConnection.getFirebaseValue(
-#         "setPocketsFull", False, "commands", circle.name, "circles")
-#     if(newVal != False):
-#         logger.info(circle.name + " setPocketsFull called to be updated to " + str(int(newVal)))
-#         firebaseConnection.setFirebaseValue(
-#             "setPocketsFull", False, "commands", circle.name, "circles")
-#         firebaseConnection.setFirebaseValue(
-#             "pocketsFull", int(newVal), "state", circle.name, "circles")
-#         circle.state.pocketsFull = int(newVal)
+def checkCommandsPockets(circle: BoxCircle):
+    newVal = firebaseConnection.getFirebaseValue(
+        "setPocketsFull", False, "commands", circle.name, "circles")
+    if(newVal != False):
+        logger.info(circle.name + " command setPocketsFull called to be updated to " + str(int(newVal)))
+        setPocketsFull(circle, int(newVal), True)
 
 def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
     if(clearCommands):
@@ -361,6 +357,7 @@ def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
 
     firebaseConnection.setFirebaseValue(
             "pocketsFull", pocketsFull, "state", circle.name, "circles")
+    circle.state.pocketsFull = pocketsFull
         
 
 def checkCommandsNodes():
