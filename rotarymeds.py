@@ -241,7 +241,7 @@ irTriggered = False
 
 
 def move(circle: BoxCircle):
-    logger.info("called for " + str(circle))
+    logger.info("called for " + str(circle.name))
     global irTriggered, stepsDoneWhenIRtrigger, arr1, arr2
     stepsDone = 0
     holdBothMotors()
