@@ -68,13 +68,14 @@ class FirebaseConnection:
                 if(greatgrandparent is not None):
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
 
-        currentValue = self.getFirebaseValue(settingname, None, parent, grandparent, greatgrandparent)
 
-        if(currentValue.val() == newValue):
+        # TODO this is a bit unnecessary, we're doing an extra get and it should not be needed
+        currentValue = self.getFirebaseValue(settingname, None, parent, grandparent, greatgrandparent)
+        if(currentValue == newValue):
             logger.info("setting did not need udpating but we have done a get [" + logMessasge + "]")
             return # no need to update
 
-        logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
+        logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "] old value [" + currentValue + "]")
 
         if(parent is None):
             self.database.child("box").child("boxes").child(self.cpuid).child(settingname).set(newValue)
