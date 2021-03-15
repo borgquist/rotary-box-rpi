@@ -526,12 +526,17 @@ class ClosableSSEClient(SSEClient):
     def close(self):
         self.should_connect = False
         self.retry = 0
-        self.resp.raw._fp.fp.raw._sock.shutdown(socket.SHUT_RDWR)
+        try:
+            self.resp.raw._fp.fp.raw._sock.shutdown(socket.SHUT_RDWR)
+        except Exception as err:
+            podqlogger = logging.getLogger('podq')
+            podqlogger.warning("tried to shutdown the stream socket but failed " + str(err))
+
         try:
             self.resp.raw._fp.fp.raw._sock.close()
         except Exception as err:
             podqlogger = logging.getLogger('podq')
-            podqlogger.warning("tried to close the stream but failed " + str(err))
+            podqlogger.warning("tried to close the socket stream but failed " + str(err))
 
 
 class Stream:
@@ -570,6 +575,10 @@ class Stream:
         while not self.sse and not hasattr(self.sse, 'resp'):
             time.sleep(0.001)
         self.sse.running = False
-        self.sse.close()
+        try:
+            self.sse.close()
+        except Exception as err:
+            podqlogger = logging.getLogger('podq')
+            podqlogger.warning("tried to do self.sse.close but failed " + str(err))
         self.thread.join()
         return self
