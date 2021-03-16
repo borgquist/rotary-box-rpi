@@ -60,14 +60,14 @@ def getSchedules():
     defaultSchedule = {UtilityFunctions.generateId():{"day": "everyday", "hour": 7, "minute": 0}}
     
     innerSchedules = []
-    orderedDictInner = firebaseConnection.getFirebaseValue('testschedules', defaultSchedule, "settings", innerCircle.name, "circles")
+    orderedDictInner = firebaseConnection.getFirebaseValue('schedules', defaultSchedule, "settings", innerCircle.name, "circles")
 
     for key in orderedDictInner:
         innerSchedules.append(orderedDictInner[key])
     innerCircle.settings.schedules = innerSchedules
 
     outerSchedules = []
-    orderedDictOuter = firebaseConnection.getFirebaseValue('testschedules', defaultSchedule, "settings", outerCircle.name, "circles")
+    orderedDictOuter = firebaseConnection.getFirebaseValue('schedules', defaultSchedule, "settings", outerCircle.name, "circles")
 
     for key in orderedDictOuter:
         outerSchedules.append(orderedDictOuter[key])
