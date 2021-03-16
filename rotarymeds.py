@@ -455,8 +455,9 @@ def firebase_callback_thread(name):
     while not exitapp:
         try:
             wasLost = internetCheckWaitWhileNotAvailable()
-            if(wasLost or firebase_stream == ""):
+            if(wasLost):
                 logger.info("internet was lost, resetting firebase_stream")
+            if(wasLost or firebase_stream == ""):
                 try:
                     if(firebase_stream != ""):
                         logger.info("closing firebase_stream")
