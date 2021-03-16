@@ -63,14 +63,14 @@ def getSchedules():
     orderedDictInner = firebaseConnection.getFirebaseValue('testschedules', defaultSchedule, "settings", innerCircle.name, "circles")
 
     for key in orderedDictInner:
-        innerSchedules.insert(orderedDictInner[key])
+        innerSchedules.append(orderedDictInner[key])
     innerCircle.settings.schedules = innerSchedules
 
     outerSchedules = []
     orderedDictOuter = firebaseConnection.getFirebaseValue('testschedules', defaultSchedule, "settings", outerCircle.name, "circles")
 
     for key in orderedDictOuter:
-        outerSchedules.insert(orderedDictOuter[key])
+        outerSchedules.append(orderedDictOuter[key])
     outerCircle.settings.schedules = outerSchedules
 
 
