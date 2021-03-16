@@ -1,3 +1,4 @@
+from schedule import Schedule
 from utilityfunctions import UtilityFunctions
 from pyrebase import Stream
 from boxsettings import BoxSettings
@@ -56,7 +57,8 @@ def getStepper(circle: BoxCircle, defaultstepper):
 
 
 def getSchedules():
-    defaultSchedule = [{"day": "everyday", "hour": 7, "minute": 0}]
+    defaultSchedule = [{"id": Schedule.generateId(), "day": "everyday", "hour": 7, "minute": 0}]
+    
     innerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
         'schedules', defaultSchedule, "settings", innerCircle.name,"circles")
     outerCircle.settings.schedules = firebaseConnection.getFirebaseValue(

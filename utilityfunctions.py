@@ -1,7 +1,13 @@
 import subprocess
+from datetime import datetime
+from uuid import uuid4
 
 class UtilityFunctions:
     
+    @staticmethod
+    def generateId() -> str:
+        return datetime.now().strftime('%Y%m-%d%H-%M%S-') + str(uuid4())
+
     @staticmethod
     def getserial() -> str:
         cpuserial = "123456789123456789"
