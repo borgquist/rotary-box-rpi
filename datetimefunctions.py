@@ -7,7 +7,7 @@ class DateTimeFunctions:
     fmt = '%Y-%m-%d %H:%M:%S %Z'
     
     @staticmethod
-    def getUtcNowIsoFormat():
+    def getUtcNowIsoFormat() -> str:
         utc_now = pytz.utc.localize(datetime.datetime.utcnow())
         return utc_now.isoformat()
 
@@ -28,12 +28,12 @@ class DateTimeFunctions:
 
 
     @staticmethod
-    def isTodayEvenDay():
+    def isTodayEvenDay() -> bool:
         daysSinceEpoch = DateTimeFunctions.daysSinceEpoch()
         return daysSinceEpoch % 2 == 0
     
     @staticmethod
-    def daysSinceEpoch():
+    def daysSinceEpoch() -> int:
         return (datetime.datetime.utcnow() - datetime.datetime(1970,1,1)).days
 
     @staticmethod

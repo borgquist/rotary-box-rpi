@@ -21,8 +21,6 @@ from datetimefunctions import DateTimeFunctions
 import requests
 
 
-
-
 def getFirebaseValuesAndSetDefaultsIfNeeded():
     getTimezone()
     getSchedules()
@@ -100,7 +98,7 @@ def move(circle: BoxCircle):
     stepsDoneWhenIRtrigger = 0
     irTriggered = False
 
-    def oneStep(stepsDone):
+    def oneStep(stepsDone) -> int:
         global irTriggered, stepsDoneWhenIRtrigger, arr1, arr2
         # arrOUT = arr1[1:]+arr1[:1] for counterclockwise
         arrOUT = arr1[3:]+arr1[:3]
@@ -137,7 +135,7 @@ def move(circle: BoxCircle):
     releaseBothMotors()
 
 
-def getNextMove(schedules):
+def getNextMove(schedules) -> datetime.datetime:
     nextMove = 0
     for schedule in schedules:
         candiate = DateTimeFunctions.getDateTimeFromScheduleWithTimezone(
@@ -153,7 +151,7 @@ def getNextMove(schedules):
     return nextMove
 
 
-def parseButtonLedStringReturnLedOn(buttonStr):
+def parseButtonLedStringReturnLedOn(buttonStr) -> bool:
     if(buttonStr[:2] == "on"):
         return True
     if(buttonStr[:3] == "off"):
@@ -307,35 +305,16 @@ def stream_handler(message):
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
 
 
-def internetCheck(callingMethodName: str):
-    global doFirebaseStreamResetTimestamp
-    internetWasLost = False
-    timestampInternetCheck = time.time()
-
-    while(not UtilityFunctions.haveInternet()):
-        internetWasLost = True
-        logger.info("internet is not available for [" + callingMethodName + "], sleeping")
-        time.sleep(1)
-    if(internetWasLost):
-        if(timestampInternetCheck > doFirebaseStreamResetTimestamp):
-            doFirebaseStreamResetTimestamp = time.time()
-            logger.info("internet is back for [" + callingMethodName + "] setting firebase stream reset")
-        else:
-            logger.info("internet is back for [" + callingMethodName + "] not setting firebase stream reset since that's already done by another thread ")
-    
-    return internetWasLost
-
-
 def thread_time(name):
     lastTimeStampUpdate = 0
+    sleepSeconds = 5
     while not exitapp:
         try:
-            time.sleep(5)
-            wasLost = internetCheck("thread_time")
-            if(wasLost):
-                time.sleep(5)
-                logging.info("now is when we would have checked the commandnodes with the 5 second delay")
-                # checkCommandsNodes() # bit crude but wait five seconds and then make sure that we've not missed any commands
+            time.sleep(sleepSeconds)
+
+            while(internetIsAvailable == False):
+                logger.info("no internet, sleeping " + str(sleepSeconds) + " seconds")
+                time.sleep(sleepSeconds)
 
             timestampNow = time.time()
             if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
@@ -348,7 +327,7 @@ def thread_time(name):
             logging.error("exception " + str(err) + " trace :" + traceback.format_exc())
     logger.info("exiting")
 
-def getAndUpdateNextMoveFirebase(circle: BoxCircle):
+def getAndUpdateNextMoveFirebase(circle: BoxCircle) -> datetime.datetime:
     nextMove = getNextMove(circle.settings.schedules)
     nextMoveInEpoch = nextMove.timestamp()
     
@@ -368,10 +347,13 @@ def getAndUpdateNextMoveFirebase(circle: BoxCircle):
 
 def thread_move(circle: BoxCircle):
     lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone) - datetime.timedelta(days=-1)
-    
+    global internetIsAvailable
+    sleepSeconds = 5
     while not exitapp:
         try:
-            internetCheck("thread_move_" + circle.name)
+            while(internetIsAvailable == False):
+                logger.info("no internet, sleeping " + str(sleepSeconds) + " seconds")
+                time.sleep(sleepSeconds)
             
             nextMove = getAndUpdateNextMoveFirebase(circle)
 
@@ -391,7 +373,7 @@ def thread_move(circle: BoxCircle):
             logging.error("HTTPError [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
         except Exception as err:
             logging.error("exception: [" + str(err) + "] the trace: [" + traceback.format_exc() + "]")
-        time.sleep(5)
+        time.sleep(sleepSeconds)
     logger.info(circle.name + "    :   exiting")
 
 
@@ -401,7 +383,6 @@ def thread_move_inner(name):
 
 def thread_move_outer(name):
     thread_move(outerCircle)
-
 
 def thread_button(name):
     timeButtonPressMostRecent = 0
@@ -450,54 +431,50 @@ def thread_ir_sensor(name):
     logger.info("exiting")
 
 
-def firebase_callback_thread(name):
-    global doFirebaseStreamResetTimestamp
-    global lastFirebaseStreamResetTimestamp
-    global my_stream
+def internetCheckWaitWhileNotAvailable() -> bool:
+    internetWasLost = False
+    global internetIsAvailable
+    secondsSleep = 1
+        
+    while(not UtilityFunctions.haveInternet()):
+        internetIsAvailable = False
+        internetWasLost = True
+        logger.warning("internet is not available, sleeping " + str(secondsSleep) + " seconds" )
+        time.sleep(secondsSleep)
 
+    if(internetWasLost):
+        logger.info("internet is back")
+
+    internetIsAvailable = True
+    return internetWasLost
+
+
+def firebase_callback_thread(name):
+    global firebase_stream
+    sleepSeconds = 1
     while not exitapp:
         try:
-            if(doFirebaseStreamResetTimestamp > lastFirebaseStreamResetTimestamp):
-                logger.info("doFirebaseStreamReset was later than last reset, resetting the stream")
+            wasLost = internetCheckWaitWhileNotAvailable()
+            if(wasLost):
+                logger.info("internet was lost, resetting firebase_stream")
                 try:
-                    if(my_stream != ""):
-                        my_stream.close()
-                        logger.info("stream closed successfully")
+                    if(firebase_stream != ""):
+                        firebase_stream.close()
+                        logger.info("firebase_stream closed successfully")
                 except Exception as err:
-                    logger.warning("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
+                    logger.warning("firebase_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
 
-                logger.info("setting up the stream to firebase")
-                my_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
-                logger.info("done setting up the stream to firebase")
-                lastFirebaseStreamResetTimestamp = time.time()
+                firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
+                logger.info("firebase_stream has been initialised")
+                
                 checkCommandsNodes()
 
-            time.sleep(1)
+            time.sleep(sleepSeconds)
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
 
     logger.info("exiting")
 
-# def setupStreamToFirebase():
-#     global settingUpFirebaseStream
-#     if(settingUpFirebaseStream):
-#         logger.info("other thread is already doing a reset")
-#         return 
-#     settingUpFirebaseStream = True
-#     global my_stream
-#     try:
-#         if(my_stream != ""):
-#             my_stream.close()
-#     except Exception as err:
-#         logger.warning("tried to close the stream but failed " + str(err) + " trace: " + traceback.format_exc())
-
-#     logger.info("setting up the stream to firebase")
-#     my_stream = firebaseConnection.database.child("box").child(
-#         "boxes").child(boxState.cpuId).stream(stream_handler)
-#     logger.info("done setting up the stream to firebase")
-#     settingUpFirebaseStream = False
-#     checkCommandsNodes()
-    
 
 
 if __name__ == '__main__':
@@ -568,12 +545,9 @@ if __name__ == '__main__':
         innerCircle = BoxCircle("innerCircle", boxState.cpuId)
         outerCircle = BoxCircle("outerCircle", boxState.cpuId)
 
-        logger.info("checking internet connectivity")
-        while(not UtilityFunctions.haveInternet()):
-            logger.info("internet is not available, sleeping 1 second")
-            time.sleep(1)
-        logger.info("have internet connectivity")
-
+        internetIsAvailable = True
+        internetCheckWaitWhileNotAvailable()
+        
         googleHostForInternetCheck = "8.8.8.8"
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect((googleHostForInternetCheck, 0))
@@ -592,18 +566,13 @@ if __name__ == '__main__':
         arr2 = [0, 1, 0, 0]
         arrOff = [0, 0, 0, 0]
 
-        
-
         moveIsBeingDone = False
         irTriggered = False
         
         logger.info("Creating FirebaseConnection")
         firebaseConnection = FirebaseConnection(str(boxState.cpuId))
         logger.info("Done creating FirebaseConnection")
-        my_stream = ""
-        doFirebaseStreamResetTimestamp = time.time() # first time should set it up
-        lastFirebaseStreamResetTimestamp = 0
-
+        firebase_stream = ""
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
         
@@ -628,8 +597,7 @@ if __name__ == '__main__':
         firebaseConnection.setFirebaseValue("version", boxState.version, "state")
 
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
-        pingSeconds = int(firebaseConnection.getPingSeconds())
-
+        pingSeconds = firebaseConnection.getPingSeconds()
 
         if(boxState.version != latestVersionAvailable):
             if(latestVersionAvailable == "unknown"):
@@ -650,9 +618,6 @@ if __name__ == '__main__':
         irThread.start()
         timeThread = threading.Thread(target=thread_time, args=(1,))
         timeThread.start()
-
-        
-
         moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
         moveThreadInner.start()
         moveThreadOuter = threading.Thread(target=thread_move_outer, args=(1,))
@@ -672,7 +637,7 @@ if __name__ == '__main__':
         setButtonLed(False)
         exitapp = True
         GPIO.cleanup()
-        my_stream.close()
+        firebase_stream.close()
         # give the threads time to shut down before removing GPIO
         time.sleep(1)
         logger.info("Shutdown complete")

@@ -3,7 +3,7 @@ import subprocess
 class UtilityFunctions:
     
     @staticmethod
-    def getserial():
+    def getserial() -> str:
         cpuserial = "123456789123456789"
         try:
             f = open('/proc/cpuinfo', 'r')
@@ -16,7 +16,7 @@ class UtilityFunctions:
         return cpuserial
 
     @staticmethod
-    def haveInternet():
+    def haveInternet() -> bool:
         googleHostForInternetCheck = "8.8.8.8"
         try:
             output = subprocess.check_output(
@@ -24,3 +24,5 @@ class UtilityFunctions:
         except Exception:
             return False
         return True
+
+        

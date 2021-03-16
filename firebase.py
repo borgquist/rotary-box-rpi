@@ -1,3 +1,4 @@
+from utilityfunctions import UtilityFunctions
 from datetimefunctions import DateTimeFunctions
 import pyrebase
 import json
@@ -8,19 +9,6 @@ from boxsettings import BoxSettings
 
 
 logger = logging.getLogger('podq')
-
-
-googleHostForInternetCheck = "8.8.8.8"
-
-
-def haveInternet():
-    try:
-        output = subprocess.check_output(
-            "ping -c 1 {}".format(googleHostForInternetCheck), shell=True)
-    except Exception:
-        return False
-    return True
-
 
 
 
@@ -53,7 +41,7 @@ class FirebaseConnection:
 
     def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None, greatgrandparent = None):
         internetWasLost = False
-        while(not haveInternet()):
+        while(not UtilityFunctions.haveInternet()):
             internetWasLost = True
             logger.info("internet is not available, sleeping 1 second")
             time.sleep(1)
@@ -113,17 +101,16 @@ class FirebaseConnection:
         localTime = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
         self.database.child("box").child("timestamp").child(self.cpuid).child("local").set(localTime.strftime(DateTimeFunctions.fmt))
         logger.info("updating timestamp to: " + localTime.strftime(DateTimeFunctions.fmt))
-        return
 
-    def getPingSeconds(self):
+    def getPingSeconds(self) -> int:
         pingSeconds = self.database.child("box").child("ping_seconds").get()
         if pingSeconds.val() is None:
             logging.warning("couldn't get ping_seconds")
             return 600
         logger.info("ping_seconds is: " + str(pingSeconds.val()))
-        return str(pingSeconds.val())
+        return int(pingSeconds.val())
 
-    def getBoxLatestVersion(self):
+    def getBoxLatestVersion(self) -> str:
         latestVersion = self.database.child("box").child("latest_version").get()
         if latestVersion.val() is None:
             logger.warning("couldn't get latest_version")
