@@ -13,30 +13,30 @@ logger = logging.getLogger('podq')
 
 
 class FirebaseConnection:
-    cpuid = 0
-    
-    def __init__(self, cpuid):
+
+    def __init__(self, cpuid, config):
+        self.configFilePath = config
         self.cpuid = cpuid
+        print("cpuid " + str(cpuid) + " configFilePath " + self.configFilePath)
+            
+
         
+        with open(self.configFilePath, 'r') as f:
+            configToBeLoaded = json.load(f)
+        apiKey = configToBeLoaded['apiKey']
+        authDomain = configToBeLoaded['authDomain']
+        databaseURL = configToBeLoaded['databaseURL']
+        storageBucket = configToBeLoaded['storageBucket']
 
-    configFilePath = '/home/pi/config.json'
-    with open(configFilePath, 'r') as f:
-        configToBeLoaded = json.load(f)
-    apiKey = configToBeLoaded['apiKey']
-    authDomain = configToBeLoaded['authDomain']
-    databaseURL = configToBeLoaded['databaseURL']
-    storageBucket = configToBeLoaded['storageBucket']
-
-    config = {
-        "apiKey": apiKey,
-        "authDomain": authDomain,
-        "databaseURL": databaseURL,
-        "storageBucket": storageBucket
-    }
-
+        config = {
+            "apiKey": apiKey,
+            "authDomain": authDomain,
+            "databaseURL": databaseURL,
+            "storageBucket": storageBucket
+        }
     
-    firebase = pyrebase.initialize_app(config)
-    database = firebase.database()
+        self.firebase = pyrebase.initialize_app(config)
+        self.database = self.firebase.database()
 
 
     def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None, greatgrandparent = None):

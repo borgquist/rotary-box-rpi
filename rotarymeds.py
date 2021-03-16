@@ -575,7 +575,7 @@ if __name__ == '__main__':
         irTriggered = False
         
         logger.info("Creating FirebaseConnection")
-        firebaseConnection = FirebaseConnection(str(boxState.cpuId))
+        firebaseConnection = FirebaseConnection(str(boxState.cpuId), '/home/pi/config.json')
         logger.info("Done creating FirebaseConnection")
         firebase_stream = ""
 
