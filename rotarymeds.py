@@ -459,11 +459,13 @@ def firebase_callback_thread(name):
                 logger.info("internet was lost, resetting firebase_stream")
                 try:
                     if(firebase_stream != ""):
+                        logger.info("closing firebase_stream")
                         firebase_stream.close()
                         logger.info("firebase_stream closed successfully")
                 except Exception as err:
                     logger.warning("firebase_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
 
+                logger.info("initialising firebase_stream")
                 firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                 logger.info("firebase_stream has been initialised")
                 
