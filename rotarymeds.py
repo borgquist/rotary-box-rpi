@@ -57,12 +57,28 @@ def getStepper(circle: BoxCircle, defaultstepper):
 
 
 def getSchedules():
-    defaultSchedule = [{"id": UtilityFunctions.generateId(), "day": "everyday", "hour": 7, "minute": 0}]
+    defaultSchedule = {UtilityFunctions.generateId():{"day": "everyday", "hour": 7, "minute": 0}}
+    
+    innerSchedules = []
+    orderedDictInner = firebaseConnection.getFirebaseValue('testschedules', defaultSchedule, "settings", innerCircle.name, "circles")
 
-    innerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
-        'schedules', defaultSchedule, "settings", innerCircle.name,"circles")
-    outerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
-        'schedules', defaultSchedule, "settings", outerCircle.name,"circles")
+    for key in orderedDictInner:
+        innerSchedules.insert(orderedDictInner[key])
+    innerCircle.settings.schedules = innerSchedules
+
+    outerSchedules = []
+    orderedDictOuter = firebaseConnection.getFirebaseValue('testschedules', defaultSchedule, "settings", outerCircle.name, "circles")
+
+    for key in orderedDictOuter:
+        outerSchedules.insert(orderedDictOuter[key])
+    outerCircle.settings.schedules = outerSchedules
+
+
+
+    # innerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
+    #     'schedules', defaultSchedule, "settings", innerCircle.name,"circles")
+    # outerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
+    #     'schedules', defaultSchedule, "settings", outerCircle.name,"circles")
 
 def move_stepper(circle: BoxCircle):
     global moveIsBeingDone
