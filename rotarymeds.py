@@ -379,7 +379,7 @@ def thread_move(circle: BoxCircle):
             
             nextMove = getAndUpdateNextMoveFirebase(circle)
 
-            if(nextMove != 0):
+            if(nextMove is not None):
                 now = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                 secondsBetween = abs((now-nextMove).total_seconds())
                 if(abs((now-lastMove).total_seconds()) < 60):
