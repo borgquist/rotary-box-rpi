@@ -345,7 +345,6 @@ def thread_time(name):
 def getAndUpdateNextMoveFirebase(circle: BoxCircle) -> datetime.datetime:
     nextMove = getNextMove(circle.settings.schedules)
     
-    logger.info("next move is " +str(nextMove))
     if(str(nextMove) != str(circle.state.nextMove)):
         logger.info("nextMove needs updating from [" + str(circle.state.nextMove) + "] to [" + str(nextMove) +"]")
         firebaseConnection.setFirebaseValue(
