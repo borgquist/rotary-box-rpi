@@ -344,7 +344,7 @@ def thread_time(name):
 
 def getAndUpdateNextMoveFirebase(circle: BoxCircle) -> datetime.datetime:
     nextMove = getNextMove(circle.settings.schedules)
-    nextMoveInEpoch = nextMove.timestamp()
+    
     logger.info("next move is " +str(nextMove))
     if(str(nextMove) != str(circle.state.nextMove)):
         logger.info("nextMove needs updating from [" + str(circle.state.nextMove) + "] to [" + str(nextMove) +"]")
@@ -352,6 +352,11 @@ def getAndUpdateNextMoveFirebase(circle: BoxCircle) -> datetime.datetime:
             "nextMove", str(nextMove).strip(), "state", circle.name, "circles")
         circle.state.nextMove = nextMove
 
+    if(nextMove is None):
+        nextMoveInEpoch = None
+    else:
+        nextMoveInEpoch = nextMove.timestamp()
+        
     if(str(nextMoveInEpoch) != str(circle.state.nextMoveInEpoch)):
         logger.info("nextMoveInEpoch needs updating from [" + str(circle.state.nextMoveInEpoch) + "] to [" + str(nextMoveInEpoch) +"]")
         firebaseConnection.setFirebaseValue(
