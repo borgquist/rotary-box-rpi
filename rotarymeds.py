@@ -158,10 +158,7 @@ def getNextMove(schedules) -> datetime.datetime:
     for schedule in schedules:
         candiate = DateTimeFunctions.getDateTimeFromScheduleWithTimezone(
             schedule['day'], schedule['hour'], schedule['minute'], boxSettings.timezone)
-        if(candiate is None):
-            logging.warning(
-                "this is odd, candidate was None [" + str(schedule) + "]")
-        else:
+        if(candiate is not None):
             if(nextMove == 0):
                 nextMove = candiate
             elif(nextMove > candiate):
@@ -348,7 +345,7 @@ def thread_time(name):
 def getAndUpdateNextMoveFirebase(circle: BoxCircle) -> datetime.datetime:
     nextMove = getNextMove(circle.settings.schedules)
     nextMoveInEpoch = nextMove.timestamp()
-    
+    logger.info("next move is " +str(nextMove))
     if(str(nextMove) != str(circle.state.nextMove)):
         logger.info("nextMove needs updating from [" + str(circle.state.nextMove) + "] to [" + str(nextMove) +"]")
         firebaseConnection.setFirebaseValue(

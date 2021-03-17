@@ -111,7 +111,6 @@ class DateTimeFunctions:
             if(weekdayOfMove == DateTimeFunctions.getWeekday(candidateForNextMove).lower()):
                 return candidateForNextMove
             
-        print("could'nt find next")
         return None
 
     
