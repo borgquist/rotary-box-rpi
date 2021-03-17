@@ -359,8 +359,10 @@ def getAndUpdateNextMoveFirebase(circle: BoxCircle) -> datetime.datetime:
 
     if(str(nextMoveInEpoch) != str(circle.state.nextMoveInEpoch)):
         logger.info("nextMoveInEpoch needs updating from [" + str(circle.state.nextMoveInEpoch) + "] to [" + str(nextMoveInEpoch) +"]")
+        if(nextMoveInEpoch is not None):
+            nextMoveInEpoch = float(nextMoveInEpoch)
         firebaseConnection.setFirebaseValue(
-            "nextMoveInEpoch", float(nextMoveInEpoch), "state", circle.name, "circles")
+            "nextMoveInEpoch", nextMoveInEpoch, "state", circle.name, "circles")
         circle.state.nextMoveInEpoch = nextMoveInEpoch
 
     return nextMove
