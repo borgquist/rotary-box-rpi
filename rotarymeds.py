@@ -154,12 +154,12 @@ def move(circle: BoxCircle):
 
 
 def getNextMove(schedules) -> datetime.datetime:
-    nextMove = 0
+    nextMove = None
     for schedule in schedules:
         candiate = DateTimeFunctions.getDateTimeFromScheduleWithTimezone(
             schedule['day'], schedule['hour'], schedule['minute'], boxSettings.timezone)
         if(candiate is not None):
-            if(nextMove == 0):
+            if(nextMove == None):
                 nextMove = candiate
             elif(nextMove > candiate):
                 nextMove = candiate
@@ -356,7 +356,7 @@ def getAndUpdateNextMoveFirebase(circle: BoxCircle) -> datetime.datetime:
         nextMoveInEpoch = None
     else:
         nextMoveInEpoch = nextMove.timestamp()
-        
+
     if(str(nextMoveInEpoch) != str(circle.state.nextMoveInEpoch)):
         logger.info("nextMoveInEpoch needs updating from [" + str(circle.state.nextMoveInEpoch) + "] to [" + str(nextMoveInEpoch) +"]")
         firebaseConnection.setFirebaseValue(
