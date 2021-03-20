@@ -313,6 +313,8 @@ def stream_handler(message):
             foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
+                if(data == "empty"):
+                    setPocketsFull(outerCircle, 0, True)    
                 setPocketsFull(outerCircle, int(data), True)
 
         if(foundPath == False):
