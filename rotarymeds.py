@@ -307,7 +307,8 @@ def stream_handler(message):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 if(data == "empty"):
                     setPocketsFull(innerCircle, 0, True)    
-                setPocketsFull(innerCircle, int(data), True)
+                else:
+                    setPocketsFull(innerCircle, int(data), True)
 
         if message["path"] == '/circles/outerCircle/commands/setPocketsFull':
             foundPath = True
@@ -315,7 +316,8 @@ def stream_handler(message):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 if(data == "empty"):
                     setPocketsFull(outerCircle, 0, True)    
-                setPocketsFull(outerCircle, int(data), True)
+                else:
+                    setPocketsFull(outerCircle, int(data), True)
 
         if(foundPath == False):
             logger.info("we're ignoring the callback for  [" + message["path"] + "] received with data [" + str(data) + "]")
