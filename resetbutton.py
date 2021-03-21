@@ -14,17 +14,19 @@ flash_button = False
 
 def removeNetworkConnections():
     logger.info("removing network connections")
-    bus = dbus.SystemBus()
-    proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager/Settings")
-    settings = dbus.Interface(proxy, "org.freedesktop.NetworkManager.Settings")
+    # bus = dbus.SystemBus()
+    # proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager/Settings")
+    # settings = dbus.Interface(proxy, "org.freedesktop.NetworkManager.Settings")
 
-    connection_paths = settings.ListConnections()
+    # connection_paths = settings.ListConnections()
 
-    for path in connection_paths:
-        con_proxy = bus.get_object("org.freedesktop.NetworkManager", path)
-        settings_connection = dbus.Interface(con_proxy, "org.freedesktop.NetworkManager.Settings.Connection")
-        config = settings_connection.GetSettings()
-        settings_connection.Delete()
+    # for path in connection_paths:
+    #     con_proxy = bus.get_object("org.freedesktop.NetworkManager", path)
+    #     settings_connection = dbus.Interface(con_proxy, "org.freedesktop.NetworkManager.Settings.Connection")
+    #     config = settings_connection.GetSettings()
+    #     settings_connection.Delete()
+    os.system('sudo python3 /home/pi/clearnetwork.py')
+                        
     logger.info("done removing network connections")
 
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
