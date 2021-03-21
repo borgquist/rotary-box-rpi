@@ -46,7 +46,6 @@ def thread_button(name):
                     if(fiveSecondPressDone == False):
                         logger.info("five second press, calling wifi-connect")
                         flash_button = True
-                        os.system('sudo /etc/init.d/network-manager restart')
                         os.system('sudo wifi-connect -s PodQ-setupWiFi')
                         logger.info("reset wifi complete, calling reboot")
                         flash_button = False
