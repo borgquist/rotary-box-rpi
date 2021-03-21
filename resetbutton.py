@@ -1,3 +1,4 @@
+from utilityfunctions import UtilityFunctions
 import RPi.GPIO as GPIO
 import time
 import logging
@@ -56,6 +57,20 @@ def thread_button_flasher(name):
         
     logger.info("thread_button_flasher    : exiting")    
 
+
+def getCpuId() -> str:
+    cpuserial = "123456789123456789"
+    try:
+        f = open('/proc/cpuinfo', 'r')
+        for line in f:
+            if line[0:6] == 'Serial':
+                cpuserial = line[10:26].replace('0', '')
+        f.close()
+    except:
+        cpuserial = "ERROR000000000"
+    return cpuserial
+
+
 def thread_button(name):
     global flash_button, exitapp
     timeButtonNotPressed = 0
@@ -67,7 +82,8 @@ def thread_button(name):
                         logger.info("five second press, calling wifi-connect")
                         flash_button = True
                         removeNetworkConnections()
-                        os.system('sudo wifi-connect -s PodQ-setupWiFi')
+                        
+                        os.system('sudo wifi-connect -s PodQ-' + getCpuId())
                         logger.info("reset wifi complete, calling reboot")
                         flash_button = False
                         flashButtonLed(0.2,10,True)
