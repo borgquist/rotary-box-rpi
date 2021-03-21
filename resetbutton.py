@@ -6,8 +6,26 @@ import os
 import traceback
 import subprocess
 import json
+import dbus, uuid
+
 exitapp = False
 flash_button = False
+
+
+def removeNetworkConnections():
+    logger.info("removing network connections")
+    bus = dbus.SystemBus()
+    proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager/Settings")
+    settings = dbus.Interface(proxy, "org.freedesktop.NetworkManager.Settings")
+
+    connection_paths = settings.ListConnections()
+
+    for path in connection_paths:
+        con_proxy = bus.get_object("org.freedesktop.NetworkManager", path)
+        settings_connection = dbus.Interface(con_proxy, "org.freedesktop.NetworkManager.Settings.Connection")
+        config = settings_connection.GetSettings()
+        settings_connection.Delete()
+    logger.info("done removing network connections")
 
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     ledOn = False
@@ -46,6 +64,7 @@ def thread_button(name):
                     if(fiveSecondPressDone == False):
                         logger.info("five second press, calling wifi-connect")
                         flash_button = True
+                        removeNetworkConnections()
                         os.system('sudo wifi-connect -s PodQ-setupWiFi')
                         logger.info("reset wifi complete, calling reboot")
                         flash_button = False
