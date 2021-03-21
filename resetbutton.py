@@ -23,7 +23,7 @@ def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     setButtonLedOn(finalValue)
 
 def thread_button_flasher(name):
-    global flash_button
+    global flash_button, exitapp
     while not exitapp: 
         try: 
             if(flash_button):
@@ -37,8 +37,8 @@ def thread_button_flasher(name):
     logger.info("thread_button_flasher    : exiting")    
 
 def thread_button(name):
+    global flash_button, exitapp
     timeButtonNotPressed = 0
-    global flash_button
     while not exitapp:
         try:
             if GPIO.input(button_pushed_pin) == GPIO.HIGH :
