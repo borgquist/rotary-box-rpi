@@ -34,7 +34,6 @@ def triggerResetMode():
     
     os.system('sudo reboot now')
 
-@staticmethod
 def haveInternet() -> bool:
     googleHostForInternetCheck = "8.8.8.8"
     try:
