@@ -27,7 +27,7 @@ def thread_button_flasher(name):
     while not exitapp: 
         try: 
             if(flash_button):
-                flashButtonLed(0.5, 6, True) #works as a sleep too
+                flashButtonLed(1, 6, True) #works as a sleep too
             else:
                 time.sleep(1)
     
@@ -46,8 +46,12 @@ def thread_button(name):
                     if(fiveSecondPressDone == False):
                         logger.info("five second press, calling wifi-connect")
                         flash_button = True
+                        os.system('sudo /etc/init.d/network-manager restart')
                         os.system('sudo wifi-connect -s PodQ-setupWiFi')
                         logger.info("reset wifi complete, calling reboot")
+                        flash_button = False
+                        flashButtonLed(0.2,10,True)
+                        GPIO.output(button_led_pin,GPIO.HIGH)
                         os.system('sudo reboot now')
                         exitapp = True
                         return
