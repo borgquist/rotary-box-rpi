@@ -7,33 +7,6 @@ import traceback
 import subprocess
 import json
 
-folderPath = '/home/pi/'
-os.makedirs(folderPath + "logs/", exist_ok=True)
-logging.basicConfig(format='%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-    datefmt='%Y-%m-%d:%H:%M:%S',
-    level=logging.INFO,
-    handlers=[
-        logging.FileHandler(folderPath + "logs/resetbutton.log"),
-        logging.StreamHandler()
-    ])
-
-
-pinConfigFilePath = '/home/pi/pinlayout.json'
-with open(pinConfigFilePath, 'r') as f:
-    pinConfigToBeLoaded = json.load(f)
-
-button_led_pin = pinConfigToBeLoaded['button_led_pin']
-button_pushed_pin = pinConfigToBeLoaded['button_pushed_pin']
-
-
-GPIO.setmode(GPIO.BCM)
-
-exitapp = False
-delay=.5
-GPIO.setup(button_pushed_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
-
-GPIO.setup(button_led_pin,GPIO.OUT)
-
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     ledOn = False
     
@@ -50,31 +23,26 @@ def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     setButtonLedOn(finalValue)
 
 def triggerResetMode():
-    logging.info("reset wifi triggered")
+    logger.info("reset wifi triggered")
     flashButtonLed(0.5, 6, True)
     
-    os.system('sudo wifi-connect -s RotaryMeds-setupWiFi')
-    logging.info("reset wifi complete")
+    os.system('sudo wifi-connect -s PodQ-setupWiFi')
+    logger.info("reset wifi complete")
     
     flashButtonLed(0.5, 10, False)
-    logging.info("calling reboot")
+    logger.info("calling reboot")
     
     os.system('sudo reboot now')
 
-
- 
-googleHostForInternetCheck = "8.8.8.8"
-
-def haveInternet():
+@staticmethod
+def haveInternet() -> bool:
+    googleHostForInternetCheck = "8.8.8.8"
     try:
-        output = subprocess.check_output("ping -c 5 {}".format(googleHostForInternetCheck), shell=True)
-
+        output = subprocess.check_output(
+            "ping -c 1 {}".format(googleHostForInternetCheck), shell=True)
     except Exception:
         return False
-
     return True
-
-
 
 def thread_internet_connectivity(name):
     timestampInternetOK = 1
@@ -86,69 +54,92 @@ def thread_internet_connectivity(name):
             if(not haveInternet()):
                 if(timestampLastInternetNotOk < timestampInternetOK):
                     internetOutCount = internetOutCount + 1
-                    logging.warning("internet is not available, outage count: " + str(internetOutCount))
-                    
+                    logger.warning("internet is not available, outage count: " + str(internetOutCount))
+                flashButtonLed(0.5, 6, True) #works as a sleep too
                 timestampLastInternetNotOk = time.time()
             else:
                 if(timestampInternetOK < timestampLastInternetNotOk):
-                    logging.info("there is internet again, outage count: " + str(internetOutCount))
+                    logger.info("there is internet again, outage count: " + str(internetOutCount))
                 timestampInternetOK = time.time()
-            time.sleep(5)
+                time.sleep(5)
     
         except Exception as err:
-            logging.error("exception " +  traceback.format_exc())
+            logger.error("exception " +  traceback.format_exc())
         
-    logging.info("thread_internet_connectivity    : exiting")    
+    logger.info("thread_internet_connectivity    : exiting")    
 
-
-try:
-    timestampNow = time.time()
-    timeGreenButtonPushed = timestampNow + 5
+def thread_button(name):
     timeButtonNotPressed = 0
-    timeButtonPressMostRecent = 0
-    GPIO.setwarnings(False)
-    fiveSecondPressDone = False
-    pressCount = 0
-
-    internetThread = threading.Thread(target=thread_internet_connectivity, args=(1,))
-    internetThread.start()
-    logging.info("thread_internet_connectivity stared")
-
-    logging.info("ready")
-    while (True): 
-
-        if GPIO.input(button_pushed_pin) == GPIO.HIGH :
-            timestampNow = time.time()
-
-            if(timeButtonNotPressed > timeButtonPressMostRecent):
-                pressCount = pressCount + 1
-                logging.info("button was pressed " + str(pressCount))
-
-            timeButtonPressMostRecent = timestampNow
-            
-            if(timestampNow - timeButtonNotPressed > 5):
-                if(fiveSecondPressDone == False):
-                    logging.info("five second press, calling wifi-connect")
-                    triggerResetMode()
-                fiveSecondPressDone = True
+    while not exitapp:
+        try:
+            if GPIO.input(button_pushed_pin) == GPIO.HIGH :
+                if(time.time() - timeButtonNotPressed > 5):
+                    if(fiveSecondPressDone == False):
+                        logger.info("five second press, calling wifi-connect")
+                        triggerResetMode()
+                    fiveSecondPressDone = True
+                else:
+                    fiveSecondPressDone = False
             else:
-                fiveSecondPressDone = False
-        else:
-            timeButtonNotPressed = time.time()
+                timeButtonNotPressed = time.time()
 
-        time.sleep(delay)
+            time.sleep(1) #sleeping a second, doesn't matter that this is long since we are waiting for 5 seconds of press (6 makes no difference)
+        except Exception as err:
+            logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
+
+    logger.info("exiting")
+
+if __name__ == '__main__':
+    try:
+        exitapp = False
+        folderPath = '/home/pi/'
+        os.makedirs(folderPath + "logs/", exist_ok=True)
+        logFormat = '%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] [%(funcName)s] %(message)s'
+        date_fmt = '%a %d %b %Y %H:%M:%S'
+        logging.basicConfig(format=logFormat, datefmt=date_fmt, level=logging.INFO)
+        logger = logging.getLogger('podq')
+        logger.setLevel(logging.INFO)
+        file_handler = logging.FileHandler(folderPath + "logs/wifi-connect-podq.log")
+        file_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(logFormat, date_fmt)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        
+        pinConfigFilePath = '/home/pi/pinlayout.json'
+        with open(pinConfigFilePath, 'r') as f:
+            pinConfigToBeLoaded = json.load(f)
+
+        GPIO.setmode(GPIO.BCM)
+        button_pushed_pin = pinConfigToBeLoaded['button_pushed_pin']
+        GPIO.setup(button_pushed_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
+        button_led_pin = pinConfigToBeLoaded['button_led_pin']
+        GPIO.setup(button_led_pin,GPIO.OUT)
+
+        timeButtonNotPressed = 0
+        GPIO.setwarnings(False)
+        fiveSecondPressDone = False
+        
+        buttonThread = threading.Thread(target=thread_button, args=(1,))
+        buttonThread.start()
+        logger.info("thread_button stared")
+
+        internetThread = threading.Thread(target=thread_internet_connectivity, args=(1,))
+        internetThread.start()
+        logger.info("thread_internet_connectivity stared")
+        logger.info("Podq wifi-connect monitor started")
+        while (True):
+            time.sleep(10)
 
 
-except KeyboardInterrupt: # If CTRL+C is pressed, exit cleanly:
-    logging.info("Keyboard interrupt")
+    except KeyboardInterrupt:  # If CTRL+C is pressed, exit cleanly:
+        logger.info("Keyboard interrupt")
+    except Exception as err:
+        logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
+    finally:
+        logger.info("cleaning up the GPIO and exiting")
+        exitapp = True
+        GPIO.cleanup()
+        time.sleep(1)
+        logger.info("Shutdown complete")
 
-except Exception:
-    logging.error("exception " +  traceback.format_exc())
-    
-finally:
-    logging.info("leaning up the GPIO and exiting")
-    exitapp = True
-    GPIO.cleanup()
-    
-
-logging.info("Goodbye!")
+    logger.info("Goodbye!")
