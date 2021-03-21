@@ -63,6 +63,7 @@ def thread_button(name):
 
 if __name__ == '__main__':
     try:
+        global exitapp 
         exitapp = False
         global flash_button
         flash_button = False
