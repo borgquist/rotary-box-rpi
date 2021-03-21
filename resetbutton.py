@@ -6,6 +6,8 @@ import os
 import traceback
 import subprocess
 import json
+exitapp = False
+flash_button = False
 
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     ledOn = False
@@ -63,10 +65,6 @@ def thread_button(name):
 
 if __name__ == '__main__':
     try:
-        global exitapp 
-        exitapp = False
-        global flash_button
-        flash_button = False
         folderPath = '/home/pi/'
         os.makedirs(folderPath + "logs/", exist_ok=True)
         logFormat = '%(asctime)s.%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] [%(funcName)s] %(message)s'
