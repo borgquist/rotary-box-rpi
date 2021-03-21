@@ -5,7 +5,7 @@ Description=ResetButtonService
 Type=simple
 User=pi
 ExecStartPre=/bin/sleep 10
-ExecStart=/usr/bin/python3 /home/pi/rotary-box-rpi/resetbutton.py
+ExecStart=/usr/bin/python3 /home/pi/resetbutton.py
 
 [Install]
 WantedBy=multi-user.target
