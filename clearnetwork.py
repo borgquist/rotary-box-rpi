@@ -1,17 +1,14 @@
-import NetworkManager
+#!/usr/bin/env python
+import dbus, uuid
 
-### Run this before we run 'wifi-connect' to clear out pre-configured networks
-def clear_connections():
-    # Get all known connections
-    connections = NetworkManager.Settings.ListConnections()
+bus = dbus.SystemBus()
+proxy = bus.get_object("org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager/Settings")
+settings = dbus.Interface(proxy, "org.freedesktop.NetworkManager.Settings")
 
-    # Delete the '802-11-wireless' connections
-    for connection in connections:
-        if connection.GetSettings()["connection"]["type"] == "802-11-wireless":
-            print("Deleting connection "
-                + connection.GetSettings()["connection"]["id"]
-            )
-            connection.Delete()
+connection_paths = settings.ListConnections()
 
-if __name__=="__main__":
-    clear_connections()
+for path in connection_paths:
+       con_proxy = bus.get_object("org.freedesktop.NetworkManager", path)
+       settings_connection = dbus.Interface(con_proxy, "org.freedesktop.NetworkManager.Settings.Connection")
+       config = settings_connection.GetSettings()
+       settings_connection.Delete()
