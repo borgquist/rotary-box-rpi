@@ -328,10 +328,9 @@ def stream_handler(message):
 
         if message["path"] == '/commands/ping':
             foundPath = True
-            if(data != False):
+            if(data == True or data == 'ping'):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
-                firebaseConnection.setFirebaseValue("ping", False, "commands")
-                firebaseConnection.setPing(boxSettings)
+                firebaseConnection.setFirebaseValue("ping", time.time(), "commands")
 
 
         if(foundPath == False):
