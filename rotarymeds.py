@@ -509,13 +509,12 @@ def checkVersionAndUpdateIfNeeded():
     if(UtilityFunctions.versionIsLessThanServer(boxState.version, latestVersionAvailable) == False):
         return
     
-    logging.warning("box needs updating [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
-    logger.info("calling gitclone")
+    logging.warning("PodQ box needs updating [" + boxState.version + "] latest_version [" + latestVersionAvailable + "] calling gitclone")
     os.system('sudo /home/pi/gitclone.sh')
     logger.info("gitclone complete, calling reboot")
     flashButtonLed(0.2, 20, True)
-    logger.info("rebooting")
     os.system('sudo reboot now')
+    return
                         
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     ledOn = False
@@ -555,9 +554,9 @@ if __name__ == '__main__':
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
-        logger.info("podq version is " + boxState.version)
+        logger.info("PodQ starting ---------------------------------------------------")
         boxState.cpuId = UtilityFunctions.getserial()
-        logger.info("CPU serial is [" + str(boxState.cpuId) + "]")
+        logger.info("PodQ box version " + boxState.version + " CPU serial [" + str(boxState.cpuId) + "]")
 
         boxSettings = BoxSettings()
 
@@ -620,9 +619,7 @@ if __name__ == '__main__':
         moveIsBeingDone = False
         irTriggered = False
         
-        logger.info("Creating FirebaseConnection")
         firebaseConnection = FirebaseConnection(str(boxState.cpuId), '/home/pi/config.json')
-        logger.info("Done creating FirebaseConnection")
         firebase_stream = ""
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
@@ -651,8 +648,7 @@ if __name__ == '__main__':
         
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         checkVersionAndUpdateIfNeeded()
-        logging.info("version check done. Box version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
-    
+        
 
         firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
         firebaseCallbackThread.start()
@@ -685,5 +681,5 @@ if __name__ == '__main__':
         firebase_stream.close()
         # give the threads time to shut down before removing GPIO
         time.sleep(1)
-        logger.info("Shutdown complete")
-    logger.info("Goodbye!")
+        logger.info("Shutdown complete ---------------------------------------------------")
+    logger.info("Goodbye! ---------------------------------------------------")
