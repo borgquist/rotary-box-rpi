@@ -33,9 +33,12 @@ class UtilityFunctions:
         return True
 
     @staticmethod
-    def getWifiInfo():
+    def getWifiInfo(longVersion: bool):
         try:
-            return subprocess.check_output(['iwconfig']).decode('utf-8')
+            if(longVersion):
+                return subprocess.check_output(['iwconfig']).decode('utf-8')
+            else:
+                return subprocess.check_output(['iwgetid']).decode('utf-8')
         except Exception as err:
             return(str(err))
         
