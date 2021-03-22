@@ -650,6 +650,8 @@ if __name__ == '__main__':
         
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         checkVersionAndUpdateIfNeeded()
+        logging.info("version check done. Box version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
+    
 
         firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
         firebaseCallbackThread.start()
