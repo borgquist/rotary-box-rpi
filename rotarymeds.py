@@ -533,7 +533,7 @@ def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
 if __name__ == '__main__':
     try:
         boxState = BoxState()
-        boxState.version = "1.0.1"
+        boxState.version = "1.0.2"
         
         exitapp = False
         folderPath = '/home/pi/'
