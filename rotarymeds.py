@@ -505,6 +505,30 @@ def firebase_callback_thread(name):
 
     logger.info("exiting")
 
+def checkVersionAndUpdateIfNeeded():
+    if(UtilityFunctions.versionIsLessThanServer(boxState.version, latestVersionAvailable) == False):
+        return
+    
+    logging.warning("box needs updating [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
+    logger.info("calling gitclone")
+    os.system('sudo /home/pi/gitclone.sh')
+    logger.info("gitclone complete, calling reboot")
+    flashButtonLed(0.2, 20, True)
+    logger.info("rebooting")
+    os.system('sudo reboot now')
+                        
+def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
+    ledOn = False
+    def setButtonLedOn(setToOn):
+        if(setToOn):
+            GPIO.output(button_led_pin,GPIO.HIGH)
+        else:
+            GPIO.output(button_led_pin,GPIO.LOW)
+    for x in range(int(nrFlashes)):
+        ledOn = not ledOn
+        setButtonLedOn(ledOn)
+        time.sleep(speedInSeconds)
+    setButtonLedOn(finalValue)        
 
 
 if __name__ == '__main__':
@@ -518,22 +542,22 @@ if __name__ == '__main__':
                             datefmt=date_fmt,
                             level=logging.INFO
                             )
-
         connectionpool_logger = logging.getLogger("requests.packages.urllib3.connectionpool")
         connectionpool_logger.setLevel(logging.WARNING)
-
         logger = logging.getLogger('podq')
         logger.setLevel(logging.INFO)
         file_handler = logging.FileHandler(folderPath + "logs/podq.log")
         file_handler.setLevel(logging.INFO)
-
-
         formatter = logging.Formatter(logFormat, date_fmt)
-
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
         boxState = BoxState()
+        boxState.version = "1.0.25"
+        logger.info("podq version is " + boxState.version)
+        boxState.cpuId = UtilityFunctions.getserial()
+        logger.info("CPU serial is [" + str(boxState.cpuId) + "]")
+
         boxSettings = BoxSettings()
 
         pinConfigFilePath = '/home/pi/pinlayout.json'
@@ -567,11 +591,7 @@ if __name__ == '__main__':
         }
 
         led_pin = pinConfigToBeLoaded['led_pin']
-        boxState.version = "1.0.25"
-        logger.info("podq version is " + boxState.version)
-        boxState.cpuId = UtilityFunctions.getserial()
-        logger.info("CPU serial is [" + str(boxState.cpuId) + "]")
-
+        
         innerCircle = BoxCircle("innerCircle", boxState.cpuId)
         outerCircle = BoxCircle("outerCircle", boxState.cpuId)
 
@@ -626,18 +646,10 @@ if __name__ == '__main__':
         firebaseConnection.setFirebaseValue("hostname", boxState.hostname, "state")
         firebaseConnection.setFirebaseValue("version", boxState.version, "state")
 
-        latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         pingSeconds = firebaseConnection.getPingSeconds()
-
-        if(boxState.version != latestVersionAvailable):
-            if(latestVersionAvailable == "unknown"):
-                logging.error("unable to get latest_version from firebase")
-            else:
-                logging.warning(
-                    "our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
-        else:
-            logger.info(
-                "OK our version [" + boxState.version + "] latest_version [" + latestVersionAvailable + "]")
+        
+        latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
+        checkVersionAndUpdateIfNeeded()
 
         firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
         firebaseCallbackThread.start()

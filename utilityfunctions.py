@@ -1,5 +1,6 @@
 import subprocess
 from datetime import datetime
+from types import MappingProxyType
 from uuid import uuid4
 
 class UtilityFunctions:
@@ -31,4 +32,19 @@ class UtilityFunctions:
             return False
         return True
 
-        
+    
+    @staticmethod
+    def getNumberFromVersion(boxVersion: str):
+        l = [int(x, 10) for x in boxVersion.split('.')]
+        l.reverse()
+        return sum(x * (100 ** i) for i, x in enumerate(l))
+
+
+    @staticmethod
+    def versionIsLessThanServer(boxVersion: str, serverVersion: str) -> bool:
+        boxNumber = UtilityFunctions.getNumberFromVersion(boxVersion)
+        serverNumber = UtilityFunctions.getNumberFromVersion(serverVersion)
+        restartNeeded = boxNumber < serverNumber
+        return restartNeeded
+
+    
