@@ -4,20 +4,15 @@ import logging
 import threading
 import os
 import traceback
-import subprocess
 import json
-import dbus, uuid
 
 exitapp = False
 flash_button = False
 
-
 def removeNetworkConnections():
     logger.info("removing network connections")
-    
     os.system('sudo rm /etc/NetworkManager/system-connections/*')
     os.system('sudo python3 /home/pi/clearnetwork.py')
-                        
     logger.info("done removing network connections")
 
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):

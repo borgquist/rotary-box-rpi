@@ -1,11 +1,11 @@
 [Unit]
-Description=RotaryMedsService
+Description=PodQService
 
 [Service]
 Type=simple
 User=pi
 ExecStartPre=/bin/sleep 10
-ExecStart=/usr/bin/python3 /home/pi/rotary-box-rpi/rotarymeds.py
+ExecStart=/usr/bin/python3 /home/pi/podq-box-rpi/podq.py
 
 [Install]
 WantedBy=multi-user.target
