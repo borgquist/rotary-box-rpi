@@ -533,6 +533,9 @@ def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
 
 if __name__ == '__main__':
     try:
+        boxState = BoxState()
+        boxState.version = "1.0.26"
+        
         exitapp = False
         folderPath = '/home/pi/'
         os.makedirs(folderPath + "logs/", exist_ok=True)
@@ -552,8 +555,6 @@ if __name__ == '__main__':
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
-        boxState = BoxState()
-        boxState.version = "1.0.25"
         logger.info("podq version is " + boxState.version)
         boxState.cpuId = UtilityFunctions.getserial()
         logger.info("CPU serial is [" + str(boxState.cpuId) + "]")
