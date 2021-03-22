@@ -32,6 +32,15 @@ class UtilityFunctions:
             return False
         return True
 
+    @staticmethod
+    def getWifiInfo():
+        try:
+            return subprocess.check_output(['iwconfig']).decode('utf-8')
+        except Exception as err:
+            return(str(err))
+        
+        
+            
     
     @staticmethod
     def getNumberFromVersion(boxVersion: str):

@@ -555,6 +555,7 @@ if __name__ == '__main__':
         logger.addHandler(file_handler)
 
         logger.info("PodQ starting ---------------------------------------------------")
+        logger.info("wifi info " + UtilityFunctions.getWifiInfo())
         boxState.cpuId = UtilityFunctions.getserial()
         
         boxSettings = BoxSettings()
