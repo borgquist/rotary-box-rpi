@@ -318,6 +318,13 @@ def stream_handler(message):
                     setPocketsFull(outerCircle, 0, True)    
                 else:
                     setPocketsFull(outerCircle, int(data), True)
+        
+        if message["path"] == '/commands/doRestart':
+            foundPath = True
+            if(data != False):
+                logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
+                firebaseConnection.setFirebaseValue("doRestart", False, "commands")
+                doRestartWithGitclone()
 
         if(foundPath == False):
             logger.info("we're ignoring the callback for  [" + message["path"] + "] received with data [" + str(data) + "]")
@@ -508,13 +515,17 @@ def firebase_callback_thread(name):
 def checkVersionAndUpdateIfNeeded():
     if(UtilityFunctions.versionIsLessThanServer(boxState.version, latestVersionAvailable) == False):
         return
-    
-    logging.warning("PodQ box needs updating [" + boxState.version + "] latest_version [" + latestVersionAvailable + "] calling gitclone")
+    logging.warning("PodQ box needs updating [" + boxState.version + "] latest_version [" + latestVersionAvailable + "] calling doRestartWithGitclone")
+    doRestartWithGitclone()
+    return
+
+def doRestartWithGitclone():
+    logger.info("doRestartWithGitclone called")
     os.system('sudo /home/pi/gitclone.sh')
     logger.info("gitclone complete, calling reboot")
     flashButtonLed(0.2, 20, True)
     os.system('sudo reboot now')
-    return
+
                         
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     ledOn = False
