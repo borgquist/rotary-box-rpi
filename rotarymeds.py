@@ -556,8 +556,7 @@ if __name__ == '__main__':
 
         logger.info("PodQ starting ---------------------------------------------------")
         boxState.cpuId = UtilityFunctions.getserial()
-        logger.info("PodQ box version " + boxState.version + " CPU serial [" + str(boxState.cpuId) + "]")
-
+        
         boxSettings = BoxSettings()
 
         pinConfigFilePath = '/home/pi/pinlayout.json'
@@ -647,8 +646,8 @@ if __name__ == '__main__':
         pingSeconds = firebaseConnection.getPingSeconds()
         
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
+        logger.info("PodQ box version [" + boxState.version + "] latest_version ["+ latestVersionAvailable + "] CPU serial [" + str(boxState.cpuId) + "]")
         checkVersionAndUpdateIfNeeded()
-        
 
         firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
         firebaseCallbackThread.start()

@@ -115,6 +115,4 @@ class FirebaseConnection:
         if latestVersion.val() is None:
             logger.warning("couldn't get latest_version")
             return "unknown"
-
-        logger.info("latest_version is: " + str(latestVersion.val()))
         return str(latestVersion.val())
