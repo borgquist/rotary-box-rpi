@@ -326,6 +326,14 @@ def stream_handler(message):
                 firebaseConnection.setFirebaseValue("doRestart", False, "commands")
                 doRestartWithGitclone()
 
+        if message["path"] == '/commands/ping':
+            foundPath = True
+            if(data != False):
+                logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
+                firebaseConnection.setFirebaseValue("ping", False, "commands")
+                firebaseConnection.setPing(boxSettings)
+
+
         if(foundPath == False):
             logger.info("we're ignoring the callback for  [" + message["path"] + "] received with data [" + str(data) + "]")
             
