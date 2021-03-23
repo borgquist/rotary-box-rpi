@@ -514,8 +514,9 @@ def firebase_callback_thread(name):
 
             if(timestampLastReset + resetEachSeconds < time.time()):
                 try:
-                    logger.info("time for firebase stream reset")
-                    firebase_stream.close()
+                    logger.info("Doing scheduled firebase stream reset")
+                    if(firebase_stream != ""):
+                        firebase_stream.close()
                     firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                     timestampLastReset = time.time()
                     logger.info("firebase stream reset done")
