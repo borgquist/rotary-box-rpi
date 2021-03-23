@@ -537,6 +537,8 @@ class ClosableSSEClient(SSEClient):
 
         try:
             self.resp.raw._fp.fp.raw._sock.close()
+        except AttributeError:
+          pass
         except Exception as err:
             podqlogger = logging.getLogger('podq')
             podqlogger.warning("tried to close the socket stream but failed " + str(err))
