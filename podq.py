@@ -185,7 +185,7 @@ def checkCommandSetButtonLed():
     
 
 def setButtonLed(ledOn: bool, clearCommands: bool = False):
-    while(internetIsAvailable):
+    while(internetIsAvailable == False):
         time.sleep(0.5)
     if(ledOn):
         boxState.buttonLedOn = True
