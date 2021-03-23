@@ -492,10 +492,8 @@ def firebase_callback_thread(name):
     while not exitapp:
         try:
             wasLost = internetCheckWaitWhileNotAvailable()
-            if(wasLost):
-                logger.info("would have done reset, not doing now to test")
-                wasLost = False
-                
+            logger.info("would have done reset, not doing now to test")
+            wasLost = False
             if(wasLost or firebase_stream == ""):
                 try:
                     if(firebase_stream != ""):
