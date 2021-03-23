@@ -507,7 +507,7 @@ def firebase_callback_thread(name):
     global firebase_stream
     sleepSeconds = 1
     resetEachSeconds = 18
-    timestampLastReset = 0
+    timestampLastReset = time.time() #no need to run on startup
     firstTime = True
     while not exitapp:
         try:
