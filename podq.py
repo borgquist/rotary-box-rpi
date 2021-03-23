@@ -185,6 +185,8 @@ def checkCommandSetButtonLed():
     
 
 def setButtonLed(ledOn: bool, clearCommands: bool = False):
+    while(internetIsAvailable):
+        time.sleep(0.5)
     if(ledOn):
         boxState.buttonLedOn = True
         GPIO.output(button_led_pin, GPIO.HIGH)
@@ -430,8 +432,9 @@ def thread_button(name):
     timeButtonNotPressed = 0
     while not exitapp:
         try:
-            if(internetCheckWaitWhileNotAvailable):
-                time.sleep(0.5)
+            
+            while(internetCheckWaitWhileNotAvailable()):
+                logger.info("waiting with button press command until internet is back")
             if GPIO.input(button_pushed_pin) == GPIO.HIGH:
                 timestampNow = time.time()
 
