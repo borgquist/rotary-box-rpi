@@ -471,7 +471,7 @@ def thread_ir_sensor(name):
 def internetCheckWaitWhileNotAvailable() -> bool:
     internetWasLost = False
     global internetIsAvailable
-    secondsSleep = 1
+    secondsSleep = 5
         
     while(not UtilityFunctions.haveInternet()):
         internetIsAvailable = False
@@ -488,7 +488,7 @@ def internetCheckWaitWhileNotAvailable() -> bool:
 
 def firebase_callback_thread(name):
     global firebase_stream
-    sleepSeconds = 1
+    sleepSeconds = 2
     while not exitapp:
         try:
             wasLost = internetCheckWaitWhileNotAvailable()
