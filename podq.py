@@ -511,8 +511,19 @@ def firebase_callback_thread(name):
 
     while not exitapp:
         try:
+
+            if(timestampLastReset + resetEachSeconds < time.time()):
+                try:
+                    logger.info("time for firebase stream reset")
+                    firebase_stream.close()
+                    firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
+                    timestampLastReset = time.time()
+                    logger.info("firebase stream reset done")
+                except Exception as err:
+                    logger.warning("reset failed " + str(err) + " trace: " + traceback.format_exc())
+
             wasLost = internetCheckWaitWhileNotAvailable()
-            if(wasLost or firebase_stream == ""):
+            if(wasLost):
                 try:
                     if(firebase_stream != ""):
                         logger.info("closing firebase_stream")
@@ -525,20 +536,7 @@ def firebase_callback_thread(name):
                 firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                 logger.info("firebase_stream has been initialised")
                 checkCommandsNodes()
-                firstTime = False
                 timestampLastReset = time.time()
-
-            if(timestampLastReset + resetEachSeconds < time.time()):
-                try:
-                    logger.info("time for firebase stream reset")
-                    firebase_stream.close()
-                    firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
-                    timestampLastReset = time.time()
-                    logger.info("firebase stream reset done")
-                except Exception as err:
-                    logger.warning("reset failed " + str(err) + " trace: " + traceback.format_exc())
-                    
-                
 
             time.sleep(sleepSeconds)
         except Exception as err:
