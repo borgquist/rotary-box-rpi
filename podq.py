@@ -432,7 +432,6 @@ def thread_button(name):
     timeButtonNotPressed = 0
     while not exitapp:
         try:
-            
             if GPIO.input(button_pushed_pin) == GPIO.HIGH:
                 while(internetCheckWaitWhileNotAvailable()):
                     logger.info("waiting with button press command until internet is back")
