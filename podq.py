@@ -506,13 +506,16 @@ def internetCheckWaitWhileNotAvailable() -> bool:
 def firebase_callback_thread(name):
     global firebase_stream
     sleepSeconds = 1
+    resetEachSeconds = 18
+    timestampLastReset = 0
     while not exitapp:
         try:
-            wasLost = False
-            if(internetCheckWaitWhileNotAvailable()):
-                logger.info("would have restarted the stream, trying to not")
-                
-            if(wasLost or firebase_stream == ""):
+            resetNow = internetCheckWaitWhileNotAvailable()
+            if(timestampLastReset + resetEachSeconds < time.time()):
+                resetNow = True
+                logger.info("time for firebase stream reset")
+
+            if(resetNow or firebase_stream == ""):
                 try:
                     if(firebase_stream != ""):
                         logger.info("closing firebase_stream")
@@ -524,7 +527,7 @@ def firebase_callback_thread(name):
                 logger.info("initialising firebase_stream")
                 firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                 logger.info("firebase_stream has been initialised")
-                
+                timestampLastReset = time.time()
                 checkCommandsNodes()
 
             time.sleep(sleepSeconds)
