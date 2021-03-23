@@ -186,7 +186,8 @@ def checkCommandSetButtonLed():
 
 def setButtonLed(ledOn: bool, clearCommands: bool = False):
     while(internetIsAvailable == False):
-        time.sleep(0.5)
+        time.sleep(1)
+        logger.info("sleeping setButtonLed due to internetIsAvailable")
     if(ledOn):
         boxState.buttonLedOn = True
         GPIO.output(button_led_pin, GPIO.HIGH)
@@ -233,12 +234,17 @@ def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
         
 
 def checkCommandsNodes():
-    logger.info("checkCommandsNodes called")
-    checkCommandSetButtonLed()
-    checkCommandMoveNow(innerCircle)
-    checkCommandMoveNow(outerCircle)
-    checkCommandsPockets(innerCircle)
-    checkCommandsPockets(outerCircle)
+    try:
+        logger.info("checkCommandsNodes called")
+        checkCommandSetButtonLed()
+        checkCommandMoveNow(innerCircle)
+        checkCommandMoveNow(outerCircle)
+        checkCommandsPockets(innerCircle)
+        checkCommandsPockets(outerCircle)
+    except Exception as err:
+        logging.error("exception in checkCommandsNodes " + str(err) + " trace: " + traceback.format_exc())
+
+    
 
 
 def stream_handler(message):
@@ -481,17 +487,19 @@ def internetCheckWaitWhileNotAvailable() -> bool:
     internetWasLost = False
     global internetIsAvailable
     secondsSleep = 1
-        
-    while(not UtilityFunctions.haveInternet()):
-        internetIsAvailable = False
-        internetWasLost = True
-        logger.warning("internet is not available, sleeping " + str(secondsSleep) + " seconds" )
-        time.sleep(secondsSleep)
+    try:    
+        while(not UtilityFunctions.haveInternet()):
+            internetIsAvailable = False
+            internetWasLost = True
+            logger.warning("internet is not available, sleeping " + str(secondsSleep) + " seconds" )
+            time.sleep(secondsSleep)
 
-    if(internetWasLost):
-        logger.info("internet is back")
+        if(internetWasLost):
+            logger.info("internet is back")
 
-    internetIsAvailable = True
+        internetIsAvailable = True
+    except Exception as err:
+            logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
     return internetWasLost
 
 
