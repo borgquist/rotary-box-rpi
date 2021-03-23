@@ -487,7 +487,6 @@ def internetCheckWaitWhileNotAvailable() -> bool:
     internetWasLost = False
     global internetIsAvailable
     secondsSleep = 1
-    logger.info("internetCheckWaitWhileNotAvailable started")
     try:    
         while(not UtilityFunctions.haveInternet()):
             internetIsAvailable = False
@@ -501,7 +500,6 @@ def internetCheckWaitWhileNotAvailable() -> bool:
         internetIsAvailable = True
     except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
-    logger.info("internetCheckWaitWhileNotAvailable done")
     return internetWasLost
 
 
