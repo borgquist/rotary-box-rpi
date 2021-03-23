@@ -354,7 +354,6 @@ def thread_time(name):
     while not exitapp:
         try:
             time.sleep(sleepSeconds)
-
             while(internetIsAvailable == False):
                 logger.info("no internet, sleeping " + str(sleepSeconds) + " seconds")
                 time.sleep(sleepSeconds)
@@ -370,9 +369,7 @@ def thread_time(name):
             logging.error("exception " + str(err) + " trace :" + traceback.format_exc())
     logger.info("exiting")
 
-def getAndUpdateNextMoveFirebase(circle: BoxCircle) -> datetime.datetime:
-    nextMove = getNextMove(circle.settings.schedules)
-    
+def updateFirebaseWithNextMove(circle: BoxCircle, nextMove: datetime.datetime):
     if(str(nextMove) != str(circle.state.nextMove)):
         logger.info("nextMove needs updating from [" + str(circle.state.nextMove) + "] to [" + str(nextMove) +"]")
         firebaseConnection.setFirebaseValue(
@@ -392,30 +389,27 @@ def getAndUpdateNextMoveFirebase(circle: BoxCircle) -> datetime.datetime:
             "nextMoveInEpoch", nextMoveInEpoch, "state", circle.name, "circles")
         circle.state.nextMoveInEpoch = nextMoveInEpoch
 
-    return nextMove
 
 def thread_move(circle: BoxCircle):
     lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone) - datetime.timedelta(days=-1)
     global internetIsAvailable
     sleepSeconds = 5
+    nextMove = None
     while not exitapp:
         try:
-            while(internetIsAvailable == False):
-                logger.info("no internet, sleeping " + str(sleepSeconds) + " seconds")
-                time.sleep(sleepSeconds)
+            nextMove = getNextMove(circle.settings.schedules)
+    
+            if(internetIsAvailable):
+                updateFirebaseWithNextMove(circle, nextMove)
             
-            nextMove = getAndUpdateNextMoveFirebase(circle)
-
             if(nextMove is not None):
                 now = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                 secondsBetween = abs((now-nextMove).total_seconds())
                 if(abs((now-lastMove).total_seconds()) < 60):
-                    logger.info("[" + circle.name +
-                                 "] moved in the last minute, ignoring")
+                    logger.info("[" + circle.name + "] moved in the last minute, ignoring")
                 else:
                     if(secondsBetween < 20):
-                        logger.info("[" + circle.name +
-                                     "] it's time to move!")
+                        logger.info("[" + circle.name + "] it's time to move!")
                         lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                         move_stepper(circle)
         except requests.exceptions.HTTPError as e:
