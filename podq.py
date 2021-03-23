@@ -506,23 +506,13 @@ def internetCheckWaitWhileNotAvailable() -> bool:
 def firebase_callback_thread(name):
     global firebase_stream
     sleepSeconds = 1
-    resetEachSeconds = 18
-    timestampLastReset = time.time() #no need to run on startup
-    firstTime = True
+    resetEachSeconds = 1800
+    timestampLastReset = 0
+
     while not exitapp:
         try:
-            if(timestampLastReset + resetEachSeconds < time.time()):
-                try:
-                    logger.info("time for firebase stream reset")
-                    firebase_stream.close()
-                    firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
-                    timestampLastReset = time.time()
-                    logger.info("firebase stream reset done")
-                except Exception as err:
-                    logger.warning("reset failed " + str(err) + " trace: " + traceback.format_exc())
-
             wasLost = internetCheckWaitWhileNotAvailable()
-            if(wasLost or firstTime):
+            if(wasLost or firebase_stream == ""):
                 try:
                     if(firebase_stream != ""):
                         logger.info("closing firebase_stream")
@@ -536,6 +526,18 @@ def firebase_callback_thread(name):
                 logger.info("firebase_stream has been initialised")
                 checkCommandsNodes()
                 firstTime = False
+                timestampLastReset = time.time()
+
+            if(timestampLastReset + resetEachSeconds < time.time()):
+                try:
+                    logger.info("time for firebase stream reset")
+                    firebase_stream.close()
+                    firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
+                    timestampLastReset = time.time()
+                    logger.info("firebase stream reset done")
+                except Exception as err:
+                    logger.warning("reset failed " + str(err) + " trace: " + traceback.format_exc())
+                    
                 
 
             time.sleep(sleepSeconds)
