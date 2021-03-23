@@ -178,8 +178,6 @@ def checkCommandSetButtonLed():
         "setButtonLed", False, "commands")
     if(bool(newVal) is False):
         return
-    logger.info(
-        "setButtonLed has new value: " + str(newVal))
     ledOn = parseButtonLedStringReturnLedOn(str(newVal))
     setButtonLed(ledOn, True)
     
@@ -231,7 +229,6 @@ def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
         
 
 def checkCommandsNodes():
-    logger.info("checkCommandsNodes called")
     checkCommandSetButtonLed()
     checkCommandMoveNow(innerCircle)
     checkCommandMoveNow(outerCircle)
@@ -242,7 +239,7 @@ def checkCommandsNodes():
 def stream_handler(message):
     foundPath = False    
     if message["path"] == '/':
-        logger.info("called with root path, ignoring it")
+        logger.debug("called with root path, ignoring it")
         foundPath = True
     try:
         data = message["data"]
@@ -348,7 +345,6 @@ def thread_time(name):
             time.sleep(sleepSeconds)
 
             while(internetIsAvailable == False):
-                logger.info("no internet, sleeping " + str(sleepSeconds) + " seconds")
                 time.sleep(sleepSeconds)
 
             timestampNow = time.time()
@@ -496,20 +492,15 @@ def firebase_callback_thread(name):
     while not exitapp:
         try:
             wasLost = internetCheckWaitWhileNotAvailable()
-            if(wasLost):
-                logger.info("internet was lost, resetting firebase_stream")
             if(wasLost or firebase_stream == ""):
                 try:
                     if(firebase_stream != ""):
-                        logger.info("closing firebase_stream")
                         firebase_stream.close()
-                        logger.info("firebase_stream closed successfully")
                 except Exception as err:
                     logger.warning("firebase_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
 
-                logger.info("initialising firebase_stream")
                 firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
-                logger.info("firebase_stream has been initialised")
+                logger.info("internet was lost, firebase_stream has been initialised")
                 
                 checkCommandsNodes()
 
