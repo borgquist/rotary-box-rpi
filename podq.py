@@ -489,6 +489,7 @@ def internetCheckWaitWhileNotAvailable() -> bool:
 def firebase_callback_thread(name):
     global firebase_stream
     sleepSeconds = 2
+    latestCommandsTimestamp = time.time()
     while not exitapp:
         try:
             wasLost = internetCheckWaitWhileNotAvailable()
@@ -502,8 +503,13 @@ def firebase_callback_thread(name):
                 firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                 logger.info("internet was lost, firebase_stream has been initialised")
                 
-                checkCommandsNodes()
-
+                latestTimestamp = firebaseConnection.getBoxLatestCommandTimestamp()
+                if(latestTimestamp > latestCommandsTimestamp):
+                    logger.info("need to check the commandnodes getBoxLatestCommandTimestamp [" + str(latestTimestamp) + "] latestCommandsTimestamp [" + str(latestCommandsTimestamp) + "]")
+                    checkCommandsNodes()
+                
+            else:
+                latestCommandsTimestamp = time.time()
             time.sleep(sleepSeconds)
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
