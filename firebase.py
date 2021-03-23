@@ -118,7 +118,7 @@ class FirebaseConnection:
         return str(latestVersion.val())
     
     def getBoxLatestCommandTimestamp(self) -> float:
-        latestTimestamp = self.database.child("box").child(self.cpuid).child("commands").child("latestTimestamp").get()
+        latestTimestamp = self.database.child("box").child("boxes").child(self.cpuid).child("commands").child("latestTimestamp").get()
         if latestTimestamp.val() is None:
             logger.warning("couldn't get latestTimestamp")
             return "unknown"
