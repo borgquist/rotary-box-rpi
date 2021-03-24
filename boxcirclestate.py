@@ -6,5 +6,8 @@ class BoxCircleState:
         self.pocketsFull = 0
         self.latestMove = LatestMove()
     
+    def getDict(self):
+        return self.__dict__
+    
     def __str__(self):
-        return "nextMove [" + str(self.nextMove) + "], nextMoveInEpoch [" + str(self.nextMoveInEpoch) + "], latestMove [" + str(self.latestMove) + "] pocketsFull [" + str(self.pocketsFull) + "]"
+        return str(self.__dict__)

@@ -5,5 +5,8 @@ class Stepper:
         self.afterTrigger = 1000
         self.chanList = []
 
+    def getDict(self):
+        return self.__dict__
+        
     def __str__(self):
-        return "maxMove [" + str(self.maxMove) + "] minMove [" + str(self.minMove) + "] afterTrigger [" + str(self.afterTrigger) + "] chanList [" + str(self.chanList) + "]"
+        return str(self.__dict__)

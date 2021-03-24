@@ -1,3 +1,5 @@
+from latestmove import LatestMove
+from commands import Commands
 from schedule import Schedule
 from utilityfunctions import UtilityFunctions
 from pyrebase import Stream
@@ -28,9 +30,9 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     getStepper(innerCircle, defaultstepperInner)
     outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "settings", outerCircle.name,"circles")
     getStepper(outerCircle, defaultstepperOuter)
-    innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "state", innerCircle.name,"circles")
+    innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", LatestMove().getDict(), "state", innerCircle.name,"circles")
     innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", innerCircle.name,"circles")
-    outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "state", outerCircle.name,"circles")
+    outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", LatestMove().getDict(), "state", outerCircle.name,"circles")
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", outerCircle.name,"circles")
 
 def getTimezone():
@@ -45,16 +47,14 @@ def getStepper(circle: BoxCircle, defaultstepper):
     circle.settings.stepper.chanList = firebaseStepSettings["chanList"]
 
 def getSchedules():
-    defaultSchedule = {UtilityFunctions.generateId():{"day": "everyday", "hour": 7, "minute": 0}}
-    
     innerSchedules = []
-    orderedDictInner = firebaseConnection.getFirebaseValue('schedules', defaultSchedule, "settings", innerCircle.name, "circles")
+    orderedDictInner = firebaseConnection.getFirebaseValue('schedules', {UtilityFunctions.generateId():Schedule().getDict()}, "settings", innerCircle.name, "circles")
     for key in orderedDictInner:
         innerSchedules.append(orderedDictInner[key])
     innerCircle.settings.schedules = innerSchedules
-
+    time.sleep(0.01) # want to make sure they don't get the same id
     outerSchedules = []
-    orderedDictOuter = firebaseConnection.getFirebaseValue('schedules', defaultSchedule, "settings", outerCircle.name, "circles")
+    orderedDictOuter = firebaseConnection.getFirebaseValue('schedules', {UtilityFunctions.generateId():Schedule().getDict()}, "settings", outerCircle.name, "circles")
     for key in orderedDictOuter:
         outerSchedules.append(orderedDictOuter[key])
     outerCircle.settings.schedules = outerSchedules
@@ -546,6 +546,8 @@ if __name__ == '__main__':
             pinConfigToBeLoaded = json.load(f)
 
         ir_pin = pinConfigToBeLoaded['ir_pin']
+        led_pin = pinConfigToBeLoaded['led_pin']
+
         button_led_pin = pinConfigToBeLoaded['button_led_pin']
         button_pushed_pin = pinConfigToBeLoaded['button_pushed_pin']
 
@@ -563,14 +565,6 @@ if __name__ == '__main__':
 
         defaultstepperInner = {"minMove": 2000, "maxMove": 2500, "afterTrigger": 1360, "chanList": chanListInner}
         defaultstepperOuter = {"minMove": 2100, "maxMove": 2900, "afterTrigger": 1460, "chanList": chanListOuter}
-        defaultLatestMove = {
-            "totalSteps": 0,
-            "irTriggered": False,
-            "stepsAfterTrigger": 0,
-            "timestamp": "1900-01-01 00:00:00",
-            "timestampEpoch": 0,
-        }
-        led_pin = pinConfigToBeLoaded['led_pin']
         
         innerCircle = BoxCircle("innerCircle", boxState.cpuId)
         outerCircle = BoxCircle("outerCircle", boxState.cpuId)
@@ -609,11 +603,8 @@ if __name__ == '__main__':
         for pin in outerCircle.settings.stepper.chanList:
             GPIO.setup(pin, GPIO.OUT)
 
-        firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
-        firebaseConnection.setFirebaseValue("moveNow_" + innerCircle.name, False, "commands")
-        firebaseConnection.setFirebaseValue("setPocketsFull_" + innerCircle.name, False, "commands")
-        firebaseConnection.setFirebaseValue("moveNow_" + outerCircle.name, False, "commands")
-        firebaseConnection.setFirebaseValue("setPocketsFull_" + outerCircle.name, False, "commands")
+        firebaseConnection.setFirebaseValue(Commands().getDict(), "commands")
+
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "state")
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "innerCircle","circles")
         firebaseConnection.setFirebaseValue("name", innerCircle.name, innerCircle.name,"circles")

@@ -5,5 +5,7 @@ class LatestMove:
         self.irTriggered = False
         self.timestamp = "1900-01-01 00:00:00"
 
+    def getDict(self):
+        return self.__dict__
     def __str__(self):
-            return "stepsDone [" + str(self.stepsDone) + "] stepsDoneAfterIr [" + str(self.stepsDoneAfterIr) + "] irTriggered [" + str(self.irTriggered) + "] timestamp [" + str(self.timestamp) + "]"
+            return str(self.__dict__)

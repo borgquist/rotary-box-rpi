@@ -6,6 +6,8 @@ class BoxCircleSettings:
         self.schedules = []
         self.nrPockets = 0
     
+    def getDict(self):
+        return self.__dict__
 
     def __str__(self):
-        return "stepper [" + str(self.stepper) + "] schedules [" + str(self.schedules) + "] nrPockets [" + str(self.nrPockets) + "]"
+        return str(self.__dict__)

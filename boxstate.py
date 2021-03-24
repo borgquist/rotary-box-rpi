@@ -7,6 +7,8 @@ class BoxState:
         self.version = "0.0.0"
         self.localTime = None  
     
+    def getDict(self):
+        return self.__dict__
     
     def __str__(self):
-        return "cpuId [" + str(self.cpuId) + "] buttonLedOn [" + str(self.buttonLedOn) + "] hostname [" + str(self.hostname) + "] ipAddress [" + str(self.ipAddress) + "] version [" + str(self.version) + "] localTime [" + str(self.localTime) +"]"
+        return str(self.__dict__)

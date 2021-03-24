@@ -40,14 +40,9 @@ class FirebaseConnection:
 
 
     def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None, greatgrandparent = None):
-        internetWasLost = False
         while(not UtilityFunctions.haveInternet()):
-            internetWasLost = True
             logger.info("internet is not available, sleeping 1 second")
             time.sleep(1)
-        if(internetWasLost):
-            logger.info("have internet connectivity")
-
         logMessasge = settingname
         if(parent is not None):
             logMessasge = parent + "/" + logMessasge
@@ -55,7 +50,6 @@ class FirebaseConnection:
                 logMessasge = grandparent + "/" + logMessasge
                 if(greatgrandparent is not None):
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
-
         logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
 
         if(parent is None):

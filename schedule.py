@@ -6,5 +6,8 @@ class Schedule:
         self.hour = 7
         self.minute = 0
    
+    def getDict(self):
+        return self.__dict__
+
     def __str__(self):
-        return "day [" + str(self.day) + "] hour [" + str(self.hour) + "] minute [" + str(self.minute) + "]"
+        return str(self.__dict__)
