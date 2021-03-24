@@ -171,14 +171,14 @@ def setButtonLed(ledOn: bool, clearCommands: bool = False):
 def checkCommandMoveNow(circle: BoxCircle, callbackValue: bool = False):
     moveNow = callbackValue
     if(callbackValue == False):
-        moveNow = firebaseConnection.getFirebaseValue("moveNow-" + circle.name, False, "commands")
+        moveNow = firebaseConnection.getFirebaseValue("moveNow_" + circle.name, False, "commands")
     if(bool(moveNow)):
         logger.info("moveNow true for " + str(circle.name))
-        firebaseConnection.setFirebaseValue("moveNow-" + circle.name, False, "commands")
+        firebaseConnection.setFirebaseValue("moveNow_" + circle.name, False, "commands")
         move_stepper(circle)
 
 def checkCommandsPockets(circle: BoxCircle):
-    newVal = firebaseConnection.getFirebaseValue("setPocketsFull-" + circle.name, False, "commands")
+    newVal = firebaseConnection.getFirebaseValue("setPocketsFull_" + circle.name, False, "commands")
     logger.info("called value is [" +str(newVal) + "] for [" + circle.name + "]")
     if(newVal != False):
         logger.info(circle.name + " command setPocketsFull called to be updated to " + str(int(newVal)))
@@ -187,7 +187,7 @@ def checkCommandsPockets(circle: BoxCircle):
 def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
     logger.info("called with pocketsFull [" +str(pocketsFull) + "] clearCommands [" + str(clearCommands) + "]")
     if(clearCommands):
-        firebaseConnection.setFirebaseValue("setPocketsFull-" + circle.name, False, "commands")
+        firebaseConnection.setFirebaseValue("setPocketsFull_" + circle.name, False, "commands")
 
     firebaseConnection.setFirebaseValue("pocketsFull", pocketsFull, "state", circle.name, "circles")
     circle.state.pocketsFull = pocketsFull
@@ -252,20 +252,20 @@ def stream_handler(message):
                 ledOn = parseButtonLedStringReturnLedOn(str(data))
                 setButtonLed(ledOn, True)
         
-        if message["path"] == '/commands/moveNow-innerCircle':
+        if message["path"] == '/commands/moveNow_innerCircle':
             foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 checkCommandMoveNow(innerCircle, bool(data))
 
-        if message["path"] == '/commands/moveNow-outerCircle':
+        if message["path"] == '/commands/moveNow_outerCircle':
             foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 checkCommandMoveNow(outerCircle, bool(data))
             
 
-        if message["path"] == '/commands/setPocketsFull-innerCircle':
+        if message["path"] == '/commands/setPocketsFull_innerCircle':
             foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
@@ -274,7 +274,7 @@ def stream_handler(message):
                 else:
                     setPocketsFull(innerCircle, int(data), True)
 
-        if message["path"] == '/commands/setPocketsFull-outerCircle':
+        if message["path"] == '/commands/setPocketsFull_outerCircle':
             foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
@@ -610,10 +610,10 @@ if __name__ == '__main__':
             GPIO.setup(pin, GPIO.OUT)
 
         firebaseConnection.setFirebaseValue("setButtonLed", False, "commands")
-        firebaseConnection.setFirebaseValue("moveNow-" + innerCircle.name, False, "commands")
-        firebaseConnection.setFirebaseValue("setPocketsFull-" + innerCircle.name, False, "commands")
-        firebaseConnection.setFirebaseValue("moveNow-" + outerCircle.name, False, "commands")
-        firebaseConnection.setFirebaseValue("setPocketsFull-" + outerCircle.name, False, "commands")
+        firebaseConnection.setFirebaseValue("moveNow_" + innerCircle.name, False, "commands")
+        firebaseConnection.setFirebaseValue("setPocketsFull_" + innerCircle.name, False, "commands")
+        firebaseConnection.setFirebaseValue("moveNow_" + outerCircle.name, False, "commands")
+        firebaseConnection.setFirebaseValue("setPocketsFull_" + outerCircle.name, False, "commands")
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "state")
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "innerCircle","circles")
         firebaseConnection.setFirebaseValue("name", innerCircle.name, innerCircle.name,"circles")
