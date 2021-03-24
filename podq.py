@@ -219,20 +219,20 @@ def stream_handler(message):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             boxSettings.timezone = newVal
             firebaseConnection.setPing(boxSettings)
-            updateFirebaseWithNextMove(innerCircle)
-            updateFirebaseWithNextMove(outerCircle)
+            updateFirebaseWithNextMove(innerCircle, getNextMove(innerCircle.settings.schedules))
+            updateFirebaseWithNextMove(outerCircle, getNextMove(outerCircle.settings.schedules))
             foundPath = True
 
         if str(message["path"]).startswith('/circles/innerCircle/settings/schedules'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
-            updateFirebaseWithNextMove(innerCircle)
+            updateFirebaseWithNextMove(innerCircle, getNextMove(innerCircle.settings.schedules))
             foundPath = True
 
         if str(message["path"]).startswith('/circles/outerCircle/settings/schedules'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
-            updateFirebaseWithNextMove(outerCircle)
+            updateFirebaseWithNextMove(outerCircle, getNextMove(outerCircle.settings.schedules))
             foundPath = True
 
         if str(message["path"]).startswith('/circles/innerCircle/settings/stepper'):
