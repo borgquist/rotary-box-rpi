@@ -21,31 +21,20 @@ import json
 from datetimefunctions import DateTimeFunctions
 import requests
 
-
 def getFirebaseValuesAndSetDefaultsIfNeeded():
     getTimezone()
     getSchedules()
-    innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue(
-        "nrPockets", 7, "settings", innerCircle.name,"circles")
+    innerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "settings", innerCircle.name,"circles")
     getStepper(innerCircle, defaultstepperInner)
-    outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue(
-        "nrPockets", 7, "settings", outerCircle.name,"circles")
+    outerCircle.settings.nrPockets = firebaseConnection.getFirebaseValue("nrPockets", 7, "settings", outerCircle.name,"circles")
     getStepper(outerCircle, defaultstepperOuter)
-    innerCircle.state.latestMove = firebaseConnection.getFirebaseValue(
-        "latestMove", defaultLatestMove, "state", innerCircle.name,"circles")
-    innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue(
-        "pocketsFull", 0, "state", innerCircle.name,"circles")
-    outerCircle.state.latestMove = firebaseConnection.getFirebaseValue(
-        "latestMove", defaultLatestMove, "state", outerCircle.name,"circles")
-    outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue(
-        "pocketsFull", 0, "state", outerCircle.name,"circles")
-
+    innerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "state", innerCircle.name,"circles")
+    innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", innerCircle.name,"circles")
+    outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", defaultLatestMove, "state", outerCircle.name,"circles")
+    outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", outerCircle.name,"circles")
 
 def getTimezone():
-    boxSettings.timezone = firebaseConnection.getFirebaseValue(
-        "timezone", "Europe/London", "settings")
-
-
+    boxSettings.timezone = firebaseConnection.getFirebaseValue("timezone", "Europe/London", "settings")
 
 def getStepper(circle: BoxCircle, defaultstepper):
     firebaseStepSettings = firebaseConnection.getFirebaseValue(
@@ -55,30 +44,21 @@ def getStepper(circle: BoxCircle, defaultstepper):
     circle.settings.stepper.minMove = firebaseStepSettings["minMove"]
     circle.settings.stepper.chanList = firebaseStepSettings["chanList"]
 
-
 def getSchedules():
     defaultSchedule = {UtilityFunctions.generateId():{"day": "everyday", "hour": 7, "minute": 0}}
     
     innerSchedules = []
     orderedDictInner = firebaseConnection.getFirebaseValue('schedules', defaultSchedule, "settings", innerCircle.name, "circles")
-
     for key in orderedDictInner:
         innerSchedules.append(orderedDictInner[key])
     innerCircle.settings.schedules = innerSchedules
 
     outerSchedules = []
     orderedDictOuter = firebaseConnection.getFirebaseValue('schedules', defaultSchedule, "settings", outerCircle.name, "circles")
-
     for key in orderedDictOuter:
         outerSchedules.append(orderedDictOuter[key])
     outerCircle.settings.schedules = outerSchedules
 
-
-
-    # innerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
-    #     'schedules', defaultSchedule, "settings", innerCircle.name,"circles")
-    # outerCircle.settings.schedules = firebaseConnection.getFirebaseValue(
-    #     'schedules', defaultSchedule, "settings", outerCircle.name,"circles")
 
 def move_stepper(circle: BoxCircle):
     global moveIsBeingDone
@@ -92,21 +72,16 @@ def move_stepper(circle: BoxCircle):
         "pocketsFull", circle.state.pocketsFull, "state", circle.name, "circles")
     moveIsBeingDone = False
 
-
 def holdBothMotors():
     global arr1
     arrOUT = arr1[1:]+arr1[:1]
     GPIO.output(innerCircle.settings.stepper.chanList, arrOUT)
     GPIO.output(outerCircle.settings.stepper.chanList, arrOUT)
 
-
 def releaseBothMotors():
     global arrOff
     GPIO.output(innerCircle.settings.stepper.chanList, arrOff)
     GPIO.output(outerCircle.settings.stepper.chanList, arrOff)
-
-
-
 
 def move(circle: BoxCircle):
     logger.info("called for " + str(circle.name))
@@ -127,16 +102,12 @@ def move(circle: BoxCircle):
         if irTriggered and stepsDoneWhenIRtrigger == 0:
             stepsDoneWhenIRtrigger = stepsDone
         return stepsDone + 1
-
     while stepsDone < circle.settings.stepper.minMove:
         stepsDone = oneStep(stepsDone)
-
     while stepsDone < stepsDoneWhenIRtrigger + circle.settings.stepper.afterTrigger and stepsDone < circle.settings.stepper.maxMove:
         stepsDone = oneStep(stepsDone)
-
     while irTriggered == False and stepsDone < circle.settings.stepper.maxMove:
         stepsDone = oneStep(stepsDone)
-
     latestMove = {
         "totalSteps": stepsDone,
         "irTriggered": irTriggered,
@@ -152,7 +123,6 @@ def move(circle: BoxCircle):
     setButtonLed(True)
     releaseBothMotors()
 
-
 def getNextMove(schedules) -> datetime.datetime:
     nextMove = None
     for schedule in schedules:
@@ -165,7 +135,6 @@ def getNextMove(schedules) -> datetime.datetime:
                 nextMove = candiate
     return nextMove
 
-
 def parseButtonLedStringReturnLedOn(buttonStr) -> bool:
     if(buttonStr[:2] == "on"):
         return True
@@ -174,8 +143,7 @@ def parseButtonLedStringReturnLedOn(buttonStr) -> bool:
     return False
 
 def checkCommandSetButtonLed():
-    newVal = firebaseConnection.getFirebaseValue(
-        "setButtonLed", False, "commands")
+    newVal = firebaseConnection.getFirebaseValue("setButtonLed", False, "commands")
     if(bool(newVal) is False):
         return
     logger.info(
@@ -183,7 +151,6 @@ def checkCommandSetButtonLed():
     ledOn = parseButtonLedStringReturnLedOn(str(newVal))
     setButtonLed(ledOn, True)
     
-
 def setButtonLed(ledOn: bool, clearCommands: bool = False):
     while(internetIsAvailable == False):
         time.sleep(1)
@@ -205,18 +172,14 @@ def setButtonLed(ledOn: bool, clearCommands: bool = False):
 def checkCommandMoveNow(circle: BoxCircle, callbackValue: bool = False):
     moveNow = callbackValue
     if(callbackValue == False):
-        moveNow = firebaseConnection.getFirebaseValue("moveNow", False, "commands", circle.name, "circles")
-
+        moveNow = firebaseConnection.getFirebaseValue("moveNow-" + circle.name, False, "commands")
     if(bool(moveNow)):
         logger.info("moveNow true for " + str(circle.name))
-        firebaseConnection.setFirebaseValue(
-            "moveNow", False, "commands", circle.name, "circles")
+        firebaseConnection.setFirebaseValue("moveNow-" + circle.name, False, "commands")
         move_stepper(circle)
 
-
 def checkCommandsPockets(circle: BoxCircle):
-    newVal = firebaseConnection.getFirebaseValue(
-        "setPocketsFull", False, "commands", circle.name, "circles")
+    newVal = firebaseConnection.getFirebaseValue("setPocketsFull-" + circle.name, False, "commands")
     logger.info("called value is [" +str(newVal) + "] for [" + circle.name + "]")
     if(newVal != False):
         logger.info(circle.name + " command setPocketsFull called to be updated to " + str(int(newVal)))
@@ -225,14 +188,11 @@ def checkCommandsPockets(circle: BoxCircle):
 def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
     logger.info("called with pocketsFull [" +str(pocketsFull) + "] clearCommands [" + str(clearCommands) + "]")
     if(clearCommands):
-        firebaseConnection.setFirebaseValue(
-            "setPocketsFull", False, "commands", circle.name, "circles")
+        firebaseConnection.setFirebaseValue("setPocketsFull-" + circle.name, False, "commands")
 
-    firebaseConnection.setFirebaseValue(
-            "pocketsFull", pocketsFull, "state", circle.name, "circles")
+    firebaseConnection.setFirebaseValue("pocketsFull-" + circle.name, pocketsFull, "state")
     circle.state.pocketsFull = pocketsFull
         
-
 def checkCommandsNodes():
     try:
         logger.info("checkCommandsNodes called")
@@ -243,9 +203,6 @@ def checkCommandsNodes():
         checkCommandsPockets(outerCircle)
     except Exception as err:
         logging.error("exception in checkCommandsNodes " + str(err) + " trace: " + traceback.format_exc())
-
-    
-
 
 def stream_handler(message):
     foundPath = False    
@@ -262,20 +219,20 @@ def stream_handler(message):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             boxSettings.timezone = newVal
             firebaseConnection.setPing(boxSettings)
-            getAndUpdateNextMoveFirebase(innerCircle)
-            getAndUpdateNextMoveFirebase(outerCircle)
+            updateFirebaseWithNextMove(innerCircle)
+            updateFirebaseWithNextMove(outerCircle)
             foundPath = True
 
         if str(message["path"]).startswith('/circles/innerCircle/settings/schedules'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
-            getAndUpdateNextMoveFirebase(innerCircle)
+            updateFirebaseWithNextMove(innerCircle)
             foundPath = True
 
         if str(message["path"]).startswith('/circles/outerCircle/settings/schedules'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
-            getAndUpdateNextMoveFirebase(outerCircle)
+            updateFirebaseWithNextMove(outerCircle)
             foundPath = True
 
         if str(message["path"]).startswith('/circles/innerCircle/settings/stepper'):
@@ -296,20 +253,20 @@ def stream_handler(message):
                 ledOn = parseButtonLedStringReturnLedOn(str(data))
                 setButtonLed(ledOn, True)
         
-        if message["path"] == '/circles/innerCircle/commands/moveNow':
+        if message["path"] == '/commands/moveNow-innerCircle':
             foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 checkCommandMoveNow(innerCircle, bool(data))
 
-        if message["path"] == '/circles/outerCircle/commands/moveNow':
+        if message["path"] == '/commands/moveNow-outerCircle':
             foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 checkCommandMoveNow(outerCircle, bool(data))
             
 
-        if message["path"] == '/circles/innerCircle/commands/setPocketsFull':
+        if message["path"] == '/commands/setPocketsFull-innerCircle':
             foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
@@ -318,7 +275,7 @@ def stream_handler(message):
                 else:
                     setPocketsFull(innerCircle, int(data), True)
 
-        if message["path"] == '/circles/outerCircle/commands/setPocketsFull':
+        if message["path"] == '/commands/setPocketsFull-outerCircle':
             foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
@@ -339,7 +296,6 @@ def stream_handler(message):
             if(data == True or data == 'ping'):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 firebaseConnection.setFirebaseValue("ping", time.time(), "commands")
-
 
         if(foundPath == False):
             logger.info("we're ignoring the callback for  [" + message["path"] + "] received with data [" + str(data) + "]")
@@ -389,7 +345,6 @@ def updateFirebaseWithNextMove(circle: BoxCircle, nextMove: datetime.datetime):
             "nextMoveInEpoch", nextMoveInEpoch, "state", circle.name, "circles")
         circle.state.nextMoveInEpoch = nextMoveInEpoch
 
-
 def thread_move(circle: BoxCircle):
     lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone) - datetime.timedelta(days=-1)
     global internetIsAvailable
@@ -423,7 +378,6 @@ def thread_move(circle: BoxCircle):
 def thread_move_inner(name):
     thread_move(innerCircle)
 
-
 def thread_move_outer(name):
     thread_move(outerCircle)
 
@@ -451,9 +405,7 @@ def thread_button(name):
             time.sleep(0.1)
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
-
     logger.info("exiting")
-
 
 def thread_ir_sensor(name):
     global irTriggered
@@ -473,9 +425,7 @@ def thread_ir_sensor(name):
             time.sleep(0.05)
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
-
     logger.info("exiting")
-
 
 def internetCheckWaitWhileNotAvailable() -> bool:
     internetWasLost = False
@@ -496,16 +446,13 @@ def internetCheckWaitWhileNotAvailable() -> bool:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
     return internetWasLost
 
-
 def firebase_callback_thread(name):
     global firebase_stream
     sleepSeconds = 1
     resetEachSeconds = 1800
     timestampLastReset = 0
-
     while not exitapp:
         try:
-
             if(timestampLastReset + resetEachSeconds < time.time()):
                 try:
                     logger.info("Doing scheduled firebase stream reset")
@@ -516,7 +463,6 @@ def firebase_callback_thread(name):
                     logger.info("firebase stream reset done")
                 except Exception as err:
                     logger.warning("reset failed " + str(err) + " trace: " + traceback.format_exc())
-
             wasLost = internetCheckWaitWhileNotAvailable()
             if(wasLost):
                 try:
@@ -536,7 +482,6 @@ def firebase_callback_thread(name):
             time.sleep(sleepSeconds)
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
-
     logger.info("exiting")
 
 def checkVersionAndUpdateIfNeeded():
@@ -552,7 +497,6 @@ def doRestartWithGitclone():
     logger.info("gitclone complete, calling reboot")
     flashButtonLed(0.2, 20, True)
     os.system('sudo reboot now')
-
                         
 def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
     ledOn = False
@@ -566,7 +510,6 @@ def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
         setButtonLedOn(ledOn)
         time.sleep(speedInSeconds)
     setButtonLedOn(finalValue)        
-
 
 if __name__ == '__main__':
     try:
@@ -599,7 +542,6 @@ if __name__ == '__main__':
         boxState.cpuId = UtilityFunctions.getserial()
         
         boxSettings = BoxSettings()
-
         pinConfigFilePath = '/home/pi/pinlayout.json'
         with open(pinConfigFilePath, 'r') as f:
             pinConfigToBeLoaded = json.load(f)
@@ -629,7 +571,6 @@ if __name__ == '__main__':
             "timestamp": "1900-01-01 00:00:00",
             "timestampEpoch": 0,
         }
-
         led_pin = pinConfigToBeLoaded['led_pin']
         
         innerCircle = BoxCircle("innerCircle", boxState.cpuId)
@@ -651,7 +592,6 @@ if __name__ == '__main__':
         GPIO.setup(led_pin, GPIO.OUT)
         GPIO.output(led_pin, GPIO.LOW)
         GPIO.setup(ir_pin, GPIO.IN)
-
         arr1 = [1, 1, 0, 0]
         arr2 = [0, 1, 0, 0]
         arrOff = [0, 0, 0, 0]
