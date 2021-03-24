@@ -1,13 +1,12 @@
 import subprocess
 from datetime import datetime
 from types import MappingProxyType
-from uuid import uuid4
 
 class UtilityFunctions:
     
     @staticmethod
     def generateId() -> str:
-        return datetime.now().strftime('%Y%m%d-%H%M%S%f-') + str(uuid4())
+        return datetime.now().strftime('%Y%m%d-%H%M%S%f-')
 
     @staticmethod
     def getserial() -> str:

@@ -603,7 +603,7 @@ if __name__ == '__main__':
         for pin in outerCircle.settings.stepper.chanList:
             GPIO.setup(pin, GPIO.OUT)
 
-        firebaseConnection.setFirebaseValue(Commands().getDict(), "commands")
+        firebaseConnection.setFirebaseValue("commands", Commands().getDict())
 
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "state")
         firebaseConnection.setFirebaseValue("cpuId", boxState.cpuId, "innerCircle","circles")
