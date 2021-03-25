@@ -74,7 +74,7 @@ class DateTimeFunctions:
             return False
     
     @staticmethod
-    def getDateTimeFromScheduleWithTimezone(weekdayOfMove: str, hourOfMove: int, minuteOfMove: int, timezone: str) -> datetime.datetime:
+    def getDateTimeFromScheduleWithTimezone(weekdayOfMove: str, dayType: str, hourOfMove: int, minuteOfMove: int, timezone: str) -> datetime.datetime:
         weekdayOfMove = weekdayOfMove.lower()
 
         candidateForNextMove = DateTimeFunctions.getTodayNormalizedDateTime(hourOfMove, minuteOfMove, timezone)
@@ -85,8 +85,12 @@ class DateTimeFunctions:
                 candidateForNextMove = candidateForNextMove + timedelta(days=1)
             return candidateForNextMove
 
-        if(weekdayOfMove == "evendays"):
-            if(DateTimeFunctions.isTodayEvenDay()):
+        if(weekdayOfMove == "alternatedays"):
+            flip = False
+            if(dayType == "a"):
+                flip = True
+
+            if(DateTimeFunctions.isTodayEvenDay() and flip):
                 if(isBeforeNow):
                     candidateForNextMove = candidateForNextMove + timedelta(days=2)
             else:

@@ -3,6 +3,7 @@ from utilityfunctions import UtilityFunctions
 class Schedule:
     def __init__(self):
         self.day = "everyday"
+        self.dayType = ""
         self.hour = 7
         self.minute = 0
    

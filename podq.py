@@ -126,7 +126,7 @@ def getNextMove(schedules) -> datetime.datetime:
     nextMove = None
     for schedule in schedules:
         candiate = DateTimeFunctions.getDateTimeFromScheduleWithTimezone(
-            schedule['day'], schedule['hour'], schedule['minute'], boxSettings.timezone)
+            schedule['day'], schedule['dayType'], schedule['hour'], schedule['minute'], boxSettings.timezone)
         if(candiate is not None):
             if(nextMove == None):
                 nextMove = candiate
