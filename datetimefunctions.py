@@ -86,15 +86,18 @@ class DateTimeFunctions:
             return candidateForNextMove
 
         if(weekdayOfMove == "alternatedays"):
-            flip = False
             if(dayType == "a"):
-                flip = True
-
-            if(DateTimeFunctions.isTodayEvenDay() and flip):
-                if(isBeforeNow):
-                    candidateForNextMove = candidateForNextMove + timedelta(days=2)
+                if(DateTimeFunctions.isTodayEvenDay()):
+                    if(isBeforeNow):
+                        candidateForNextMove = candidateForNextMove + timedelta(days=2)
+                else:
+                    candidateForNextMove = candidateForNextMove + timedelta(days=1)
             else:
-                candidateForNextMove = candidateForNextMove + timedelta(days=1)
+                if(DateTimeFunctions.isTodayEvenDay() == False):
+                    if(isBeforeNow):
+                        candidateForNextMove = candidateForNextMove + timedelta(days=2)
+                else:
+                    candidateForNextMove = candidateForNextMove + timedelta(days=1)
             return candidateForNextMove
 
         if(weekdayOfMove == "odddays"):
