@@ -64,8 +64,8 @@ class UtilityFunctions:
             try:
                 socket.setdefaulttimeout(timeout)
                 socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-                if(oneLost):
-                    logger.info("internet successful check for " + host)
+                # if(oneLost):
+                logger.info("internet successful check for " + host)
                 return True
             except socket.error:
                 logger.warning("internet check failed for " + host)
