@@ -441,13 +441,13 @@ def internetCheckWaitWhileNotAvailable() -> bool:
     global timestampInternetAvailable
     try:    
 
-        if(UtilityFunctions.internetSocketCheck() == False):
-            logger.warning("internet lost according to internetSocketCheck")
-        if(UtilityFunctions.check_internet_connection() == False):
-            logger.warning("internet lost according to check_internet_connection")
+        # if(UtilityFunctions.internetSocketCheck() == False):
+        #     logger.warning("internet lost according to internetSocketCheck")
+        # if(UtilityFunctions.check_internet_connection() == False):
+        #     logger.warning("internet lost according to check_internet_connection")
         
-        while(not UtilityFunctions.internetSubprocessCheck()):
-            logger.warning("internet lost according to internetSubprocessCheck")
+        while(UtilityFunctions.check_internet_connection() == False):
+            logger.warning("internet is lost")
             internetIsAvailable = False
             internetWasLost = True
             time.sleep(1)
