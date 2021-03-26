@@ -219,8 +219,9 @@ def checkCommandsJsonData(commandsJson: str):
 
 def stream_handler(message):
     global pingTimestampFromStream
+    data = message["data"]
+    logger.info("stream_handler message received with [" + message["path"] + "] [" + str(data) + "]")
     try:
-        data = message["data"]
         if message["path"] == '/':
             checkCommandsJsonData(data["commands"])
             return
