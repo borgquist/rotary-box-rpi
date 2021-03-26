@@ -486,10 +486,10 @@ def firebase_callback_thread(name):
             timestampNow = round(time.time())
             timeSinceInternetCheck = timestampNow - pingTimestampFromStream
             if(timeSinceInternetCheck > pingSeconds * 2):
-                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last pingTimestampFromStream [" + str(pingTimestampFromStream) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "] pingSeconds [" + pingSeconds + "]")
+                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last pingTimestampFromStream [" + str(pingTimestampFromStream) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "] pingSeconds [" + str(pingSeconds) + "]")
                 # wasLost = True
             else:
-                logger.info("ping time check ok. it's been [" + str(timeSinceInternetCheck) + "] seconds since last pingTimestampFromStream [" + str(pingTimestampFromStream) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "] pingSeconds [" + pingSeconds + "]")
+                logger.info("ping time check ok. it's been [" + str(timeSinceInternetCheck) + "] seconds since last pingTimestampFromStream [" + str(pingTimestampFromStream) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "] pingSeconds [" + str(pingSeconds) + "]")
 
             if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
                 resetFirebaseStreams()
