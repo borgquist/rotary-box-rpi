@@ -437,7 +437,7 @@ def thread_ir_sensor(name):
 def internetCheckWaitWhileNotAvailable() -> bool:
     internetWasLost = False
     global internetIsAvailable
-    timestampInternetAvailable = 0
+    global timestampInternetAvailable
     try:    
 
         while(not UtilityFunctions.haveInternet()):
@@ -574,6 +574,7 @@ if __name__ == '__main__':
         outerCircle = BoxCircle("outerCircle", boxState.cpuId)
 
         internetIsAvailable = True
+        timestampInternetAvailable = time.time()
         internetCheckWaitWhileNotAvailable()
         
         googleHostForInternetCheck = "8.8.8.8"
