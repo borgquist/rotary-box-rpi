@@ -39,7 +39,7 @@ class FirebaseConnection:
         self.database = self.firebase.database()
 
     def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None, greatgrandparent = None):
-        while(not UtilityFunctions.haveInternet()):
+        while(not UtilityFunctions.internetSubprocessCheck()):
             logger.info("internet is not available, sleeping 1 second")
             time.sleep(1)
         logMessasge = settingname
