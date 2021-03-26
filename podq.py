@@ -203,11 +203,38 @@ def checkCommandsNodes():
     except Exception as err:
         logging.error("exception in checkCommandsNodes " + str(err) + " trace: " + traceback.format_exc())
 
+def checkCommandsJsonData(commandsJson: str):
+    if(bool(commandsJson["moveNow_innerCircle"])):
+        logger.info("moveNow_innerCircle was true")
+        checkCommandMoveNow(innerCircle)
+    if(bool(commandsJson["moveNow_outerCircle"])):
+        logger.info("moveNow_outerCircle was true")
+        checkCommandMoveNow(outerCircle)
+    if(bool(commandsJson["doRestart"])):
+        logger.info("doRestart was true")
+        doRestartWithGitclone()
+    if(bool(commandsJson["ping"])):
+        logger.info("ping was true")
+        firebaseConnection.setFirebaseValue("ping", time.time(), "commands")
+    if(str(commandsJson["setButtonLed"]).lower() != "false"):
+        logger.info("ping was [" + str(commandsJson["setButtonLed"]) +"]")
+        checkCommandSetButtonLed()
+    if(str(commandsJson["setPocketsFull_innerCircle"]).lower() != "false"):
+        logger.info("setPocketsFull_innerCircle was [" + str(commandsJson["setPocketsFull_innerCircle"]) +"]")
+        checkCommandsPockets(innerCircle)
+    if(str(commandsJson["setPocketsFull_outerCircle"]).lower() != "false"):
+        logger.info("setPocketsFull_outerCircle was [" + str(commandsJson["setPocketsFull_outerCircle"]) +"]")
+        checkCommandsPockets(outerCircle)
+
+
+
+
 def stream_handler(message):
     foundPath = False    
     if message["path"] == '/':
         data = message["data"]
         logger.info("called with root path, ignoring it data was [" + str(data) + "]")
+        checkCommandsJsonData(message["data"]["commands"])
         foundPath = True
     try:
         data = message["data"]
