@@ -90,7 +90,7 @@ class FirebaseConnection:
         return settingValue.val()
 
     def setPing(self):
-        self.database.child("box").child("timestamp").child(self.cpuid).child("ping").set(round(time.time()))
+        self.database.child("box").child("timestamp").child(self.cpuid).set(round(time.time()))
         
     def getPingSeconds(self) -> int:
         pingSeconds = self.database.child("box").child("ping_seconds").get()

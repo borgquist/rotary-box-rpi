@@ -486,10 +486,10 @@ def firebase_callback_thread(name):
             timestampNow = round(time.time())
             timeSinceInternetCheck = timestampNow - pingTimestampFromStream
             if(timeSinceInternetCheck > pingSeconds * 2):
-                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last pingTimestampFromStream [" + str(pingTimestampFromStream) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "] pingSeconds [" + str(pingSeconds) + "]")
+                logger.warning("it's been [" + str(round(timeSinceInternetCheck)) + "] seconds since last pingTimestampFromStream [" + str(round(pingTimestampFromStream)) + "] setting wasLost for reset timestampNow [" +str(round(timestampNow)) + "] pingSeconds [" + str(pingSeconds) + "]")
                 # wasLost = True
             else:
-                logger.info("ping time check ok. it's been [" + str(timeSinceInternetCheck) + "] seconds since last pingTimestampFromStream [" + str(pingTimestampFromStream) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "] pingSeconds [" + str(pingSeconds) + "]")
+                logger.info("ping time check ok. it's been [" + str(round(timeSinceInternetCheck)) + "] seconds since last pingTimestampFromStream [" + str(round(pingTimestampFromStream)) + "] setting wasLost for reset timestampNow [" +str(round(timestampNow)) + "] pingSeconds [" + str(pingSeconds) + "]")
 
             if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
                 resetFirebaseStreams()
@@ -515,7 +515,7 @@ def resetFirebaseStreams():
             firebase_ping_stream.close()
     except Exception as err:
         logger.warning("firebase_ping_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
-    firebase_ping_stream = firebaseConnection.database.child("timestamp").child(boxState.cpuId).child("ping").stream(stream_handler_ping)
+    firebase_ping_stream = firebaseConnection.database.child("timestamp").child(boxState.cpuId).stream(stream_handler_ping)
     
     logger.info("Firebase stream reset done")
 
