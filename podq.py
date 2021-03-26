@@ -226,7 +226,7 @@ def stream_handler(message):
             return
         
         if message["path"] == '/ping':
-            logger.info("ping received from stream [" + message["path"] + "] received with data [" + str(data) + "]")
+            logger.debug("ping received from stream [" + message["path"] + "] received with data [" + str(data) + "]")
             pingTimestampFromStream = int(data)
             return
 
