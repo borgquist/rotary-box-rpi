@@ -36,7 +36,7 @@ class UtilityFunctions:
         try:
             # connect to the host -- tells us if the host is actually
             # reachable
-            socket.create_connection(("1.1.1.1", 53))
+            socket.create_connection(("1.1.1.1", 53), 3)
             return True
         except OSError:
             pass
