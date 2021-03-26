@@ -1,7 +1,6 @@
 import subprocess
 from datetime import datetime
 from types import MappingProxyType
-import urllib
 import socket
 class UtilityFunctions:
     
@@ -31,14 +30,6 @@ class UtilityFunctions:
         except Exception:
             return False
         return True
-    
-    @staticmethod
-    def internetUrllib2Check():
-        try:
-            urllib.urlopen('http://216.58.192.142', timeout=1)
-            return True
-        except: 
-            return False
 
     @staticmethod
     def internetSocketCheck():
