@@ -26,6 +26,16 @@ class UtilityFunctions:
         return cpuserial
 
     @staticmethod
+    def haveInternet() -> bool:
+        googleHostForInternetCheck = "8.8.8.8"
+        try:
+            output = subprocess.check_output(
+                "ping -c 1 {}".format(googleHostForInternetCheck), shell=True)
+        except Exception:
+            return False
+        return True
+
+    @staticmethod
     def internetSubprocessCheck() -> bool:
         googleHostForInternetCheck = "1.1.1.1"
         try:
