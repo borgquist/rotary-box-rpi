@@ -471,7 +471,15 @@ def firebase_callback_thread(name):
             if(timestampLastReset + resetEachSeconds < time.time()):
                 try:
                     if(firebase_stream != ""):
+                        try:
+                            logger.info("print test of firebase_stream " + str(firebase_stream))
+                            logger.info("print test of firebase_stream.sse " + str(firebase_stream.sse))
+                            logger.info("print test of firebase_stream.sse.running " + str(firebase_stream.sse.running))
+                        except Exception as err:
+                            logger.info("exception " + str(err))
+                        
                         firebase_stream.close()
+                    
                     firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                     timestampLastReset = time.time()
                     logger.info("Scheduled firebase stream reset done")
