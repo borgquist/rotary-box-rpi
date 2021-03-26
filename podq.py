@@ -473,13 +473,14 @@ def firebase_callback_thread(name):
     
     while not exitapp:
         try:
-            # wasLost = internetCheckWaitWhileNotAvailable()
+            
             wasLost = False
             timestampNow = round(time.time())
             timeSinceInternetCheck = timestampNow - pingTimestampFromStream
             if(timeSinceInternetCheck > pingSeconds * 2):
-                logger.warning("it's been [" + str(round(timeSinceInternetCheck)) + "] seconds since last pingTimestampFromStream [" + str(round(pingTimestampFromStream)) + "] setting wasLost for reset timestampNow [" +str(round(timestampNow)) + "] pingSeconds [" + str(pingSeconds) + "]")
+                logger.warning("it's been [" + str(round(timeSinceInternetCheck)) + "] seconds since last pingTimestampFromStream resetting when there is internet")
                 wasLost = True
+                internetCheckWaitWhileNotAvailable()
             
             if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
                 resetFirebaseStreams()
@@ -491,6 +492,7 @@ def firebase_callback_thread(name):
 
 def resetFirebaseStreams():
     global firebase_stream
+    internetCheckWaitWhileNotAvailable()
     try:
         if(firebase_stream != ""):
             firebase_stream.close()
