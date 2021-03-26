@@ -228,7 +228,9 @@ def stream_handler(message):
         if message["path"] == '/ping':
             logger.debug("ping received from stream [" + message["path"] + "] received with data [" + str(data) + "]")
             if(int(data) > pingTimestampFromStream):
-                pingTimestampFromStream = int(data) # this is since we can get the old ping from previous time the box ran when it first starts
+                pingTimestampFromStream = int(data) 
+            else:
+                logger.info("ignoring ping since it is from last time the box was running")
             return
 
         if message["path"] == '/settings/timezone':
