@@ -192,16 +192,16 @@ def setPocketsFull(circle: BoxCircle, pocketsFull: int, clearCommands: bool):
     firebaseConnection.setFirebaseValue("pocketsFull", pocketsFull, "state", circle.name, "circles")
     circle.state.pocketsFull = pocketsFull
         
-def checkCommandsNodes():
-    try:
-        logger.info("checkCommandsNodes called")
-        checkCommandSetButtonLed()
-        checkCommandMoveNow(innerCircle)
-        checkCommandMoveNow(outerCircle)
-        checkCommandsPockets(innerCircle)
-        checkCommandsPockets(outerCircle)
-    except Exception as err:
-        logging.error("exception in checkCommandsNodes " + str(err) + " trace: " + traceback.format_exc())
+# def checkCommandsNodes():
+#     try:
+#         logger.info("checkCommandsNodes called")
+#         checkCommandSetButtonLed()
+#         checkCommandMoveNow(innerCircle)
+#         checkCommandMoveNow(outerCircle)
+#         checkCommandsPockets(innerCircle)
+#         checkCommandsPockets(outerCircle)
+#     except Exception as err:
+#         logging.error("exception in checkCommandsNodes " + str(err) + " trace: " + traceback.format_exc())
 
 def checkCommandsJsonData(commandsJson: str):
     if(bool(commandsJson["moveNow_innerCircle"])):
@@ -503,7 +503,7 @@ def firebase_callback_thread(name):
                 logger.info("initialising firebase_stream")
                 firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                 logger.info("firebase_stream has been initialised")
-                checkCommandsNodes()
+                # checkCommandsNodes()
                 timestampLastReset = time.time()
 
             time.sleep(sleepSeconds)
