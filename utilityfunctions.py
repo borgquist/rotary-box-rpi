@@ -59,13 +59,17 @@ class UtilityFunctions:
         ]
         port = 53
         timeout = 3
+        oneLost = False
         for host in IP_ADDRESS_LIST:
             try:
                 socket.setdefaulttimeout(timeout)
                 socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+                if(oneLost):
+                    logger.info("internet successful check for " + host)
                 return True
             except socket.error:
                 logger.warning("internet check failed for " + host)
+                oneLost = True
                 pass
         else:
             logger.warning("internet check failed for all")
