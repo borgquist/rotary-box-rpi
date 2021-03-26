@@ -469,6 +469,8 @@ def firebase_callback_thread(name):
             if(timeSinceInternetCheck > pingSeconds * 2):
                 logger.warning("it's been [" + str(round(timeSinceInternetCheck)) + "] seconds since last pingTimestampFromStream resetting when there is internet")
                 resetFirebaseStreams()
+                pingTimestampFromStream = time.time() # this is to avoid us doing many checks in a row if it takes a while to get the connection up again
+                firebaseConnection.setPing()
             time.sleep(sleepSeconds)
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
