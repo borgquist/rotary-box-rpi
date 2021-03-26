@@ -311,6 +311,19 @@ def stream_handler(message):
     except Exception as err:
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
 
+def stream_handler_internet_check(message):
+    global internet_check_timestamp
+    try:
+        data = message["data"]
+
+        if message["path"] == '/internet_check':
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
+            internet_check_timestamp = int(data)
+            
+   
+    except Exception as err:
+        logging.error("exception in stream_handler_internet_check " + str(err) + " trace: " + traceback.format_exc())
+
 
 def thread_time(name):
     lastTimeStampUpdate = 0
@@ -318,13 +331,11 @@ def thread_time(name):
     while not exitapp:
         try:
             time.sleep(sleepSeconds)
-            while(internetIsAvailable == False):
-                time.sleep(sleepSeconds)
-
             timestampNow = time.time()
-            if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
-                firebaseConnection.setPing(boxSettings)
-                lastTimeStampUpdate = timestampNow
+            if(internetIsAvailable):
+                if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
+                    firebaseConnection.setPing(boxSettings)
+                    lastTimeStampUpdate = timestampNow
         except requests.exceptions.HTTPError as e:
            logging.error("HTTPError [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
         
@@ -463,43 +474,49 @@ def internetCheckWaitWhileNotAvailable() -> bool:
 
 def firebase_callback_thread(name):
     global firebase_stream
+    global firebase_internet_check_stream
     sleepSeconds = 1
     resetEachSeconds = 1800
     timestampLastReset = 0
+    
     while not exitapp:
         try:
-            if(timestampLastReset + resetEachSeconds < time.time()):
-                try:
-                    if(firebase_stream != ""):
-                        firebase_stream.close()
-                    
-                    firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
-                    timestampLastReset = time.time()
-                    logger.info("Scheduled firebase stream reset done")
-                except Exception as err:
-                    logger.warning("reset failed " + str(err) + " trace: " + traceback.format_exc())
             wasLost = internetCheckWaitWhileNotAvailable()
-            if(wasLost):
-                try:
-                    if(firebase_stream != ""):
-                        try:
-                            logger.info("print test of firebase_stream " + str(firebase_stream))
-                            logger.info("print test of firebase_stream.sse " + str(firebase_stream.sse))
-                            logger.info("print test of firebase_stream.sse.running " + str(firebase_stream.sse.running))
-                        except Exception as err:
-                            logger.info("exception " + str(err))
-                        firebase_stream.close()
-                except Exception as err:
-                    logger.warning("firebase_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
-
-                firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
-                timestampLastReset = time.time()
-
+            
+            timestampNow = time.time()
+            timeSinceInternetCheck = timestampNow - internet_check_timestamp
+            if(timeSinceInternetCheck > 60):
+                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last internet_check_timestamp setting wasLost for reset")
+                wasLost = True
+            if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
+                resetFirebaseStreams()
+                timestampLastReset = timestampNow
             time.sleep(sleepSeconds)
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
     logger.info("exiting")
 
+def resetFirebaseStreams():
+    global firebase_stream
+    global firebase_internet_check_stream
+
+    try:
+        if(firebase_stream != ""):
+            firebase_stream.close()
+    except Exception as err:
+        logger.warning("firebase_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
+    firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
+
+    try:
+        if(firebase_internet_check_stream != ""):
+            firebase_internet_check_stream.close()
+    except Exception as err:
+        logger.warning("firebase_internet_check_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
+    firebase_internet_check_stream = firebaseConnection.database.child("box").child("internet_check").stream(stream_handler_internet_check)
+    
+    logger.info("Firebase stream reset done")
+
+                                   
 def checkVersionAndUpdateIfNeeded():
     if(UtilityFunctions.versionIsLessThanServer(boxState.version, latestVersionAvailable) == False):
         return
@@ -612,6 +629,8 @@ if __name__ == '__main__':
         
         firebaseConnection = FirebaseConnection(str(boxState.cpuId), '/home/pi/config.json')
         firebase_stream = ""
+        firebase_internet_check_stream = ""
+        internet_check_timestamp = 0
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
         

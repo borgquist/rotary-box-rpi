@@ -103,6 +103,16 @@ class FirebaseConnection:
         logger.info("ping_seconds is: " + str(pingSeconds.val()))
         return int(pingSeconds.val())
 
+    
+    def getInternetCheckTimestamp(self) -> int:
+        internet_check = self.database.child("box").child("internet_check").get()
+        if internet_check.val() is None:
+            logging.warning("couldn't get internet_check")
+            return 0
+        logger.info("internet_check is: " + str(internet_check.val()))
+        return int(internet_check.val())
+
+
     def getBoxLatestVersion(self) -> str:
         latestVersion = self.database.child("box").child("latest_version").get()
         if latestVersion.val() is None:
