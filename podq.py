@@ -220,14 +220,18 @@ def checkCommandsJsonData(commandsJson: str):
 def stream_handler(message):
     global pingTimestampFromStream
     data = message["data"]
-    # logger.info("stream_handler message received with [" + message["path"] + "] [" + str(data) + "]")
+    logger.info("stream_handler message received with [" + message["path"] + "] [" + str(data) + "]")
     try:
         if message["path"] == '/':
             checkCommandsJsonData(data["commands"])
             return
         
         if message["path"] == '/ping':
-            pingTimestampFromStream = int(data) 
+            logger.info("ping received with [" + str(data) + "] pingTimestampFromStream was [" + str(round(pingTimestampFromStream)) + "]")
+            if(int(data) > pingTimestampFromStream):
+                pingTimestampFromStream = int(data) 
+            else:
+                logger.info("ignoring ping since it is from last time the box was running")
             return
 
         if message["path"] == '/settings/timezone':
@@ -468,8 +472,9 @@ def firebase_callback_thread(name):
     while not exitapp:
         try:
             timestampNow = round(time.time())
+            logger.info("checking pingTimestampFromStream [" + str(round(pingTimestampFromStream)) + "] now [" +str(round(timestampNow)) + "]")
             timeSinceInternetCheck = timestampNow - pingTimestampFromStream
-            if(timeSinceInternetCheck > pingSeconds + 20):
+            if(timeSinceInternetCheck > pingSeconds * 2):
                 logger.warning("it's been [" + str(round(timeSinceInternetCheck)) + "] seconds since last pingTimestampFromStream resetting when there is internet")
                 resetFirebaseStreams()
                 pingTimestampFromStream = timestampNow # this is to avoid us doing many checks in a row if it takes a while to get the connection up again
