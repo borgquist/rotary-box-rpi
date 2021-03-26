@@ -618,7 +618,7 @@ if __name__ == '__main__':
         pingTimestampFromStream = time.time() # initialize with now
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
-        
+        firebaseConnection.setPing()
         # this has to be done after getting the stepper chanlist
         for pin in innerCircle.settings.stepper.chanList:
             GPIO.setup(pin, GPIO.OUT)
