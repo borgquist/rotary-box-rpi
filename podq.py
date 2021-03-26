@@ -196,32 +196,39 @@ def checkCommandsJsonData(commandsJson: str):
     if(bool(commandsJson["moveNow_innerCircle"])):
         logger.info("moveNow_innerCircle was true")
         checkCommandMoveNow(innerCircle, True)
+
     if(bool(commandsJson["moveNow_outerCircle"])):
         logger.info("moveNow_outerCircle was true")
         checkCommandMoveNow(outerCircle, True)
+
     if(bool(commandsJson["doRestart"])):
         logger.info("doRestart was true")
         doRestartWithGitclone()
-    if(str(commandsJson["setButtonLed"]).lower() == "true"):
-        logger.info("ping was true")
-        firebaseConnection.setFirebaseValue("ping", time.time(), "commands")
+
     if(str(commandsJson["setButtonLed"]).lower() != "false"):
         logger.info("ping was [" + str(commandsJson["setButtonLed"]) +"]")
         checkCommandSetButtonLed()
+
     if(str(commandsJson["setPocketsFull_innerCircle"]).lower() != "false"):
         logger.info("setPocketsFull_innerCircle was [" + str(commandsJson["setPocketsFull_innerCircle"]) +"]")
         checkCommandsPockets(innerCircle)
+
     if(str(commandsJson["setPocketsFull_outerCircle"]).lower() != "false"):
         logger.info("setPocketsFull_outerCircle was [" + str(commandsJson["setPocketsFull_outerCircle"]) +"]")
         checkCommandsPockets(outerCircle)
 
 def stream_handler(message):
-    foundPath = False    
-    if message["path"] == '/':
-        checkCommandsJsonData(message["data"]["commands"])
-        foundPath = True
+    global pingTimestampFromStream
     try:
         data = message["data"]
+        if message["path"] == '/':
+            checkCommandsJsonData(data["commands"])
+            return
+        
+        if message["path"] == '/ping':
+            logger.info("ping received from stream [" + message["path"] + "] received with data [" + str(data) + "]")
+            pingTimestampFromStream = int(data)
+            return
 
         if message["path"] == '/settings/timezone':
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
@@ -229,101 +236,86 @@ def stream_handler(message):
             firebaseConnection.setPing()
             updateFirebaseWithNextMove(innerCircle, getNextMove(innerCircle.settings.schedules))
             updateFirebaseWithNextMove(outerCircle, getNextMove(outerCircle.settings.schedules))
-            foundPath = True
+            return
 
         if str(message["path"]).startswith('/circles/innerCircle/settings/schedules'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
             updateFirebaseWithNextMove(innerCircle, getNextMove(innerCircle.settings.schedules))
-            foundPath = True
+            return
 
         if str(message["path"]).startswith('/circles/outerCircle/settings/schedules'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getSchedules()
             updateFirebaseWithNextMove(outerCircle, getNextMove(outerCircle.settings.schedules))
-            foundPath = True
+            return
 
         if str(message["path"]).startswith('/circles/innerCircle/settings/stepper'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getStepper(innerCircle, defaultstepperInner)
-            foundPath = True
+            return
 
         
         if str(message["path"]).startswith('/circles/outerCircle/settings/stepper'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             getStepper(outerCircle, defaultstepperOuter)
-            foundPath = True
+            return
 
         if message["path"] == '/commands/setButtonLed':
-            foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 ledOn = parseButtonLedStringReturnLedOn(str(data))
                 setButtonLed(ledOn, True)
+            return
         
         if message["path"] == '/commands/moveNow_innerCircle':
-            foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 checkCommandMoveNow(innerCircle, bool(data))
+            return
 
         if message["path"] == '/commands/moveNow_outerCircle':
-            foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 checkCommandMoveNow(outerCircle, bool(data))
+            return
             
 
         if message["path"] == '/commands/setPocketsFull_innerCircle':
-            foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 if(data == "empty"):
                     setPocketsFull(innerCircle, 0, True)    
                 else:
                     setPocketsFull(innerCircle, int(data), True)
+            return
 
         if message["path"] == '/commands/setPocketsFull_outerCircle':
-            foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 if(data == "empty"):
                     setPocketsFull(outerCircle, 0, True)    
                 else:
                     setPocketsFull(outerCircle, int(data), True)
+            return
         
         if message["path"] == '/commands/doRestart':
-            foundPath = True
             if(data != False):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 firebaseConnection.setFirebaseValue("doRestart", False, "commands")
                 doRestartWithGitclone()
+            return
 
         if message["path"] == '/commands/ping':
-            foundPath = True
             if(data == True or data == 'ping'):
                 logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
                 firebaseConnection.setFirebaseValue("ping", time.time(), "commands")
+            return
 
-        if(foundPath == False):
-            logger.info("we're ignoring the callback for  [" + message["path"] + "] received with data [" + str(data) + "]")
+        logger.info("we're ignoring the callback for  [" + message["path"] + "] received with data [" + str(data) + "]")
             
     except Exception as err:
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
-
-def stream_handler_ping(message):
-    global pingTimestampFromStream
-    try:
-        data = message["data"]
-
-        if message["path"] == '/':
-            logger.info("pingTimestampFromStream received  [" + message["path"] + "] received with data [" + str(data) + "]")
-            pingTimestampFromStream = int(data)
-        else:
-            logger.info("unknown path " + str(message) + " " + str(message["path"]) + " " + str(message["data"]))
-   
-    except Exception as err:
-        logging.error("exception in stream_handler_ping " + str(err) + " trace: " + traceback.format_exc())
 
 
 def thread_ping(name):
@@ -501,8 +493,6 @@ def firebase_callback_thread(name):
 
 def resetFirebaseStreams():
     global firebase_stream
-    global firebase_ping_stream
-
     try:
         if(firebase_stream != ""):
             firebase_stream.close()
@@ -510,13 +500,6 @@ def resetFirebaseStreams():
         logger.warning("firebase_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
     firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
 
-    try:
-        if(firebase_ping_stream != ""):
-            firebase_ping_stream.close()
-    except Exception as err:
-        logger.warning("firebase_ping_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
-    firebase_ping_stream = firebaseConnection.database.child("timestamp").child(boxState.cpuId).stream(stream_handler_ping)
-    
     logger.info("Firebase stream reset done")
 
                                    
@@ -632,7 +615,6 @@ if __name__ == '__main__':
         
         firebaseConnection = FirebaseConnection(str(boxState.cpuId), '/home/pi/config.json')
         firebase_stream = ""
-        firebase_ping_stream = ""
         pingTimestampFromStream = time.time() # initialize with now
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
@@ -691,7 +673,6 @@ if __name__ == '__main__':
         exitapp = True
         GPIO.cleanup()
         firebase_stream.close()
-        firebase_ping_stream.close()
         # give the threads time to shut down before removing GPIO
         time.sleep(1)
         logger.info("Shutdown complete ---------------------------------------------------")
