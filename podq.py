@@ -468,23 +468,14 @@ def internetCheckWaitWhileNotAvailable() -> bool:
 def firebase_callback_thread(name):
     global pingTimestampFromStream
     sleepSeconds = 5
-    resetEachSeconds = 1800
-    timestampLastReset = 0
     
     while not exitapp:
         try:
-            
-            wasLost = False
             timestampNow = round(time.time())
             timeSinceInternetCheck = timestampNow - pingTimestampFromStream
             if(timeSinceInternetCheck > pingSeconds * 2):
                 logger.warning("it's been [" + str(round(timeSinceInternetCheck)) + "] seconds since last pingTimestampFromStream resetting when there is internet")
-                wasLost = True
-                internetCheckWaitWhileNotAvailable()
-            
-            if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
                 resetFirebaseStreams()
-                timestampLastReset = timestampNow
             time.sleep(sleepSeconds)
         except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
