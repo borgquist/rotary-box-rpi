@@ -317,10 +317,11 @@ def stream_handler_internet_check(message):
     try:
         data = message["data"]
 
-        if message["path"] == '/internet_check':
+        if message["path"] == '/':
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             internet_check_timestamp = int(data)
-            
+        else:
+            logger.info("unknown path " + str(message) + " " + str(message["path"]) + " " + str(message["data"]))
    
     except Exception as err:
         logging.error("exception in stream_handler_internet_check " + str(err) + " trace: " + traceback.format_exc())
@@ -476,6 +477,7 @@ def internetCheckWaitWhileNotAvailable() -> bool:
 def firebase_callback_thread(name):
     global firebase_stream
     global firebase_internet_check_stream
+    global internet_check_timestamp
     sleepSeconds = 1
     resetEachSeconds = 1800
     timestampLastReset = 0
@@ -488,7 +490,7 @@ def firebase_callback_thread(name):
             timeSinceInternetCheck = timestampNow - internet_check_timestamp
             if(timeSinceInternetCheck > 60):
                 logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last internet_check_timestamp setting wasLost for reset")
-                wasLost = True
+                # wasLost = True
             if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
                 resetFirebaseStreams()
                 timestampLastReset = timestampNow
