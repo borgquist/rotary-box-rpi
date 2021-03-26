@@ -2,6 +2,10 @@ import subprocess
 from datetime import datetime
 from types import MappingProxyType
 import socket
+import logging
+
+logger = logging.getLogger('podq')
+
 class UtilityFunctions:
     
     @staticmethod
@@ -42,6 +46,32 @@ class UtilityFunctions:
             pass
         return False
     
+    def check_internet_connection():
+        """ Returns True if there's a connection """
+
+        IP_ADDRESS_LIST = [
+            "1.1.1.1",  # Cloudflare
+            "1.0.0.1",
+            "8.8.8.8",  # Google DNS
+            "8.8.4.4",
+            "208.67.222.222",  # Open DNS
+            "208.67.220.220"
+        ]
+        port = 53
+        timeout = 3
+        for host in IP_ADDRESS_LIST:
+            try:
+                socket.setdefaulttimeout(timeout)
+                socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+                return True
+            except socket.error:
+                logger.warning("internet check failed for " + host)
+                pass
+        else:
+            logger.warning("internet check failed for all")
+            return False 
+
+
     @staticmethod
     def getWifiInfo(longVersion: bool):
         try:
