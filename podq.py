@@ -206,7 +206,8 @@ def checkCommandsNodes():
 def stream_handler(message):
     foundPath = False    
     if message["path"] == '/':
-        logger.info("called with root path, ignoring it")
+        data = message["data"]
+        logger.info("called with root path, ignoring it data was [" + str(data) + "]")
         foundPath = True
     try:
         data = message["data"]
