@@ -337,7 +337,6 @@ def thread_ping(name):
                 if(timestampNow - lastPingSent > pingSeconds):
                     firebaseConnection.setPing()
                     lastPingSent = timestampNow
-                    logger.info("ping sent")
         except requests.exceptions.HTTPError as e:
            logging.error("HTTPError [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
         
@@ -489,6 +488,9 @@ def firebase_callback_thread(name):
             if(timeSinceInternetCheck > pingSeconds * 2):
                 logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last pingTimestampFromStream [" + str(pingTimestampFromStream) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "] pingSeconds [" + pingSeconds + "]")
                 # wasLost = True
+            else:
+                logger.info("ping time check ok. it's been [" + str(timeSinceInternetCheck) + "] seconds since last pingTimestampFromStream [" + str(pingTimestampFromStream) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "] pingSeconds [" + pingSeconds + "]")
+
             if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
                 resetFirebaseStreams()
                 timestampLastReset = timestampNow
@@ -513,7 +515,7 @@ def resetFirebaseStreams():
             firebase_ping_stream.close()
     except Exception as err:
         logger.warning("firebase_ping_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
-    firebase_ping_stream = firebaseConnection.database.child("timestamp").child(boxState.cpuId).stream(stream_handler_ping)
+    firebase_ping_stream = firebaseConnection.database.child("timestamp").child(boxState.cpuId).child("ping").stream(stream_handler_ping)
     
     logger.info("Firebase stream reset done")
 
@@ -689,6 +691,7 @@ if __name__ == '__main__':
         exitapp = True
         GPIO.cleanup()
         firebase_stream.close()
+        firebase_ping_stream.close()
         # give the threads time to shut down before removing GPIO
         time.sleep(1)
         logger.info("Shutdown complete ---------------------------------------------------")
