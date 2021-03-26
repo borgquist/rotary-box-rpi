@@ -446,7 +446,7 @@ def internetCheckWaitWhileNotAvailable() -> bool:
         # if(UtilityFunctions.check_internet_connection() == False):
         #     logger.warning("internet lost according to check_internet_connection")
         
-        while(UtilityFunctions.check_internet_connection() == False):
+        while(UtilityFunctions.internetSubprocessCheck() == False):
             logger.warning("internet is lost")
             internetIsAvailable = False
             internetWasLost = True
