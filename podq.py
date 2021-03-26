@@ -473,8 +473,8 @@ def firebase_callback_thread(name):
     
     while not exitapp:
         try:
-            wasLost = internetCheckWaitWhileNotAvailable()
-            
+            # wasLost = internetCheckWaitWhileNotAvailable()
+            wasLost = False
             timestampNow = round(time.time())
             timeSinceInternetCheck = timestampNow - pingTimestampFromStream
             if(timeSinceInternetCheck > pingSeconds * 2):
