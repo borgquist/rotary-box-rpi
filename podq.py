@@ -155,7 +155,6 @@ def setButtonLed(ledOn: bool, clearCommands: bool = False):
         time.sleep(1)
         logger.info("sleeping setButtonLed due to internetIsAvailable")
     if(ledOn):
-        firebaseConnection.setInternetCheckTimestamp()
         boxState.buttonLedOn = True
         GPIO.output(button_led_pin, GPIO.HIGH)
         GPIO.output(led_pin, GPIO.HIGH)
@@ -313,13 +312,13 @@ def stream_handler(message):
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
 
 def stream_handler_ping(message):
-    global streamPingTimestamp
+    global pingTimestampFromStream
     try:
         data = message["data"]
 
         if message["path"] == '/':
-            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
-            streamPingTimestamp = int(data)
+            logger.info("pingTimestampFromStream received  [" + message["path"] + "] received with data [" + str(data) + "]")
+            pingTimestampFromStream = int(data)
         else:
             logger.info("unknown path " + str(message) + " " + str(message["path"]) + " " + str(message["data"]))
    
@@ -476,7 +475,7 @@ def internetCheckWaitWhileNotAvailable() -> bool:
     return internetWasLost
 
 def firebase_callback_thread(name):
-    global streamPingTimestamp
+    global pingTimestampFromStream
     sleepSeconds = 5
     resetEachSeconds = 1800
     timestampLastReset = 0
@@ -485,10 +484,10 @@ def firebase_callback_thread(name):
         try:
             wasLost = internetCheckWaitWhileNotAvailable()
             
-            timestampNow = time.time()
-            timeSinceInternetCheck = timestampNow - streamPingTimestamp
+            timestampNow = round(time.time())
+            timeSinceInternetCheck = timestampNow - pingTimestampFromStream
             if(timeSinceInternetCheck > pingSeconds * 2):
-                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last streamPingTimestamp [" + str(streamPingTimestamp) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "]")
+                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last pingTimestampFromStream [" + str(pingTimestampFromStream) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "] pingSeconds [" + pingSeconds + "]")
                 # wasLost = True
             if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
                 resetFirebaseStreams()
@@ -632,7 +631,7 @@ if __name__ == '__main__':
         firebaseConnection = FirebaseConnection(str(boxState.cpuId), '/home/pi/config.json')
         firebase_stream = ""
         firebase_ping_stream = ""
-        streamPingTimestamp = 0
+        pingTimestampFromStream = time.time() # initialize with now
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
         
