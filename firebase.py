@@ -89,12 +89,9 @@ class FirebaseConnection:
         logger.info("firebase setting [" + logMessasge + "] has value [" + str(settingValue.val()) + "]")
         return settingValue.val()
 
-    def setPing(self, boxSettings: BoxSettings):
-        self.database.child("box").child("timestamp").child(self.cpuid).child("epoch").set(time.time())
-        localTime = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
-        self.database.child("box").child("timestamp").child(self.cpuid).child("local").set(localTime.strftime(DateTimeFunctions.fmt))
-        logger.info("updating timestamp to: " + localTime.strftime(DateTimeFunctions.fmt))
-
+    def setPing(self):
+        self.database.child("box").child("timestamp").child(self.cpuid).set(round(time.time()))
+        
     def getPingSeconds(self) -> int:
         pingSeconds = self.database.child("box").child("ping_seconds").get()
         if pingSeconds.val() is None:

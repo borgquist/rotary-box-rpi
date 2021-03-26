@@ -227,7 +227,7 @@ def stream_handler(message):
         if message["path"] == '/settings/timezone':
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
             boxSettings.timezone = str(data)
-            firebaseConnection.setPing(boxSettings)
+            firebaseConnection.setPing()
             updateFirebaseWithNextMove(innerCircle, getNextMove(innerCircle.settings.schedules))
             updateFirebaseWithNextMove(outerCircle, getNextMove(outerCircle.settings.schedules))
             foundPath = True
@@ -312,32 +312,33 @@ def stream_handler(message):
     except Exception as err:
         logging.error("exception in stream_handler " + str(err) + " trace: " + traceback.format_exc())
 
-def stream_handler_internet_check(message):
-    global internet_check_timestamp
+def stream_handler_ping(message):
+    global streamPingTimestamp
     try:
         data = message["data"]
 
         if message["path"] == '/':
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
-            internet_check_timestamp = int(data)
+            streamPingTimestamp = int(data)
         else:
             logger.info("unknown path " + str(message) + " " + str(message["path"]) + " " + str(message["data"]))
    
     except Exception as err:
-        logging.error("exception in stream_handler_internet_check " + str(err) + " trace: " + traceback.format_exc())
+        logging.error("exception in stream_handler_ping " + str(err) + " trace: " + traceback.format_exc())
 
 
-def thread_time(name):
-    lastTimeStampUpdate = 0
+def thread_ping(name):
+    lastPingSent = 0
     sleepSeconds = 5
     while not exitapp:
         try:
             time.sleep(sleepSeconds)
             timestampNow = time.time()
             if(internetIsAvailable):
-                if(timestampNow - lastTimeStampUpdate > pingSeconds and timestampNow - lastTimeStampUpdate > 60):
-                    firebaseConnection.setPing(boxSettings)
-                    lastTimeStampUpdate = timestampNow
+                if(timestampNow - lastPingSent > pingSeconds):
+                    firebaseConnection.setPing()
+                    lastPingSent = timestampNow
+                    logger.info("ping sent")
         except requests.exceptions.HTTPError as e:
            logging.error("HTTPError [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
         
@@ -475,10 +476,8 @@ def internetCheckWaitWhileNotAvailable() -> bool:
     return internetWasLost
 
 def firebase_callback_thread(name):
-    global firebase_stream
-    global firebase_internet_check_stream
-    global internet_check_timestamp
-    sleepSeconds = 1
+    global streamPingTimestamp
+    sleepSeconds = 5
     resetEachSeconds = 1800
     timestampLastReset = 0
     
@@ -487,9 +486,9 @@ def firebase_callback_thread(name):
             wasLost = internetCheckWaitWhileNotAvailable()
             
             timestampNow = time.time()
-            timeSinceInternetCheck = timestampNow - internet_check_timestamp
-            if(timeSinceInternetCheck > 60):
-                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last internet_check_timestamp [" + str(internet_check_timestamp) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "]")
+            timeSinceInternetCheck = timestampNow - streamPingTimestamp
+            if(timeSinceInternetCheck > pingSeconds * 2):
+                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last streamPingTimestamp [" + str(streamPingTimestamp) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "]")
                 # wasLost = True
             if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
                 resetFirebaseStreams()
@@ -501,7 +500,7 @@ def firebase_callback_thread(name):
 
 def resetFirebaseStreams():
     global firebase_stream
-    global firebase_internet_check_stream
+    global firebase_ping_stream
 
     try:
         if(firebase_stream != ""):
@@ -511,11 +510,11 @@ def resetFirebaseStreams():
     firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
 
     try:
-        if(firebase_internet_check_stream != ""):
-            firebase_internet_check_stream.close()
+        if(firebase_ping_stream != ""):
+            firebase_ping_stream.close()
     except Exception as err:
-        logger.warning("firebase_internet_check_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
-    firebase_internet_check_stream = firebaseConnection.database.child("box").child("internet_check").stream(stream_handler_internet_check)
+        logger.warning("firebase_ping_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
+    firebase_ping_stream = firebaseConnection.database.child("timestamp").child(boxState.cpuId).stream(stream_handler_ping)
     
     logger.info("Firebase stream reset done")
 
@@ -632,8 +631,8 @@ if __name__ == '__main__':
         
         firebaseConnection = FirebaseConnection(str(boxState.cpuId), '/home/pi/config.json')
         firebase_stream = ""
-        firebase_internet_check_stream = ""
-        internet_check_timestamp = 0
+        firebase_ping_stream = ""
+        streamPingTimestamp = 0
 
         getFirebaseValuesAndSetDefaultsIfNeeded()
         
@@ -669,7 +668,7 @@ if __name__ == '__main__':
         buttonThread.start()
         irThread = threading.Thread(target=thread_ir_sensor, args=(1,))
         irThread.start()
-        timeThread = threading.Thread(target=thread_time, args=(1,))
+        timeThread = threading.Thread(target=thread_ping, args=(1,))
         timeThread.start()
         moveThreadInner = threading.Thread(target=thread_move_inner, args=(1,))
         moveThreadInner.start()
