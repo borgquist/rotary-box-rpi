@@ -521,6 +521,8 @@ def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
 
 if __name__ == '__main__':
     try:
+        pingTimestampFromStream = time.time() # initialize with now
+
         boxState = BoxState()
         boxState.version = "1.0.2"
         
@@ -604,8 +606,7 @@ if __name__ == '__main__':
         
         firebaseConnection = FirebaseConnection(str(boxState.cpuId), '/home/pi/config.json')
         firebase_stream = ""
-        pingTimestampFromStream = time.time() # initialize with now
-
+        
         getFirebaseValuesAndSetDefaultsIfNeeded()
         firebaseConnection.setPing()
         # this has to be done after getting the stepper chanlist
