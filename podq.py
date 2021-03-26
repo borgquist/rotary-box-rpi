@@ -155,6 +155,7 @@ def setButtonLed(ledOn: bool, clearCommands: bool = False):
         time.sleep(1)
         logger.info("sleeping setButtonLed due to internetIsAvailable")
     if(ledOn):
+        firebaseConnection.setInternetCheckTimestamp()
         boxState.buttonLedOn = True
         GPIO.output(button_led_pin, GPIO.HIGH)
         GPIO.output(led_pin, GPIO.HIGH)
