@@ -434,17 +434,24 @@ def thread_ir_sensor(name):
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
     logger.info("exiting")
 
+
 def internetCheckWaitWhileNotAvailable() -> bool:
     internetWasLost = False
     global internetIsAvailable
     global timestampInternetAvailable
     try:    
 
-        while(not UtilityFunctions.haveInternet()):
-            secondsSleep = 5
+        if(UtilityFunctions.internetSocketCheck() == False):
+            logger.warning("internet lost according to internetSocketCheck")
+        if(UtilityFunctions.internetSubprocessCheck() == False):
+            logger.warning("internet lost according to internetSubprocessCheck")
+        if(UtilityFunctions.internetUrllib2Check() == False):
+            logger.warning("internet lost according to internetUrllib2Check")
+        
+        while(not UtilityFunctions.internetSubprocessCheck()):
             internetIsAvailable = False
             internetWasLost = True
-            time.sleep(secondsSleep)
+            time.sleep(1)
 
         if(internetWasLost):
             timeLost = time.time() - timestampInternetAvailable

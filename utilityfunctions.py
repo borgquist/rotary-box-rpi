@@ -1,7 +1,8 @@
 import subprocess
 from datetime import datetime
 from types import MappingProxyType
-
+import urllib2
+import socket
 class UtilityFunctions:
     
     @staticmethod
@@ -22,15 +23,34 @@ class UtilityFunctions:
         return cpuserial
 
     @staticmethod
-    def haveInternet() -> bool:
-        googleHostForInternetCheck = "8.8.8.8"
+    def internetSubprocessCheck() -> bool:
+        googleHostForInternetCheck = "1.1.1.1"
         try:
             output = subprocess.check_output(
                 "ping -c 1 {}".format(googleHostForInternetCheck), shell=True)
         except Exception:
             return False
         return True
+    
+    @staticmethod
+    def internetUrllib2Check():
+        try:
+            urllib2.urlopen('http://216.58.192.142', timeout=1)
+            return True
+        except urllib2.URLError as err: 
+            return False
 
+    @staticmethod
+    def internetSocketCheck():
+        try:
+            # connect to the host -- tells us if the host is actually
+            # reachable
+            socket.create_connection(("1.1.1.1", 53))
+            return True
+        except OSError:
+            pass
+        return False
+    
     @staticmethod
     def getWifiInfo(longVersion: bool):
         try:

@@ -38,7 +38,6 @@ class FirebaseConnection:
         self.firebase = pyrebase.initialize_app(config)
         self.database = self.firebase.database()
 
-
     def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None, greatgrandparent = None):
         while(not UtilityFunctions.haveInternet()):
             logger.info("internet is not available, sleeping 1 second")
