@@ -439,7 +439,7 @@ def thread_ir_sensor(name):
     logger.info("exiting")
 
 
-def internetCheckWaitWhileNotAvailable() -> bool:
+def internetCheckWaitWhileNotAvailable():
     internetWasLost = False
     global internetIsAvailable
     global timestampInternetAvailable
@@ -457,7 +457,6 @@ def internetCheckWaitWhileNotAvailable() -> bool:
         internetIsAvailable = True
     except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
-    return internetWasLost
 
 def firebase_callback_thread(name):
     global pingTimestampFromStream
