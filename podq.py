@@ -489,7 +489,7 @@ def firebase_callback_thread(name):
             timestampNow = time.time()
             timeSinceInternetCheck = timestampNow - internet_check_timestamp
             if(timeSinceInternetCheck > 60):
-                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last internet_check_timestamp setting wasLost for reset")
+                logger.warning("it's been [" + str(timeSinceInternetCheck) + "] seconds since last internet_check_timestamp [" + str(internet_check_timestamp) + "] setting wasLost for reset timestampNow [" +str(timestampNow) + "]")
                 # wasLost = True
             if(timestampLastReset + resetEachSeconds < timestampNow or wasLost):
                 resetFirebaseStreams()
