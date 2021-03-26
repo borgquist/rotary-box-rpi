@@ -227,7 +227,8 @@ def stream_handler(message):
         
         if message["path"] == '/ping':
             logger.debug("ping received from stream [" + message["path"] + "] received with data [" + str(data) + "]")
-            pingTimestampFromStream = int(data)
+            if(int(data) > pingTimestampFromStream):
+                pingTimestampFromStream = int(data) # this is since we can get the old ping from previous time the box ran when it first starts
             return
 
         if message["path"] == '/settings/timezone':
@@ -627,7 +628,6 @@ if __name__ == '__main__':
         pingSeconds = firebaseConnection.getPingSeconds()
         
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
-        logger.info("PodQ box version [" + boxState.version + "] latest_version ["+ latestVersionAvailable + "] CPU serial [" + str(boxState.cpuId) + "]")
         checkVersionAndUpdateIfNeeded()
 
         firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
@@ -645,7 +645,9 @@ if __name__ == '__main__':
         moveThreadOuter.start()
         releaseBothMotors()
         setButtonLed(True)
-
+        logger.info("---------------------------------")
+        logger.info("PodQ box started. Version [" + boxState.version + "] latest_version ["+ latestVersionAvailable + "] CPU serial [" + str(boxState.cpuId) + "]")
+        logger.info("---------------------------------")
         while (True):
             time.sleep(10)
 
