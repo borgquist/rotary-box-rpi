@@ -438,9 +438,9 @@ def thread_ir_sensor(name):
 def internetCheckWaitWhileNotAvailable() -> bool:
     internetWasLost = False
     global internetIsAvailable
-    secondsSleep = 1
     try:    
         while(not UtilityFunctions.haveInternet()):
+            secondsSleep = 5
             internetIsAvailable = False
             internetWasLost = True
             logger.warning("internet is not available, sleeping " + str(secondsSleep) + " seconds" )
@@ -463,28 +463,23 @@ def firebase_callback_thread(name):
         try:
             if(timestampLastReset + resetEachSeconds < time.time()):
                 try:
-                    logger.info("Doing scheduled firebase stream reset")
                     if(firebase_stream != ""):
                         firebase_stream.close()
                     firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                     timestampLastReset = time.time()
-                    logger.info("firebase stream reset done")
+                    logger.info("Scheduled firebase stream reset done")
                 except Exception as err:
                     logger.warning("reset failed " + str(err) + " trace: " + traceback.format_exc())
             wasLost = internetCheckWaitWhileNotAvailable()
             if(wasLost):
                 try:
                     if(firebase_stream != ""):
-                        logger.info("closing firebase_stream")
                         firebase_stream.close()
-                        logger.info("firebase_stream closed successfully")
                 except Exception as err:
                     logger.warning("firebase_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
 
-                logger.info("initialising firebase_stream")
                 firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
                 logger.info("firebase_stream has been initialised")
-                # checkCommandsNodes()
                 timestampLastReset = time.time()
 
             time.sleep(sleepSeconds)
