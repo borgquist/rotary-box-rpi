@@ -330,8 +330,11 @@ def thread_ping(name):
             timestampNow = time.time()
             if(internetIsAvailable):
                 if(timestampNow - lastPingSent > pingSeconds):
+                    logger.info("setting ping")
                     firebaseConnection.setPing()
                     lastPingSent = timestampNow
+            else:
+                logger.info("not setting ping since internet is not available")
         except requests.exceptions.HTTPError as e:
            logging.error("HTTPError [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
         
