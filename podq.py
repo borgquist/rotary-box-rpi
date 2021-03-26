@@ -638,7 +638,7 @@ if __name__ == '__main__':
 
         pingTimestampFromStream = time.time() # initialize with now
         logger.info("setting pingTimestampFromStream to " + str(round(pingTimestampFromStream)))
-
+        resetFirebaseStreams()
         firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
         firebaseCallbackThread.start()
 
