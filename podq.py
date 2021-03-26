@@ -226,7 +226,7 @@ def stream_handler(message):
             return
         
         if message["path"] == '/ping':
-            logger.debug("ping received from stream [" + message["path"] + "] received with data [" + str(data) + "]")
+            logger.info("ping received with [" + str(data) + "] pingTimestampFromStream was [" + str(round(pingTimestampFromStream)) + "]")
             if(int(data) > pingTimestampFromStream):
                 pingTimestampFromStream = int(data) 
             else:
@@ -468,11 +468,12 @@ def firebase_callback_thread(name):
     while not exitapp:
         try:
             timestampNow = round(time.time())
+            logger.info("checking pingTimestampFromStream [" + str(round(pingTimestampFromStream)) + "] now [" +str(round(timestampNow)) + "]")
             timeSinceInternetCheck = timestampNow - pingTimestampFromStream
             if(timeSinceInternetCheck > pingSeconds * 2):
                 logger.warning("it's been [" + str(round(timeSinceInternetCheck)) + "] seconds since last pingTimestampFromStream resetting when there is internet")
                 resetFirebaseStreams()
-                pingTimestampFromStream = time.time() # this is to avoid us doing many checks in a row if it takes a while to get the connection up again
+                pingTimestampFromStream = timestampNow # this is to avoid us doing many checks in a row if it takes a while to get the connection up again
                 firebaseConnection.setPing()
             time.sleep(sleepSeconds)
         except Exception as err:
@@ -632,6 +633,8 @@ if __name__ == '__main__':
         checkVersionAndUpdateIfNeeded()
 
         pingTimestampFromStream = time.time() # initialize with now
+        logger.info("setting pingTimestampFromStream to " + str(round(pingTimestampFromStream)))
+
         firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
         firebaseCallbackThread.start()
 
