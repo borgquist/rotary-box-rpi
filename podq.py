@@ -219,15 +219,13 @@ def checkCommandsJsonData(commandsJson: str):
 
 def stream_handler(message):
     global pingTimestampFromStream
-    data = message["data"]
-    logger.info("stream_handler message received with [" + message["path"] + "] [" + str(data) + "]")
     try:
+        data = message["data"]
         if message["path"] == '/':
             checkCommandsJsonData(data["commands"])
             return
         
         if message["path"] == '/ping':
-            logger.info("ping received with [" + str(data) + "] pingTimestampFromStream was [" + str(round(pingTimestampFromStream)) + "]")
             if(int(data) > pingTimestampFromStream):
                 pingTimestampFromStream = int(data) 
             else:
@@ -331,7 +329,6 @@ def thread_ping(name):
             timestampNow = time.time()
             if(internetIsAvailable):
                 if(timestampNow - lastPingSent > pingSeconds):
-                    logger.info("setting ping")
                     firebaseConnection.setPing()
                     lastPingSent = timestampNow
             else:
@@ -472,7 +469,6 @@ def firebase_callback_thread(name):
     while not exitapp:
         try:
             timestampNow = round(time.time())
-            logger.info("checking pingTimestampFromStream [" + str(round(pingTimestampFromStream)) + "] now [" +str(round(timestampNow)) + "]")
             timeSinceInternetCheck = timestampNow - pingTimestampFromStream
             if(timeSinceInternetCheck > pingSeconds * 2):
                 logger.warning("it's been [" + str(round(timeSinceInternetCheck)) + "] seconds since last pingTimestampFromStream resetting when there is internet")
