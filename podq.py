@@ -319,7 +319,6 @@ def thread_time(name):
         try:
             time.sleep(sleepSeconds)
             while(internetIsAvailable == False):
-                logger.info("no internet, sleeping " + str(sleepSeconds) + " seconds")
                 time.sleep(sleepSeconds)
 
             timestampNow = time.time()
@@ -438,17 +437,19 @@ def thread_ir_sensor(name):
 def internetCheckWaitWhileNotAvailable() -> bool:
     internetWasLost = False
     global internetIsAvailable
+    timestampInternetAvailable = 0
     try:    
+
         while(not UtilityFunctions.haveInternet()):
             secondsSleep = 5
             internetIsAvailable = False
             internetWasLost = True
-            logger.warning("internet is not available, sleeping " + str(secondsSleep) + " seconds" )
             time.sleep(secondsSleep)
 
         if(internetWasLost):
-            logger.info("internet is back")
-
+            timeLost = time.time() - timestampInternetAvailable
+            logger.info("internet is back after " + str(round(timeLost)) + " seconds")
+        timestampInternetAvailable = time.time()
         internetIsAvailable = True
     except Exception as err:
             logging.error("exception " + str(err) + " trace: " + traceback.format_exc())
@@ -479,7 +480,6 @@ def firebase_callback_thread(name):
                     logger.warning("firebase_stream.close() failed " + str(err) + " trace: " + traceback.format_exc())
 
                 firebase_stream = firebaseConnection.database.child("box").child("boxes").child(boxState.cpuId).stream(stream_handler)
-                logger.info("firebase_stream has been initialised")
                 timestampLastReset = time.time()
 
             time.sleep(sleepSeconds)
