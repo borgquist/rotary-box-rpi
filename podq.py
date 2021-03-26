@@ -521,8 +521,6 @@ def flashButtonLed(speedInSeconds, nrFlashes, finalValue):
 
 if __name__ == '__main__':
     try:
-        pingTimestampFromStream = time.time() # initialize with now
-
         boxState = BoxState()
         boxState.version = "1.0.2"
         
@@ -633,6 +631,7 @@ if __name__ == '__main__':
         latestVersionAvailable = firebaseConnection.getBoxLatestVersion()
         checkVersionAndUpdateIfNeeded()
 
+        pingTimestampFromStream = time.time() # initialize with now
         firebaseCallbackThread = threading.Thread(target=firebase_callback_thread, args=(1,))
         firebaseCallbackThread.start()
 
