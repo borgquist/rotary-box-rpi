@@ -103,7 +103,11 @@ class FirebaseConnection:
         logger.info("ping_seconds is: " + str(pingSeconds.val()))
         return int(pingSeconds.val())
 
-    
+    def setInternetCheckTimestamp(self):
+        timestamp = time.time()
+        self.database.child("box").child("internet_check").set(timestamp)
+        logger.info("updating internet_check to: " + str(timestamp))
+
     def getInternetCheckTimestamp(self) -> int:
         internet_check = self.database.child("box").child("internet_check").get()
         if internet_check.val() is None:
