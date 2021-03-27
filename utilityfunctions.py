@@ -90,7 +90,15 @@ class UtilityFunctions:
     @staticmethod
     def getWifiInfo():
         try:
-            return re.sub(' +', ' ', subprocess.check_output(['iwconfig']).decode('utf-8')).replace('\n', '; ').replace('\r', '; ')
+            returnStr = subprocess.check_output(['iwconfig']).decode('utf-8')
+            logger.info("base " + returnStr)
+            returnStr = re.sub(' +', ' ', returnStr)
+            logger.info("without spaces " + returnStr)
+            returnStr = re.sub(' +', ' ', returnStr)
+            logger.info("without spaces " + returnStr)
+            returnStr = re.sub(r'(\n+)(?=[A-Z])', r'____', returnStr)
+            logger.info("without n " + returnStr)
+            return returnStr
         except Exception as err:
             return(str(err))
         
