@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from latestmove import LatestMove
 from commands import Commands
 from schedule import Schedule
