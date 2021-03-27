@@ -3,6 +3,7 @@ from datetime import datetime
 from types import MappingProxyType
 import socket
 import logging
+import re
 
 logger = logging.getLogger('podq')
 
@@ -89,7 +90,7 @@ class UtilityFunctions:
     @staticmethod
     def getWifiInfo():
         try:
-            return subprocess.check_output(['iwconfig']).decode('utf-8').replace('\n', ' ').replace('\r', ' ')
+            return re.sub(' +', ' ', subprocess.check_output(['iwconfig']).decode('utf-8').replace('\n', '; ').replace('\r', '; '))
         except Exception as err:
             return(str(err))
         
