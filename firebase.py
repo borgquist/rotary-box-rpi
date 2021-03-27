@@ -92,7 +92,11 @@ class FirebaseConnection:
     def setPing(self):
         timestamp = round(time.time())
         self.database.child("box").child("boxes").child(self.cpuid).child("ping").set(timestamp)
-        
+    
+    def increaseStreamResetCount(self):
+        currentCount = self.getFirebaseValue("streamResetCount", 0, "state")
+        self.setFirebaseValue("streamResetCount", currentCount+1, "state")
+
     def getPingSeconds(self) -> int:
         pingSeconds = self.database.child("box").child("ping_seconds").get()
         if pingSeconds.val() is None:
