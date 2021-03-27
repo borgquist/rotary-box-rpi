@@ -90,7 +90,7 @@ class UtilityFunctions:
     @staticmethod
     def getWifiInfo():
         try:
-            return re.sub(' +', ' ', subprocess.check_output(['iwconfig']).decode('utf-8').replace('\n', '; ').replace('\r', '; '))
+            return re.sub(' +', ' ', subprocess.check_output(['iwconfig']).decode('utf-8')).replace('\n', '; ').replace('\r', '; ')
         except Exception as err:
             return(str(err))
         
