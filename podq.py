@@ -545,9 +545,8 @@ if __name__ == '__main__':
         logger.addHandler(file_handler)
 
         logger.info("PodQ starting ---------------------------------------------------")
-        wifiLongVersion = UtilityFunctions.getWifiInfo(True)
-        wifiShortVersion = UtilityFunctions.getWifiInfo(False)
-        logger.info("wifi details " + wifiShortVersion.replace('\n', ' ').replace('\r', ''))
+        wifiDetails = UtilityFunctions.getWifiInfo()
+        logger.info("wifi details " + wifiDetails)
         boxState.cpuId = UtilityFunctions.getserial()
         
         boxSettings = BoxSettings()
@@ -624,8 +623,7 @@ if __name__ == '__main__':
         firebaseConnection.setFirebaseValue("ipAddress", boxState.ipAddress, "state")
         firebaseConnection.setFirebaseValue("hostname", boxState.hostname, "state")
         firebaseConnection.setFirebaseValue("version", boxState.version, "state")
-        firebaseConnection.setFirebaseValue("wifi", wifiShortVersion, "state")
-        firebaseConnection.setFirebaseValue("wifiDetails", wifiLongVersion, "state")
+        firebaseConnection.setFirebaseValue("wifiDetails", wifiDetails, "state")
 
         pingSeconds = firebaseConnection.getPingSeconds()
         

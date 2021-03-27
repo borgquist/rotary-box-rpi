@@ -87,12 +87,9 @@ class UtilityFunctions:
 
 
     @staticmethod
-    def getWifiInfo(longVersion: bool):
+    def getWifiInfo():
         try:
-            if(longVersion):
-                return subprocess.check_output(['iwconfig']).decode('utf-8').replace('\n', ' ').replace('\r', ' ')
-            else:
-                return subprocess.check_output(['iwgetid']).decode('utf-8').replace('\n', ' ').replace('\r', ' ')
+            return subprocess.check_output(['iwconfig']).decode('utf-8').replace('\n', ' ').replace('\r', ' ')
         except Exception as err:
             return(str(err))
         
