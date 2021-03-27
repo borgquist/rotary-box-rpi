@@ -94,10 +94,10 @@ class UtilityFunctions:
             logger.info("base " + returnStr)
             returnStr = re.sub(' +', ' ', returnStr)
             logger.info("without spaces " + returnStr)
-            returnStr = re.sub(' +', ' ', returnStr)
-            logger.info("without spaces " + returnStr)
             returnStr = re.sub(r'(\n+)(?=[A-Z])', r'____', returnStr)
             logger.info("without n " + returnStr)
+            returnStr = re.sub(r'(\r+)(?=[A-Z])', r'____', returnStr)
+            logger.info("without r " + returnStr)
             return returnStr
         except Exception as err:
             return(str(err))
