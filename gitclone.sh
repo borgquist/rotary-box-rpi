@@ -11,5 +11,5 @@ then
     echo "$SERVICE is already running"
 else
     echo "$SERVICE is stopped, starting it"
-    sh /usr/bin/python3 /home/pi/podq-box-rpi/podq.py
+    /usr/bin/python3 /home/pi/podq-box-rpi/podq.py
 fi
