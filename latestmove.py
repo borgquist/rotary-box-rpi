@@ -4,6 +4,7 @@ class LatestMove:
         self.stepsDoneAfterIr = 0
         self.irTriggered = False
         self.timestamp = "1900-01-01 00:00:00"
+        self.message = ""
 
     def getDict(self):
         return self.__dict__
