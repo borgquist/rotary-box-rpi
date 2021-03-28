@@ -116,7 +116,7 @@ def move(circle: BoxCircle):
         "timestamp": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt),
         "timestampEpoch": time.time(),
         "boxOwnerPossessive": UtilityFunctions.getFirstNamePossesiveForm(boxSettings.ownerFirstName),
-        "timeStr":UtilityFunctions.getFirstNamePossesiveForm(boxSettings.ownerFirstName),
+        "timeStr": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time),
     }
     logger.info("complete for " + circle.name + str(latestMove))
     circle.state.latestMove = latestMove
