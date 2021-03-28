@@ -115,7 +115,7 @@ def move(circle: BoxCircle):
         "stepsAfterTrigger": stepsDone - stepsDoneWhenIRtrigger,
         "timestamp": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt),
         "timestampEpoch": time.time(),
-        "boxOwnerPossessive": UtilityFunctions.getFirstNamePossesiveForm(boxSettings.ownerFirstName),
+        "boxOwner": boxSettings.ownerFirstName,
         "timeStr": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time),
         "notifyNow": True,
         "minutesSincePod": 0,

@@ -87,14 +87,6 @@ class UtilityFunctions:
             return False 
 
     @staticmethod
-    def getFirstNamePossesiveForm(firstName: str):
-        last_char = firstName[-1]
-        if(last_char == 's'):
-            return firstName + "'"
-        else:
-            return firstName + "'s"
-
-    @staticmethod
     def getWifiInfo():
         try:
             returnStr = subprocess.check_output(['iwconfig']).decode('utf-8').replace('\n', '; ').replace('\r', ';')
