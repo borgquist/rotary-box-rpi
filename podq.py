@@ -245,6 +245,10 @@ def stream_handler(message):
             updateFirebaseWithNextMove(innerCircle, getNextMove(innerCircle.settings.schedules))
             updateFirebaseWithNextMove(outerCircle, getNextMove(outerCircle.settings.schedules))
             return
+        if message["path"] == '/settings/boxName':
+            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
+            boxSettings.boxName = str(data)
+            return
 
         if str(message["path"]).startswith('/circles/innerCircle/settings/schedules'):
             logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
