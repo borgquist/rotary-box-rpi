@@ -109,11 +109,12 @@ def move(circle: BoxCircle):
     while irTriggered == False and stepsDone < circle.settings.stepper.maxMove:
         stepsDone = oneStep(stepsDone)
 
-    message = ""
+    message = "A pod is ready from the "
     if(circle.name == 'innerCircle'):
-        message = "A pod is ready from the inner circle "
+        message = "inner circle "
     else:
-        message = "A pod is ready from the outer circle "
+        message = "outer circle "
+    message = message + "of " + boxSettings.ownerFirstName +"'s box at "
     message = message + DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time)
     latestMove = {
         "totalSteps": stepsDone,
