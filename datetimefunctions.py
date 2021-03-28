@@ -5,7 +5,7 @@ import pytz
 class DateTimeFunctions:
 
     fmt = '%Y-%m-%d %H:%M:%S %Z'
-    
+    fmt_time = '%H:%M:%S %Z'
     @staticmethod
     def getUtcNowIsoFormat() -> str:
         utc_now = pytz.utc.localize(datetime.datetime.utcnow())

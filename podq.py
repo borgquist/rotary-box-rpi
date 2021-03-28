@@ -110,10 +110,10 @@ def move(circle: BoxCircle):
 
     message = ""
     if(circle == 'innerCircle'):
-        message = "A pod is ready from the inner circle"
+        message = "A pod is ready from the inner circle "
     else:
-        message = "A pod is ready from the outer circle"
-
+        message = "A pod is ready from the outer circle "
+    message = message + DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time)
     latestMove = {
         "totalSteps": stepsDone,
         "irTriggered": irTriggered,
