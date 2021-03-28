@@ -117,7 +117,6 @@ def move(circle: BoxCircle):
         "timestampEpoch": time.time(),
         "boxName": boxSettings.boxName,
         "timeStr": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time),
-        "notifyNow": True,
         "minutesSincePod": 0,
     }
     logger.info("complete for " + circle.name + str(latestMove))
