@@ -109,20 +109,14 @@ def move(circle: BoxCircle):
     while irTriggered == False and stepsDone < circle.settings.stepper.maxMove:
         stepsDone = oneStep(stepsDone)
 
-    message = "A pod is ready from the "
-    if(circle.name == 'innerCircle'):
-        message = message + "inner circle "
-    else:
-        message = message + "outer circle "
-    message = message + "of " + UtilityFunctions.getFirstNamePossesiveForm(boxSettings.ownerFirstName) + " box at "
-    message = message + DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time)
     latestMove = {
         "totalSteps": stepsDone,
         "irTriggered": irTriggered,
         "stepsAfterTrigger": stepsDone - stepsDoneWhenIRtrigger,
         "timestamp": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt),
         "timestampEpoch": time.time(),
-        "message": message,
+        "boxOwnerPossessive": UtilityFunctions.getFirstNamePossesiveForm(boxSettings.ownerFirstName),
+        "timeStr":UtilityFunctions.getFirstNamePossesiveForm(boxSettings.ownerFirstName),
     }
     logger.info("complete for " + circle.name + str(latestMove))
     circle.state.latestMove = latestMove
