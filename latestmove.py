@@ -6,6 +6,8 @@ class LatestMove:
         self.timestamp = "1900-01-01 00:00:00"
         self.timeStr = ""
         self.boxOwnerPossessive = ""
+        self.minutesSincePod = 0
+        self.notifyNow = True
 
     def getDict(self):
         return self.__dict__
