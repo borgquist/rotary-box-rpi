@@ -34,6 +34,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", innerCircle.name,"circles")
     outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", LatestMove().getDict(), "state", outerCircle.name,"circles")
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", outerCircle.name,"circles")
+    boxSettings.ownerFirstName = firebaseConnection.getFirebaseValue("ownerFirstName", "", "settings")
 
 def getTimezone():
     boxSettings.timezone = firebaseConnection.getFirebaseValue("timezone", "Europe/London", "settings")
@@ -109,7 +110,7 @@ def move(circle: BoxCircle):
         stepsDone = oneStep(stepsDone)
 
     message = ""
-    if(circle == 'innerCircle'):
+    if(circle.name == 'innerCircle'):
         message = "A pod is ready from the inner circle "
     else:
         message = "A pod is ready from the outer circle "
