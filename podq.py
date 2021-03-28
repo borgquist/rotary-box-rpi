@@ -111,10 +111,10 @@ def move(circle: BoxCircle):
 
     message = "A pod is ready from the "
     if(circle.name == 'innerCircle'):
-        message = "inner circle "
+        message = message + "inner circle "
     else:
-        message = "outer circle "
-    message = message + "of " + boxSettings.ownerFirstName +"'s box at "
+        message = message + "outer circle "
+    message = message + "of " + UtilityFunctions.getFirstNamePossesiveForm(boxSettings.ownerFirstName) + " box at "
     message = message + DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time)
     latestMove = {
         "totalSteps": stepsDone,

@@ -86,6 +86,13 @@ class UtilityFunctions:
             logger.warning("internet check failed for all")
             return False 
 
+    @staticmethod
+    def getFirstNamePossesiveForm(firstName: str):
+        last_char = firstName[-1]
+        if(last_char == 's'):
+            return firstName + "'"
+        else:
+            return firstName + "'s"
 
     @staticmethod
     def getWifiInfo():
