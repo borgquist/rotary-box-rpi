@@ -34,7 +34,7 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", innerCircle.name,"circles")
     outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", LatestMove().getDict(), "state", outerCircle.name,"circles")
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", outerCircle.name,"circles")
-    boxSettings.ownerFirstName = firebaseConnection.getFirebaseValue("ownerFirstName", "", "settings")
+    boxSettings.boxName = firebaseConnection.getFirebaseValue("boxName", "my PodQ", "settings")
 
 def getTimezone():
     boxSettings.timezone = firebaseConnection.getFirebaseValue("timezone", "Europe/London", "settings")
@@ -115,7 +115,7 @@ def move(circle: BoxCircle):
         "stepsAfterTrigger": stepsDone - stepsDoneWhenIRtrigger,
         "timestamp": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt),
         "timestampEpoch": time.time(),
-        "boxOwner": boxSettings.ownerFirstName,
+        "boxName": boxSettings.boxName,
         "timeStr": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time),
         "notifyNow": True,
         "minutesSincePod": 0,
