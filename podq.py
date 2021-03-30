@@ -34,7 +34,6 @@ def getFirebaseValuesAndSetDefaultsIfNeeded():
     innerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", innerCircle.name,"circles")
     outerCircle.state.latestMove = firebaseConnection.getFirebaseValue("latestMove", LatestMove().getDict(), "state", outerCircle.name,"circles")
     outerCircle.state.pocketsFull = firebaseConnection.getFirebaseValue("pocketsFull", 0, "state", outerCircle.name,"circles")
-    boxSettings.boxName = firebaseConnection.getFirebaseValue("boxName", "my PodQ", "settings")
 
 def getTimezone():
     boxSettings.timezone = firebaseConnection.getFirebaseValue("timezone", "Europe/London", "settings")
@@ -115,7 +114,6 @@ def move(circle: BoxCircle):
         "stepsAfterTrigger": stepsDone - stepsDoneWhenIRtrigger,
         "timestamp": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt),
         "timestampEpoch": time.time(),
-        "boxName": boxSettings.boxName,
         "timeStr": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time),
         "minutesSincePod": 0,
     }
@@ -243,10 +241,6 @@ def stream_handler(message):
             firebaseConnection.setPing()
             updateFirebaseWithNextMove(innerCircle, getNextMove(innerCircle.settings.schedules))
             updateFirebaseWithNextMove(outerCircle, getNextMove(outerCircle.settings.schedules))
-            return
-        if message["path"] == '/settings/boxName':
-            logger.info("path  [" + message["path"] + "] received with data [" + str(data) + "]")
-            boxSettings.boxName = str(data)
             return
 
         if str(message["path"]).startswith('/circles/innerCircle/settings/schedules'):
