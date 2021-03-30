@@ -1,11 +1,12 @@
 class LatestMove:
     def __init__(self):
-        self.stepsDone = 0
-        self.stepsDoneAfterIr = 0
         self.irTriggered = False
-        self.timestamp = "1900-01-01 00:00:00"
-        self.timeStr = ""
         self.minutesSincePod = 0
+        self.stepsAfterTrigger = 0
+        self.timeStr = ""
+        self.timestamp = "1900-01-01 00:00:00"
+        self.timestampEpoch = 0
+        self.totalSteps = 0
 
     def getDict(self):
         return self.__dict__

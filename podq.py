@@ -85,12 +85,12 @@ def releaseBothMotors():
 def move(circle: BoxCircle):
     logger.info("called for " + str(circle.name))
     global irTriggered, stepsDoneWhenIRtrigger, arr1, arr2
-    stepsDone = 0
+    totalSteps = 0
     holdBothMotors()
     stepsDoneWhenIRtrigger = 0
     irTriggered = False
 
-    def oneStep(stepsDone) -> int:
+    def oneStep(totalSteps) -> int:
         global irTriggered, stepsDoneWhenIRtrigger, arr1, arr2
         # arrOUT = arr1[1:]+arr1[:1] for counterclockwise
         arrOUT = arr1[3:]+arr1[:3]
@@ -99,19 +99,19 @@ def move(circle: BoxCircle):
         GPIO.output(circle.settings.stepper.chanList, arrOUT)
         time.sleep(0.0012)
         if irTriggered and stepsDoneWhenIRtrigger == 0:
-            stepsDoneWhenIRtrigger = stepsDone
-        return stepsDone + 1
-    while stepsDone < circle.settings.stepper.minMove:
-        stepsDone = oneStep(stepsDone)
-    while stepsDone < stepsDoneWhenIRtrigger + circle.settings.stepper.afterTrigger and stepsDone < circle.settings.stepper.maxMove:
-        stepsDone = oneStep(stepsDone)
-    while irTriggered == False and stepsDone < circle.settings.stepper.maxMove:
-        stepsDone = oneStep(stepsDone)
+            stepsDoneWhenIRtrigger = totalSteps
+        return totalSteps + 1
+    while totalSteps < circle.settings.stepper.minMove:
+        totalSteps = oneStep(totalSteps)
+    while totalSteps < stepsDoneWhenIRtrigger + circle.settings.stepper.afterTrigger and totalSteps < circle.settings.stepper.maxMove:
+        totalSteps = oneStep(totalSteps)
+    while irTriggered == False and totalSteps < circle.settings.stepper.maxMove:
+        totalSteps = oneStep(totalSteps)
 
     latestMove = {
-        "totalSteps": stepsDone,
+        "totalSteps": totalSteps,
         "irTriggered": irTriggered,
-        "stepsAfterTrigger": stepsDone - stepsDoneWhenIRtrigger,
+        "stepsAfterTrigger": totalSteps - stepsDoneWhenIRtrigger,
         "timestamp": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt),
         "timestampEpoch": time.time(),
         "timeStr": DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone).strftime(DateTimeFunctions.fmt_time),
