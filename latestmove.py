@@ -5,7 +5,6 @@ class LatestMove:
         self.irTriggered = False
         self.timestamp = "1900-01-01 00:00:00"
         self.timeStr = ""
-        self.boxOwnerPossessive = ""
         self.minutesSincePod = 0
 
     def getDict(self):
