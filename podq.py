@@ -413,21 +413,19 @@ def thread_move(circle: BoxCircle):
         
     logger.info(circle.name + "    :   exiting")
 
-def checkTime(circle: BoxCircle, minutes: int) -> bool: 
-        logger.info("checking checkTime " + str(minutes) + ' for ' + circle.name)
-        timestampEpoch = float(circle.state.latestMove['timestampEpoch'])
-        minSinceMove = int((time.time() - timestampEpoch) / 60)
-        logger.info("minSinceMove " + str(minSinceMove) + ' for ' + circle.name)
-        minutesSincePod = float(circle.state.latestMove['minutesSincePod'])
-        
-        if(minutesSincePod < minutes and minSinceMove >= minutes):
-            logger.info("setting minutesSincePod for " + circle.name + " to" + str(minutes))
-            circle.state.latestMove.minutesSincePod = minutes
-            logger.info("have set minutesSincePod for " + circle.name + " to" + str(minutes))
-            firebaseConnection.setFirebaseValue("minutesSincePod", minutes, "latestMove", "state", circle.name, "circles")
-            return True
-        logger.info("not setting minutesSinceMove it is " + str(minutesSincePod) + ' and minutes ' + str(minutes) + ' minSinceMove ' + str(minSinceMove) + 'for ' + circle.name)
+def checkTime(circle: BoxCircle, minSinceMove: int, alertMinutes: int) -> bool: 
+    if(minSinceMove < alertMinutes):
         return False
+    
+    logger.info("checking alertMinutes " + str(alertMinutes) + ' minSinceMove ' + minSinceMove + ' for ' + circle.name)
+    if(float(circle.state.latestMove['minutesSincePod']) < alertMinutes and minSinceMove >= alertMinutes):
+        logger.info("setting minutesSincePod for " + circle.name + " to" + str(alertMinutes))
+        circle.state.latestMove.minutesSincePod = alertMinutes
+        logger.info("have set minutesSincePod for " + circle.name + " to" + str(alertMinutes))
+        firebaseConnection.setFirebaseValue("minutesSincePod", alertMinutes, "latestMove", "state", circle.name, "circles")
+        return True
+    logger.info("not setting minutesSinceMove it is " + str(float(circle.state.latestMove['minutesSincePod'])) + ' and minutes ' + str(alertMinutes) + ' minSinceMove ' + str(minSinceMove) + 'for ' + circle.name)
+    return False
 
 def checkMinutesSincePod(circle: BoxCircle):
     logger.info("checking minSinceMove  for " + circle.name)
@@ -435,36 +433,36 @@ def checkMinutesSincePod(circle: BoxCircle):
     logger.info("timestampEpoch is " +  str(circle.state.latestMove['timestampEpoch']))
 
     
-    for key, value in circle.state.latestMove.items():
-        logger.info((str(key), str(value)))
-
-    if(checkTime(circle, 1)): 
+    timestampEpoch = float(circle.state.latestMove['timestampEpoch'])
+    minSinceMove = int((time.time() - timestampEpoch) / 60)
+        
+    if(checkTime(circle, minSinceMove, 1)): 
         return
-    if(checkTime(circle, 2)): 
+    if(checkTime(circle, minSinceMove, 2)): 
         return
-    if(checkTime(circle, 3)): 
+    if(checkTime(circle, minSinceMove, 3)): 
         return
-    if(checkTime(circle, 120)): 
+    if(checkTime(circle, minSinceMove, 120)): 
         return
-    if(checkTime(circle, 180)): 
+    if(checkTime(circle, minSinceMove, 180)): 
         return
-    if(checkTime(circle, 240)): 
+    if(checkTime(circle, minSinceMove, 240)): 
         return
-    if(checkTime(circle, 300)): 
+    if(checkTime(circle, minSinceMove, 300)): 
         return
-    if(checkTime(circle, 360)): 
+    if(checkTime(circle, minSinceMove, 360)): 
         return
-    if(checkTime(circle, 420)): 
+    if(checkTime(circle, minSinceMove, 420)): 
         return
-    if(checkTime(circle, 480)): 
+    if(checkTime(circle, minSinceMove, 480)): 
         return
-    if(checkTime(circle, 540)): 
+    if(checkTime(circle, minSinceMove, 540)): 
         return
-    if(checkTime(circle, 600)): 
+    if(checkTime(circle, minSinceMove, 600)): 
         return
-    if(checkTime(circle, 660)): 
+    if(checkTime(circle, minSinceMove, 660)): 
         return
-    if(checkTime(circle, 720)): 
+    if(checkTime(circle, minSinceMove, 720)): 
         return
 
 
