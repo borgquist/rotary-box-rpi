@@ -1,5 +1,3 @@
-from utilityfunctions import UtilityFunctions
-
 class Schedule:
     def __init__(self):
         self.day = "everyday"

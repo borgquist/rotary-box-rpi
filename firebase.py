@@ -38,7 +38,7 @@ class FirebaseConnection:
         self.firebase = pyrebase.initialize_app(config)
         self.database = self.firebase.database()
 
-    def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None, greatgrandparent = None):
+    def setFirebaseValue(self, settingname, newValue, parent = None, grandparent = None, greatgrandparent = None, greatgreatgrandparent = None):
         while(not UtilityFunctions.internetSubprocessCheck()):
             logger.info("internet is not available, sleeping 1 second")
             time.sleep(1)
@@ -49,6 +49,8 @@ class FirebaseConnection:
                 logMessasge = grandparent + "/" + logMessasge
                 if(greatgrandparent is not None):
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
+                    if(greatgreatgrandparent is not None):
+                        logMessasge =  greatgreatgrandparent + "/" + greatgrandparent + "/" + grandparent + "/" + logMessasge
         logger.info("setting [" + logMessasge + "] to [" + str(newValue) + "]")
 
         if(parent is None):
@@ -57,10 +59,12 @@ class FirebaseConnection:
             self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).set(newValue)
         elif(greatgrandparent is None):
             self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).set(newValue)
-        else:
+        elif(greatgreatgrandparent is None):
             self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).set(newValue)
+        else:
+            self.database.child("box").child("boxes").child(self.cpuid).child(greatgreatgrandparent).child(greatgrandparent).child(grandparent).child(parent).child(settingname).set(newValue)
 
-    def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None, greatgrandparent = None):
+    def getFirebaseValue(self, settingname, defaultValue = None, parent = None, grandparent = None, greatgrandparent = None, greatgreatgrandparent = None):
         logMessasge = settingname
         if(parent is not None):
             logMessasge = parent + "/" + logMessasge
@@ -68,6 +72,8 @@ class FirebaseConnection:
                 logMessasge = grandparent + "/" + logMessasge
                 if(greatgrandparent is not None):
                     logMessasge =  greatgrandparent + "/" + grandparent + "/" + logMessasge
+                    if(greatgreatgrandparent is not None):
+                        logMessasge =  greatgreatgrandparent + "/" + greatgrandparent + "/" + grandparent + "/" + logMessasge
         
         if(parent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(settingname).get()
@@ -75,8 +81,10 @@ class FirebaseConnection:
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(parent).child(settingname).get()
         elif(greatgrandparent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(grandparent).child(parent).child(settingname).get()
-        else:
+        elif(greatgreatgrandparent is None):
             settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(greatgrandparent).child(grandparent).child(parent).child(settingname).get()
+        else:
+            settingValue = self.database.child("box").child("boxes").child(self.cpuid).child(greatgreatgrandparent).child(greatgrandparent).child(grandparent).child(parent).child(settingname).get()
         
         if settingValue.val() is None:
             if defaultValue is None:

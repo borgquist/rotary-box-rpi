@@ -4,6 +4,7 @@ class BoxCircleState:
         self.nextMove = "0"
         self.nextMoveInEpoch = "0"
         self.pocketsFull = 0
+        self.moveAwaitingConfirmation = False
         self.latestMove = LatestMove()
     
     def getDict(self):

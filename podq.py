@@ -67,8 +67,6 @@ def move_stepper(circle: BoxCircle):
         time.sleep(1)
     moveIsBeingDone = True
     move(circle)
-    circle.state.pocketsFull = max(circle.state.pocketsFull - 1, 0)
-    firebaseConnection.setFirebaseValue("pocketsFull", circle.state.pocketsFull, "state", circle.name, "circles")
     moveIsBeingDone = False
 
 def holdBothMotors():
@@ -108,6 +106,8 @@ def move(circle: BoxCircle):
     while irTriggered == False and totalSteps < circle.settings.stepper.maxMove:
         totalSteps = oneStep(totalSteps)
 
+    releaseBothMotors()
+    
     latestMove = {
         "totalSteps": totalSteps,
         "irTriggered": irTriggered,
@@ -119,11 +119,12 @@ def move(circle: BoxCircle):
     }
     logger.info("complete for " + circle.name + str(latestMove))
     circle.state.latestMove = latestMove
-    firebaseConnection.setFirebaseValue(
-        "latestMove", latestMove, "state", circle.name, "circles")
-    GPIO.output(circle.settings.stepper.chanList, arrOff)
+    firebaseConnection.setFirebaseValue("latestMove", latestMove, "state", circle.name, "circles")
+    
     setButtonLed(True)
-    releaseBothMotors()
+    setMoveAwaitingConfirmationForCircle(circle)
+    circle.state.pocketsFull = max(circle.state.pocketsFull - 1, 0)
+    firebaseConnection.setFirebaseValue("pocketsFull", circle.state.pocketsFull, "state", circle.name, "circles")
 
 def getNextMove(schedules) -> datetime.datetime:
     nextMove = None
@@ -167,10 +168,24 @@ def setButtonLed(ledOn: bool, clearCommands: bool = False):
         GPIO.output(button_led_pin, GPIO.LOW)
         GPIO.output(led_pin, GPIO.LOW)
         firebaseConnection.setFirebaseValue("buttonLedOn", False, "state")
+        resetMoveAwaitingConfirmation()
 
     if(clearCommands):
         firebaseConnection.setFirebaseValue("setButtonLed", False,  "commands")
 
+def setMoveAwaitingConfirmationForCircle(circle: BoxCircle):
+    circle.state.moveAwaitingConfirmation = True
+    logger.info("have set moveAwaitingConfirmation to True for " + circle.name)
+
+def resetMoveAwaitingConfirmation():
+    if(innerCircle.state.moveAwaitingConfirmation):
+        logger.info("resetting moveAwaitingConfirmation for innerCircle")
+        innerCircle.state.moveAwaitingConfirmation = False
+    
+    if(outerCircle.state.moveAwaitingConfirmation):
+        logger.info("resetting moveAwaitingConfirmation for outerCircle")
+        outerCircle.state.moveAwaitingConfirmation = False
+    
 def checkCommandMoveNow(circle: BoxCircle, callbackValue: bool = False):
     moveNow = callbackValue
     if(callbackValue == False):
@@ -385,12 +400,40 @@ def thread_move(circle: BoxCircle):
                         logger.info("[" + circle.name + "] it's time to move!")
                         lastMove = DateTimeFunctions.getDateTimeNowNormalized(boxSettings.timezone)
                         move_stepper(circle)
+            
+            if(circle.state.moveAwaitingConfirmation):
+                checkMinutesSincePod(circle)
+
         except requests.exceptions.HTTPError as e:
             logging.error("HTTPError [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
         except Exception as err:
             logging.error("exception: [" + str(err) + "] the trace: [" + traceback.format_exc() + "]")
         time.sleep(sleepSeconds)
     logger.info(circle.name + "    :   exiting")
+
+def checkMinutesSincePod(circle: BoxCircle):
+    minSinceMove = (time.time() - circle.state.latestMove.timestampEpoch) / 60
+    def checkTime(minutes: int) -> bool: 
+        if(circle.state.latestMove.minutesSincePod == 0 and minSinceMove >= minutes):
+            logger.info("setting minutesSincePod for " + circle.name + " to" + str(minutes))
+            circle.state.latestMove.minutesSincePod = minutes
+            firebaseConnection.setFirebaseValue("minutesSincePod", minutes, "latestMove", "state", circle.name, "circles")
+            return True
+        return False
+    if(checkTime(1)): return
+    if(checkTime(2)): return
+    if(checkTime(3)): return
+    if(checkTime(120)): return
+    if(checkTime(180)): return
+    if(checkTime(240)): return
+    if(checkTime(300)): return
+    if(checkTime(360)): return
+    if(checkTime(420)): return
+    if(checkTime(480)): return
+    if(checkTime(540)): return
+    if(checkTime(600)): return
+    if(checkTime(660)): return
+    if(checkTime(720)): return
 
 
 def thread_move_inner(name):
