@@ -415,7 +415,8 @@ def thread_move(circle: BoxCircle):
 
 def checkTime(circle: BoxCircle, minutes: int) -> bool: 
         logger.info("checking checkTime " + str(minutes) + ' for ' + circle.name)
-        minSinceMove = (time.time() - circle.state.latestMove.timestampEpoch) / 60
+        timestampEpoch = float(circle.state.latestMove['timestampEpoch'])
+        minSinceMove = int((time.time() - timestampEpoch) / 60)
         logger.info("minSinceMove " + str(minSinceMove) + ' for ' + circle.name)
         
         if(circle.state.latestMove.minutesSincePod < minutes and minSinceMove >= minutes):
@@ -429,14 +430,12 @@ def checkTime(circle: BoxCircle, minutes: int) -> bool:
 def checkMinutesSincePod(circle: BoxCircle):
     logger.info("checking minSinceMove  for " + circle.name)
     logger.info("latestMove is " +  str(circle.state.latestMove))
+    logger.info("timestampEpoch is " +  str(circle.state.latestMove['timestampEpoch']))
 
-    for key, value in circle.state.latestMove.items():
-        logger.info(str(key) + " " + str(value))
-        
+    
     for key, value in circle.state.latestMove.items():
         logger.info((str(key), str(value)))
 
-    logger.info("timestampEpoch is " + str(circle.state.latestMove.timestampEpoch))
     if(checkTime(circle, 1)): 
         return
     if(checkTime(circle, 2)): 
