@@ -426,6 +426,13 @@ def checkMinutesSincePod(circle: BoxCircle):
     if(checkTime(circle, minSinceMove, 1)): return
     if(checkTime(circle, minSinceMove, 2)): return
     if(checkTime(circle, minSinceMove, 3)): return
+    if(checkTime(circle, minSinceMove, 10)): return
+    if(checkTime(circle, minSinceMove, 20)): return
+    if(checkTime(circle, minSinceMove, 30)): return
+    if(checkTime(circle, minSinceMove, 40)): return
+    if(checkTime(circle, minSinceMove, 50)): return
+    if(checkTime(circle, minSinceMove, 60)): return
+    if(checkTime(circle, minSinceMove, 90)): return
     if(checkTime(circle, minSinceMove, 120)): return
     if(checkTime(circle, minSinceMove, 180)): return
     if(checkTime(circle, minSinceMove, 240)): return
