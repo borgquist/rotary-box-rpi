@@ -385,6 +385,7 @@ def thread_move(circle: BoxCircle):
     nextMove = None
     while not exitapp:
         try:
+            time.sleep(sleepSeconds)
             nextMove = getNextMove(circle.settings.schedules)
     
             if(internetIsAvailable):
@@ -409,7 +410,7 @@ def thread_move(circle: BoxCircle):
             logging.error("HTTPError [" + str(e).replace('\n', ' ').replace('\r', '') +"]")
         except Exception as err:
             logging.error("exception: [" + str(err) + "] the trace: [" + traceback.format_exc() + "]")
-        time.sleep(sleepSeconds)
+        
     logger.info(circle.name + "    :   exiting")
 
 def checkTime(circle: BoxCircle, minutes: int) -> bool: 
