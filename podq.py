@@ -360,9 +360,8 @@ def thread_ping(name):
 
 def updateFirebaseWithNextMove(circle: BoxCircle, nextMove: datetime.datetime):
     if(str(nextMove) != str(circle.state.nextMove)):
-        logger.info("nextMove needs updating from [" + str(circle.state.nextMove) + "] to [" + str(nextMove) +"]")
-        firebaseConnection.setFirebaseValue(
-            "nextMove", str(nextMove).strip(), "state", circle.name, "circles")
+        logger.info("nextMove needs updating from [" + str(circle.state.nextMove) + "] to [" + str(nextMove) +"] for " + circle.name)
+        firebaseConnection.setFirebaseValue("nextMove", str(nextMove).strip(), "state", circle.name, "circles")
         circle.state.nextMove = nextMove
 
     if(nextMove is None):
@@ -371,11 +370,10 @@ def updateFirebaseWithNextMove(circle: BoxCircle, nextMove: datetime.datetime):
         nextMoveInEpoch = nextMove.timestamp()
 
     if(str(nextMoveInEpoch) != str(circle.state.nextMoveInEpoch)):
-        logger.info("nextMoveInEpoch needs updating from [" + str(circle.state.nextMoveInEpoch) + "] to [" + str(nextMoveInEpoch) +"]")
+        logger.info("nextMoveInEpoch needs updating from [" + str(circle.state.nextMoveInEpoch) + "] to [" + str(nextMoveInEpoch) +"]  for " + circle.name)
         if(nextMoveInEpoch is not None):
             nextMoveInEpoch = float(nextMoveInEpoch)
-        firebaseConnection.setFirebaseValue(
-            "nextMoveInEpoch", nextMoveInEpoch, "state", circle.name, "circles")
+        firebaseConnection.setFirebaseValue("nextMoveInEpoch", nextMoveInEpoch, "state", circle.name, "circles")
         circle.state.nextMoveInEpoch = nextMoveInEpoch
 
 def thread_move(circle: BoxCircle):
