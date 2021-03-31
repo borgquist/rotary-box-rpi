@@ -428,6 +428,7 @@ def checkTime(circle: BoxCircle, minutes: int) -> bool:
 
 def checkMinutesSincePod(circle: BoxCircle):
     logger.info("checking minSinceMove  for " + circle.name)
+    logger.info("latestMove is " +  str(circle.state.latestMove))
     logger.info("timestampEpoch is " + str(circle.state.latestMove.timestampEpoch))
     if(checkTime(circle, 1)): 
         return
