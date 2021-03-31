@@ -5,7 +5,7 @@ class LatestMove:
         self.stepsAfterTrigger = 0
         self.timeStr = ""
         self.timestamp = "1900-01-01 00:00:00"
-        self.timestampEpoch = 0
+        self.timestampEpoch = 0.0
         self.totalSteps = 0
 
     def getDict(self):
