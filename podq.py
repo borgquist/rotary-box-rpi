@@ -403,7 +403,6 @@ def thread_move(circle: BoxCircle):
                         move_stepper(circle)
             
             if(circle.state.moveAwaitingConfirmation):
-                logger.info("moveAwaitingConfirmation True for " + circle.name)
                 checkMinutesSincePod(circle)
 
         except requests.exceptions.HTTPError as e:
@@ -420,7 +419,7 @@ def checkTime(circle: BoxCircle, minSinceMove: int, alertMinutes: int) -> bool:
     logger.info("checking alertMinutes " + str(alertMinutes) + ' minSinceMove ' + str(minSinceMove) + ' for ' + circle.name)
     if(float(circle.state.latestMove['minutesSincePod']) < alertMinutes and minSinceMove >= alertMinutes):
         logger.info("setting minutesSincePod for " + circle.name + " to" + str(alertMinutes))
-        circle.state.latestMove.minutesSincePod = alertMinutes
+        circle.state.latestMove['minutesSincePod'] = alertMinutes
         logger.info("have set minutesSincePod for " + circle.name + " to" + str(alertMinutes))
         firebaseConnection.setFirebaseValue("minutesSincePod", alertMinutes, "latestMove", "state", circle.name, "circles")
         return True
