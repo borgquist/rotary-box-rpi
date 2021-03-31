@@ -418,13 +418,15 @@ def checkTime(circle: BoxCircle, minutes: int) -> bool:
         timestampEpoch = float(circle.state.latestMove['timestampEpoch'])
         minSinceMove = int((time.time() - timestampEpoch) / 60)
         logger.info("minSinceMove " + str(minSinceMove) + ' for ' + circle.name)
+        minutesSincePod = float(circle.state.latestMove['minutesSincePod'])
         
-        if(circle.state.latestMove.minutesSincePod < minutes and minSinceMove >= minutes):
+        if(minutesSincePod < minutes and minSinceMove >= minutes):
             logger.info("setting minutesSincePod for " + circle.name + " to" + str(minutes))
             circle.state.latestMove.minutesSincePod = minutes
+            logger.info("have set minutesSincePod for " + circle.name + " to" + str(minutes))
             firebaseConnection.setFirebaseValue("minutesSincePod", minutes, "latestMove", "state", circle.name, "circles")
             return True
-        logger.info("not setting minutesSinceMove it is " + str(circle.state.latestMove.minutesSincePod) + ' and minutes ' + str(minutes) + ' minSinceMove ' + str(minSinceMove) + 'for ' + circle.name)
+        logger.info("not setting minutesSinceMove it is " + str(minutesSincePod) + ' and minutes ' + str(minutes) + ' minSinceMove ' + str(minSinceMove) + 'for ' + circle.name)
         return False
 
 def checkMinutesSincePod(circle: BoxCircle):
