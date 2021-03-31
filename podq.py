@@ -412,11 +412,7 @@ def thread_move(circle: BoxCircle):
         time.sleep(sleepSeconds)
     logger.info(circle.name + "    :   exiting")
 
-def checkMinutesSincePod(circle: BoxCircle):
-    minSinceMove = (time.time() - circle.state.latestMove.timestampEpoch) / 60
-    logger.info("checking minSinceMove " + str(minSinceMove) + ' for ' + circle.name)
-                
-    def checkTime(minutes: int) -> bool: 
+def checkTime(circle: BoxCircle, minutes: int) -> bool: 
         logger.info("checking checkTime " + str(minutes) + ' for ' + circle.name)
     
         if(circle.state.latestMove.minutesSincePod < minutes and minSinceMove >= minutes):
@@ -426,20 +422,38 @@ def checkMinutesSincePod(circle: BoxCircle):
             return True
         logger.info("not setting minutesSinceMove it is " + str(circle.state.latestMove.minutesSincePod) + ' and minutes ' + str(minutes) + ' minSinceMove ' + str(minSinceMove) + 'for ' + circle.name)
         return False
-    if(checkTime(1)): return
-    if(checkTime(2)): return
-    if(checkTime(3)): return
-    if(checkTime(120)): return
-    if(checkTime(180)): return
-    if(checkTime(240)): return
-    if(checkTime(300)): return
-    if(checkTime(360)): return
-    if(checkTime(420)): return
-    if(checkTime(480)): return
-    if(checkTime(540)): return
-    if(checkTime(600)): return
-    if(checkTime(660)): return
-    if(checkTime(720)): return
+
+def checkMinutesSincePod(circle: BoxCircle):
+    minSinceMove = (time.time() - circle.state.latestMove.timestampEpoch) / 60
+    logger.info("checking minSinceMove " + str(minSinceMove) + ' for ' + circle.name)
+    if(checkTime(circle, 1)): 
+        return
+    if(checkTime(circle, 2)): 
+        return
+    if(checkTime(circle, 3)): 
+        return
+    if(checkTime(circle, 120)): 
+        return
+    if(checkTime(circle, 180)): 
+        return
+    if(checkTime(circle, 240)): 
+        return
+    if(checkTime(circle, 300)): 
+        return
+    if(checkTime(circle, 360)): 
+        return
+    if(checkTime(circle, 420)): 
+        return
+    if(checkTime(circle, 480)): 
+        return
+    if(checkTime(circle, 540)): 
+        return
+    if(checkTime(circle, 600)): 
+        return
+    if(checkTime(circle, 660)): 
+        return
+    if(checkTime(circle, 720)): 
+        return
 
 
 def thread_move_inner(name):
