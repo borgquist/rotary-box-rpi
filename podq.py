@@ -414,7 +414,7 @@ def checkTime(circle: BoxCircle, minSinceMove: int, alertMinutes: int) -> bool:
     if(minSinceMove < alertMinutes):
         return False
     if(float(circle.state.latestMove['minutesSincePod']) < alertMinutes and minSinceMove >= alertMinutes):
-        logger.info("setting minutesSincePod for " + circle.name + " to" + str(alertMinutes))
+        logger.info("setting minutesSincePod for " + circle.name + " to " + str(alertMinutes))
         circle.state.latestMove['minutesSincePod'] = alertMinutes
         firebaseConnection.setFirebaseValue("minutesSincePod", alertMinutes, "latestMove", "state", circle.name, "circles")
         return True
