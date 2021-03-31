@@ -415,52 +415,30 @@ def thread_move(circle: BoxCircle):
 def checkTime(circle: BoxCircle, minSinceMove: int, alertMinutes: int) -> bool: 
     if(minSinceMove < alertMinutes):
         return False
-    
-    logger.info("checking alertMinutes " + str(alertMinutes) + ' minSinceMove ' + str(minSinceMove) + ' for ' + circle.name)
     if(float(circle.state.latestMove['minutesSincePod']) < alertMinutes and minSinceMove >= alertMinutes):
         logger.info("setting minutesSincePod for " + circle.name + " to" + str(alertMinutes))
         circle.state.latestMove['minutesSincePod'] = alertMinutes
-        logger.info("have set minutesSincePod for " + circle.name + " to" + str(alertMinutes))
         firebaseConnection.setFirebaseValue("minutesSincePod", alertMinutes, "latestMove", "state", circle.name, "circles")
         return True
-    logger.info("not setting minutesSinceMove it is " + str(float(circle.state.latestMove['minutesSincePod'])) + ' and minutes ' + str(alertMinutes) + ' minSinceMove ' + str(minSinceMove) + 'for ' + circle.name)
     return False
 
 def checkMinutesSincePod(circle: BoxCircle):
-    
-    
     timestampEpoch = float(circle.state.latestMove['timestampEpoch'])
     minSinceMove = int((time.time() - timestampEpoch) / 60)
-    logger.info("checkMinutesSincePod minSinceMove " + str(minSinceMove))
-        
-    if(checkTime(circle, minSinceMove, 1)): 
-        return
-    if(checkTime(circle, minSinceMove, 2)): 
-        return
-    if(checkTime(circle, minSinceMove, 3)): 
-        return
-    if(checkTime(circle, minSinceMove, 120)): 
-        return
-    if(checkTime(circle, minSinceMove, 180)): 
-        return
-    if(checkTime(circle, minSinceMove, 240)): 
-        return
-    if(checkTime(circle, minSinceMove, 300)): 
-        return
-    if(checkTime(circle, minSinceMove, 360)): 
-        return
-    if(checkTime(circle, minSinceMove, 420)): 
-        return
-    if(checkTime(circle, minSinceMove, 480)): 
-        return
-    if(checkTime(circle, minSinceMove, 540)): 
-        return
-    if(checkTime(circle, minSinceMove, 600)): 
-        return
-    if(checkTime(circle, minSinceMove, 660)): 
-        return
-    if(checkTime(circle, minSinceMove, 720)): 
-        return
+    if(checkTime(circle, minSinceMove, 1)): return
+    if(checkTime(circle, minSinceMove, 2)): return
+    if(checkTime(circle, minSinceMove, 3)): return
+    if(checkTime(circle, minSinceMove, 120)): return
+    if(checkTime(circle, minSinceMove, 180)): return
+    if(checkTime(circle, minSinceMove, 240)): return
+    if(checkTime(circle, minSinceMove, 300)): return
+    if(checkTime(circle, minSinceMove, 360)): return
+    if(checkTime(circle, minSinceMove, 420)): return
+    if(checkTime(circle, minSinceMove, 480)): return
+    if(checkTime(circle, minSinceMove, 540)): return
+    if(checkTime(circle, minSinceMove, 600)): return
+    if(checkTime(circle, minSinceMove, 660)): return
+    if(checkTime(circle, minSinceMove, 720)): return
 
 
 def thread_move_inner(name):
